@@ -120,13 +120,13 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             // Botão para o dashboard do médico
         },
         {
-            href: "/doctor/medicos/consultas",
+            href: "/doctor/consultas",
             icon: Calendar,
             label: "Consultas",
             // Botão para página de consultas marcadas do médico atual
         },
         {
-            href: "#",
+            href: "/doctor/medicos/editorlaudo",
             icon: Clock,
             label: "Editor de Laudo",
             // Botão para página do editor de laudo

@@ -25,6 +25,7 @@ interface UserFormData {
   papel: string;
   senha: string;
   confirmarSenha: string;
+  cpf : string
 }
 
 const defaultFormData: UserFormData = {
@@ -34,6 +35,7 @@ const defaultFormData: UserFormData = {
   papel: "",
   senha: "",
   confirmarSenha: "",
+  cpf : ""
 };
 
 const cleanNumber = (value: string): string => value.replace(/\D/g, "");
@@ -88,6 +90,7 @@ export default function NovoUsuarioPage() {
         phone: formData.telefone || null,
         role: formData.papel,
         password: formData.senha,
+        cpf : formData.cpf
       };
 
       console.log("📤 Enviando payload:", payload);
@@ -228,6 +231,19 @@ export default function NovoUsuarioPage() {
                 />
               </div>
             </div>
+
+             <div className="space-y-2">
+                <Label htmlFor="cpf">Cpf *</Label>
+                <Input
+                  id="cpf"
+                  type="cpf"
+                  value={formData.cpf}
+                  onChange={(e) => handleInputChange("cpf", e.target.value)}
+                  placeholder="xxx.xxx.xxx-xx"
+                  required
+                />
+              </div>
+
 
             <div className="flex justify-end gap-4 pt-6 border-t mt-6">
               <Link href="/manager/usuario">

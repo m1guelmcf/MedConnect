@@ -95,11 +95,11 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
   const cancelLogout = () => setShowLogoutDialog(false);
 
   const menuItems = [
-    { href: "#dashboard", icon: Home, label: "Dashboard" },
-    { href: "#reports", icon: Calendar, label: "Relatórios gerenciais" },
-    { href: "#users", icon: User, label: "Gestão de Usuários" },
-    { href: "#doctors", icon: User, label: "Gestão de Médicos" },
-    { href: "#settings", icon: Calendar, label: "Configurações" },
+    { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+    { href: "#", icon: Calendar, label: "Relatórios gerenciais" },
+    { href: "/manager/usuario", icon: User, label: "Gestão de Usuários" },
+    { href: "/manager/home", icon: User, label: "Gestão de Médicos" },
+    { href: "#", icon: Calendar, label: "Configurações" },
   ];
 
   if (!managerData) {

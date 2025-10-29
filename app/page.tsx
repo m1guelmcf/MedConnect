@@ -17,7 +17,7 @@ export default function InicialPage() {
       <header className="bg-card shadow-md py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-primary">MediConnect</h1>
         <nav className="flex space-x-6 text-muted-foreground font-medium">
-          <a href="#home" className="hover:text-primary"><Link href="/cadastro">Home</Link></a>
+          <Link href="/cadastro" className="hover:text-primary"> Home</Link>
           <a href="#about" className="hover:text-primary">Sobre</a>
           <a href="#departments" className="hover:text-primary">Departamentos</a>
           <a href="#doctors" className="hover:text-primary">Médicos</a>

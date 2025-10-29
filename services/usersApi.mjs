@@ -8,7 +8,8 @@ export const usersService = {
 
   async create_user(data) {
     // continua usando a Edge Function corretamente
-    return await api.post(`/functions/v1/user-create`, data);
+    return await api.post(`/functions/v1/create-user-with-password
+`, data);
   },
 
   // 🚀 Busca dados completos do usuário direto do banco
