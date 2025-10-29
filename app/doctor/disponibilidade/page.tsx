@@ -15,11 +15,12 @@ export default function AvailabilityPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+    var userInfo;
     const doctorIdTemp = "3bb9ee4a-cfdd-4d81-b628-383907dfa225";
     const [modalidadeConsulta, setModalidadeConsulta] = useState<string>("");
 
     useEffect(() => {
+        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}")
         const fetchData = async () => {
             try {
                 const response = await AvailabilityService.list();
