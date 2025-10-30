@@ -8,15 +8,45 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DoctorLayout from "@/components/doctor-layout";
 import { AvailabilityService } from "@/services/availabilityApi.mjs";
+import { usersService } from "@/services/usersApi.mjs";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+
+interface UserPermissions {
+    isAdmin: boolean;
+    isManager: boolean;
+    isDoctor: boolean;
+    isSecretary: boolean;
+    isAdminOrManager: boolean;
+}
+
+interface UserData {
+    user: {
+        id: string;
+        email: string;
+        email_confirmed_at: string | null;
+        created_at: string | null;
+        last_sign_in_at: string | null;
+    };
+    profile: {
+        id: string;
+        full_name: string;
+        email: string;
+        phone: string;
+        avatar_url: string | null;
+        disabled: boolean;
+        created_at: string | null;
+        updated_at: string | null;
+    };
+    roles: string[];
+    permissions: UserPermissions;
+}
 
 export default function AvailabilityPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
-    const doctorIdTemp = "3bb9ee4a-cfdd-4d81-b628-383907dfa225";
+    const [userData, setUserData] = useState<UserData>();
     const [modalidadeConsulta, setModalidadeConsulta] = useState<string>("");
 
     useEffect(() => {
@@ -24,6 +54,9 @@ export default function AvailabilityPage() {
             try {
                 const response = await AvailabilityService.list();
                 console.log(response);
+                const user = await usersService.getMe();
+                console.log(user);
+                setUserData(user);
             } catch (e: any) {
                 alert(`${e?.error} ${e?.message}`);
             }
@@ -40,8 +73,7 @@ export default function AvailabilityPage() {
         const formData = new FormData(form);
 
         const apiPayload = {
-            doctor_id: doctorIdTemp,
-            created_by: doctorIdTemp,
+            doctor_id: userData?.user.id,
             weekday: (formData.get("weekday") as string) || undefined,
             start_time: (formData.get("horarioEntrada") as string) || undefined,
             end_time: (formData.get("horarioSaida") as string) || undefined,
