@@ -18,6 +18,7 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 // IMPORTAR O COMPONENTE CALENDÁRIO DA SHADCN
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"; // Usaremos o date-fns para formatação e comparação de datas
+import { userInfo } from "os";
 
 const APPOINTMENTS_STORAGE_KEY = "clinic-appointments";
 
@@ -48,9 +49,13 @@ export default function ExceptionPage() {
     const router = useRouter();
     const [filteredAppointments, setFilteredAppointments] = useState<LocalStorageAppointment[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+    var userInfo;
     const doctorIdTemp = "3bb9ee4a-cfdd-4d81-b628-383907dfa225";
     const [tipo, setTipo] = useState<string>("");
+
+    useEffect(() => {
+        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+    });
 
     // NOVO ESTADO 1: Armazena os dias com consultas (para o calendário)
     const [bookedDays, setBookedDays] = useState<Date[]>([]);
@@ -110,7 +115,7 @@ export default function ExceptionPage() {
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Adicione exceções</h1>
-                    <p className="text-gray-600">Altere a disponibilidade em casos especiais para o Dr. {userInfo.user_metadata.full_name}</p>
+                    <p className="text-gray-600">Altere a disponibilidade em casos especiais para o Dr. João Silva</p>
                 </div>
 
                 <div className="flex justify-between items-center">

@@ -31,7 +31,7 @@ type Schedule = {
 };
 
 export default function PatientDashboard() {
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+    var userInfo;
     const doctorId = "3bb9ee4a-cfdd-4d81-b628-383907dfa225"; //userInfo.id;
     const [availability, setAvailability] = useState<any | null>(null);
     const [exceptions, setExceptions] = useState<any | null>(null);
@@ -54,6 +54,7 @@ export default function PatientDashboard() {
 
     useEffect(() => {
         const fetchData = async () => {
+            userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
             try {
                 // fetch para disponibilidade
                 const response = await AvailabilityService.list();
@@ -273,7 +274,7 @@ export default function PatientDashboard() {
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
                                                     <p className="text-sm text-gray-600">
-                                                        {startTime} - {endTime} <br/> -
+                                                        {startTime} - {endTime} <br /> -
                                                     </p>
                                                 </div>
                                                 <div className="text-center mt-2">
