@@ -52,7 +52,8 @@ export default function PatientDashboard() {
         saturday: "Sábado",
     };
 
-    useEffect(() => {
+    useEffect(() => { 
+        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}")
         const fetchData = async () => {
             userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
             try {

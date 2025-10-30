@@ -52,6 +52,10 @@ export default function ExceptionPage() {
     var userInfo;
     const doctorIdTemp = "3bb9ee4a-cfdd-4d81-b628-383907dfa225";
     const [tipo, setTipo] = useState<string>("");
+   
+    useEffect (()=>{
+        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}")
+    })
 
     useEffect(() => {
         userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
