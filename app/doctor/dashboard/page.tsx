@@ -31,7 +31,7 @@ type Schedule = {
 };
 
 export default function PatientDashboard() {
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+    var userInfo;
     const doctorId = "3bb9ee4a-cfdd-4d81-b628-383907dfa225"; //userInfo.id;
     const [availability, setAvailability] = useState<any | null>(null);
     const [exceptions, setExceptions] = useState<any | null>(null);
@@ -52,7 +52,8 @@ export default function PatientDashboard() {
         saturday: "Sábado",
     };
 
-    useEffect(() => {
+    useEffect(() => { 
+        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}")
         const fetchData = async () => {
             try {
                 // fetch para disponibilidade
