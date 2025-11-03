@@ -4,12 +4,16 @@ import DoctorLayout from "@/components/doctor-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
+
 import { AvailabilityService } from "@/services/availabilityApi.mjs";
 import { exceptionsService } from "@/services/exceptionApi.mjs";
-import { toast } from "@/hooks/use-toast";
+import { doctorsService } from "@/services/doctorsApi.mjs";
+import { usersService } from "@/services/usersApi.mjs";
 
 type Availability = {
     id: string;
@@ -30,15 +34,86 @@ type Schedule = {
     weekday: object;
 };
 
+type Doctor = {
+  id: string;
+  user_id: string | null;
+  crm: string;
+  crm_uf: string;
+  specialty: string;
+  full_name: string;
+  cpf: string;
+  email: string;
+  phone_mobile: string | null;
+  phone2: string | null;
+  cep: string | null;
+  street: string | null;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  state: string | null;
+  birth_date: string | null;
+  rg: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string | null;
+  max_days_in_advance: number;
+  rating: number | null;
+}
+
+interface UserPermissions {
+    isAdmin: boolean;
+    isManager: boolean;
+    isDoctor: boolean;
+    isSecretary: boolean;
+    isAdminOrManager: boolean;
+}
+
+interface UserData {
+    user: {
+        id: string;
+        email: string;
+        email_confirmed_at: string | null;
+        created_at: string | null;
+        last_sign_in_at: string | null;
+    };
+    profile: {
+        id: string;
+        full_name: string;
+        email: string;
+        phone: string;
+        avatar_url: string | null;
+        disabled: boolean;
+        created_at: string | null;
+        updated_at: string | null;
+    };
+    roles: string[];
+    permissions: UserPermissions;
+}
+
+interface Exception {
+  id: string; // id da exceção
+  doctor_id: string;
+  date: string; // formato YYYY-MM-DD
+  start_time: string | null; // null = dia inteiro
+  end_time: string | null;   // null = dia inteiro
+  kind: "bloqueio" | "disponibilidade"; // tipos conhecidos
+  reason: string | null; // pode ser null
+  created_at: string; // timestamp ISO
+  created_by: string;
+}
+
 export default function PatientDashboard() {
-    var userInfo;
-    const doctorId = "3bb9ee4a-cfdd-4d81-b628-383907dfa225"; //userInfo.id;
+    const [loggedDoctor, setLoggedDoctor] = useState<Doctor>();
+    const [userData, setUserData] = useState<UserData>();
     const [availability, setAvailability] = useState<any | null>(null);
-    const [exceptions, setExceptions] = useState<any | null>(null);
+    const [exceptions, setExceptions] = useState<Exception[]>([]);
     const [schedule, setSchedule] = useState<Record<string, { start: string; end: string }[]>>({});
-    const formatTime = (time: string) => time.split(":").slice(0, 2).join(":");
+    const formatTime = (time?: string | null) => time?.split(":")?.slice(0, 2).join(":") ?? "";
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
+    const [exceptionToDelete, setExceptionToDelete] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // Mapa de tradução
@@ -52,35 +127,54 @@ export default function PatientDashboard() {
         saturday: "Sábado",
     };
 
-    useEffect(() => { 
-        userInfo = JSON.parse(localStorage.getItem("user_info") || "{}")
-        const fetchData = async () => {
-            userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
-            try {
-                // fetch para disponibilidade
-                const response = await AvailabilityService.list();
-                const filteredResponse = response.filter((disp: { doctor_id: any }) => disp.doctor_id == doctorId);
-                setAvailability(filteredResponse);
-                // fetch para exceções
-                const res = await exceptionsService.list();
-                const filteredRes = res.filter((disp: { doctor_id: any }) => disp.doctor_id == doctorId);
-                setExceptions(filteredRes);
-            } catch (e: any) {
-                alert(`${e?.error} ${e?.message}`);
-            }
-        };
-        fetchData();
-    }, []);
+    useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const doctorsList: Doctor[] = await doctorsService.list();
+      const doctor = doctorsList[0];
 
-    const openDeleteDialog = (patientId: string) => {
-        setPatientToDelete(patientId);
+      // Salva no estado
+      setLoggedDoctor(doctor);
+
+      // Busca disponibilidade
+      const availabilityList = await AvailabilityService.list();
+      
+      // Filtra já com a variável local
+      const filteredAvail = availabilityList.filter(
+        (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
+      );
+      setAvailability(filteredAvail);
+
+      // Busca exceções
+      const exceptionsList = await exceptionsService.list();
+      const filteredExc = exceptionsList.filter(
+        (exc: { doctor_id: string }) => exc.doctor_id === doctor?.id
+      );
+      console.log(exceptionsList)
+      setExceptions(filteredExc);
+
+    } catch (e: any) {
+      alert(`${e?.error} ${e?.message}`);
+    }
+  };
+
+  fetchData();
+}, []);
+
+    // Função auxiliar para filtrar o id do doctor correspondente ao user logado
+    function findDoctorById(id: string, doctors: Doctor[]) {
+        return doctors.find((doctor) => doctor.user_id === id);
+    }
+    
+    const openDeleteDialog = (exceptionId: string) => {
+        setExceptionToDelete(exceptionId);
         setDeleteDialogOpen(true);
     };
 
-    const handleDeletePatient = async (patientId: string) => {
-        // Remove from current list (client-side deletion)
+    const handleDeleteException = async (ExceptionId: string) => {
         try {
-            const res = await exceptionsService.delete(patientId);
+            alert(ExceptionId)
+            const res = await exceptionsService.delete(ExceptionId);
 
             let message = "Exceção deletada com sucesso";
             try {
@@ -96,7 +190,7 @@ export default function PatientDashboard() {
                 description: message,
             });
 
-            setExceptions((prev: any[]) => prev.filter((p) => String(p.id) !== String(patientId)));
+            setExceptions((prev: Exception[]) => prev.filter((p) => String(p.id) !== String(ExceptionId)));
         } catch (e: any) {
             toast({
                 title: "Erro",
@@ -104,7 +198,7 @@ export default function PatientDashboard() {
             });
         }
         setDeleteDialogOpen(false);
-        setPatientToDelete(null);
+        setExceptionToDelete(null);
     };
 
     function formatAvailability(data: Availability[]) {
@@ -258,12 +352,13 @@ export default function PatientDashboard() {
 
                         <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
                             {exceptions && exceptions.length > 0 ? (
-                                exceptions.map((ex: any) => {
+                                exceptions.map((ex: Exception) => {
                                     // Formata data e hora
                                     const date = new Date(ex.date).toLocaleDateString("pt-BR", {
                                         weekday: "long",
                                         day: "2-digit",
                                         month: "long",
+                                        timeZone: "UTC"
                                     });
 
                                     const startTime = formatTime(ex.start_time);
@@ -274,8 +369,10 @@ export default function PatientDashboard() {
                                             <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
-                                                    <p className="text-sm text-gray-600">
-                                                        {startTime} - {endTime} <br /> -
+                                                   <p className="text-sm text-gray-600">
+                                                        {startTime && endTime
+                                                        ? `${startTime} - ${endTime}`
+                                                        : "Dia todo"}
                                                     </p>
                                                 </div>
                                                 <div className="text-center mt-2">
@@ -301,11 +398,11 @@ export default function PatientDashboard() {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                            <AlertDialogDescription>Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                            <AlertDialogDescription>Tem certeza que deseja excluir esta exceção? Esta ação não pode ser desfeita.</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => patientToDelete && handleDeletePatient(patientToDelete)} className="bg-red-600 hover:bg-red-700">
+                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-red-600 hover:bg-red-700">
                                 Excluir
                             </AlertDialogAction>
                         </AlertDialogFooter>
