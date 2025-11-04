@@ -99,6 +99,7 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
     { href: "#", icon: Calendar, label: "Relatórios gerenciais" },
     { href: "/manager/usuario", icon: User, label: "Gestão de Usuários" },
     { href: "/manager/home", icon: User, label: "Gestão de Médicos" },
+    { href: "/manager/pacientes", icon: User, label: "Gestão de Pacientes" },
     { href: "#", icon: Calendar, label: "Configurações" },
   ];
 
