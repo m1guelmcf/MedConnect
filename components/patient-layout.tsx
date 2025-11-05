@@ -1,52 +1,70 @@
-"use client"
+"use client";
 
 import Cookies from "js-cookie";
-import type React from "react"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import type React from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { api } from "@/services/api.mjs"; // Importando nosso cliente de API
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Bell, User, LogOut, FileText, Clock, Calendar, Home, ChevronLeft, ChevronRight } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Search,
+  Bell,
+  User,
+  LogOut,
+  FileText,
+  Clock,
+  Calendar,
+  Home,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PatientData {
-  name: string
-  email: string
-  phone: string
-  cpf: string
-  birthDate: string
-  address: string
+  name: string;
+  email: string;
+  phone: string;
+  cpf: string;
+  birthDate: string;
+  address: string;
 }
 
 interface PatientLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 // --- ALTERAÇÃO 1: Renomeando o componente para maior clareza ---
 export default function PatientLayout({ children }: PatientLayoutProps) {
-  const [patientData, setPatientData] = useState<PatientData | null>(null)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  const router = useRouter()
-  const pathname = usePathname()
+  const [patientData, setPatientData] = useState<PatientData | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
-        setSidebarCollapsed(true)
+        setSidebarCollapsed(true);
       } else {
-        setSidebarCollapsed(false)
+        setSidebarCollapsed(false);
       }
-    }
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("user_info");
@@ -55,12 +73,12 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
 
     if (userInfoString && token) {
       const userInfo = JSON.parse(userInfoString);
-      
+
       setPatientData({
         name: userInfo.user_metadata?.full_name || "Paciente",
         email: userInfo.email || "",
         phone: userInfo.phone || "",
-        cpf: "", 
+        cpf: "",
         birthDate: "",
         address: "",
       });
@@ -69,39 +87,47 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
       router.push("/login");
     }
   }, [router]);
-  
-  const handleLogout = () => setShowLogoutDialog(true)
+
+  const handleLogout = () => setShowLogoutDialog(true);
 
   // --- ALTERAÇÃO 4: Função de logout completa e padronizada ---
   const confirmLogout = async () => {
     try {
-        // Chama a função centralizada para fazer o logout no servidor
-        await api.logout();
+      // Chama a função centralizada para fazer o logout no servidor
+      await api.logout();
     } catch (error) {
-        console.error("Erro ao tentar fazer logout no servidor:", error);
+      console.error("Erro ao tentar fazer logout no servidor:", error);
     } finally {
-        // Limpeza completa e consistente do estado local
-        localStorage.removeItem("user_info");
-        localStorage.removeItem("token");
-        Cookies.remove("access_token"); // Limpeza de segurança
-        
-        setShowLogoutDialog(false);
-        router.push("/"); // Redireciona para a página inicial
+      // Limpeza completa e consistente do estado local
+      localStorage.removeItem("user_info");
+      localStorage.removeItem("token");
+      Cookies.remove("access_token"); // Limpeza de segurança
+
+      setShowLogoutDialog(false);
+      router.push("/"); // Redireciona para a página inicial
     }
   };
 
-  const cancelLogout = () => setShowLogoutDialog(false)
+  const cancelLogout = () => setShowLogoutDialog(false);
 
   const menuItems = [
     { href: "/patient/dashboard", icon: Home, label: "Dashboard" },
-    { href: "/patient/appointments", icon: Calendar, label: "Minhas Consultas" },
+    {
+      href: "/patient/appointments",
+      icon: Calendar,
+      label: "Minhas Consultas",
+    },
     { href: "/patient/schedule", icon: Clock, label: "Agendar Consulta" },
     { href: "/patient/reports", icon: FileText, label: "Meus Laudos" },
     { href: "/patient/profile", icon: User, label: "Meus Dados" },
-  ]
+  ];
 
   if (!patientData) {
-    return <div className="flex h-screen w-full items-center justify-center">Carregando...</div>;
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        Carregando...
+      </div>
+    );
   }
 
   return (
@@ -120,7 +146,9 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
                 </div>
-                <span className="font-semibold text-foreground">MediConnect</span>
+                <span className="font-semibold text-foreground">
+                  MediConnect
+                </span>
               </div>
             )}
             <Button
@@ -141,10 +169,10 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
         {/* Menu */}
         <nav className="flex-1 p-2 overflow-y-auto">
           {menuItems.map((item) => {
-            const Icon = item.icon
+            const Icon = item.icon;
             const isActive =
               pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href))
+              (item.href !== "/" && pathname.startsWith(item.href));
 
             return (
               <Link key={item.href} href={item.href}>
@@ -161,7 +189,7 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
                   )}
                 </div>
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -199,9 +227,7 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
             }
             onClick={handleLogout}
           >
-            <LogOut
-              className={sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"}
-            />{" "}
+            <LogOut className={sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"} />{" "}
             {/* Remove margem quando colapsado */}
             {!sidebarCollapsed && "Sair"}{" "}
             {/* Mostra o texto apenas quando não está colapsado */}
@@ -218,15 +244,7 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
         {/* Header */}
         <header className="bg-card border-b border-border px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1 max-w-md">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Buscar paciente"
-                  className="pl-10 bg-background border-input"
-                />
-              </div>
-            </div>
+            <div className="flex items-center gap-4 flex-1 max-w-md"></div>
 
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" className="relative">
@@ -265,5 +283,5 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

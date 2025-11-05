@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import SecretaryLayout from "@/components/secretary-layout";
+import ManagerLayout from "@/components/manager-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
 
 export default function PacientesPage() {
@@ -152,7 +152,7 @@ export default function PacientesPage() {
   });
 
   return (
-    <SecretaryLayout>
+    <ManagerLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -164,7 +164,7 @@ export default function PacientesPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href="/secretary/pacientes/novo">
+            <Link href="/manager/pacientes/novo">
               <Button className="w-full md:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar
@@ -312,7 +312,7 @@ export default function PacientesPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
                                 <Link
-                                  href={`/secretary/pacientes/${patient.id}/editar`}
+                                  href={`/manager/pacientes/${patient.id}/editar`}
                                 >
                                   <Edit className="w-4 h-4 mr-2" />
                                   Editar
@@ -462,6 +462,6 @@ export default function PacientesPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </SecretaryLayout>
+    </ManagerLayout>
   );
 }
