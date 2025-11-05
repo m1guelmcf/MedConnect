@@ -182,8 +182,8 @@ export default function PatientAppointments() {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Minhas Consultas</h1>
-                        <p className="text-gray-600">Veja, reagende ou cancele suas consultas</p>
+                        <h1 className="text-3xl font-bold text-foreground">Minhas Consultas</h1>
+                        <p className="text-muted-foreground">Veja, reagende ou cancele suas consultas</p>
                     </div>
                 </div>
 
@@ -244,7 +244,13 @@ export default function PatientAppointments() {
                             </Card>
                         ))
                     ) : (
-                        <p className="text-gray-600">Você ainda não possui consultas agendadas.</p>
+                        <Card className="p-6 text-center">
+                            <CalendarDays className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                            <CardTitle className="text-xl">Nenhuma Consulta Encontrada</CardTitle>
+                            <CardDescription className="mt-2">
+                                Você ainda não possui consultas agendadas. Use o menu "Agendar Consulta" para começar.
+                            </CardDescription>
+                        </Card>
                     )}
                 </div>
             </div>

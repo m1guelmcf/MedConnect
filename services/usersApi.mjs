@@ -1,5 +1,3 @@
-// SUBSTITUA O OBJETO INTEIRO EM services/usersApi.mjs
-
 import { api } from "./api.mjs";
 
 export const usersService = {
@@ -19,6 +17,7 @@ export const usersService = {
   },
 
   async create_user(data) {
+    // Esta é a função usada no page.tsx para criar usuários que não são médicos
     return await api.post(`/functions/v1/create-user-with-password`, data);
   },
 

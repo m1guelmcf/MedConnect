@@ -1,3 +1,5 @@
+// /app/manager/usuario/novo/page.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -9,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, Loader2, Pause } from "lucide-react";
 import ManagerLayout from "@/components/manager-layout";
-import { usersService } from "services/usersApi.mjs";
+import { usersService } from "@/services/usersApi.mjs";
+import { doctorsService } from "@/services/doctorsApi.mjs"; // Importação adicionada
 import { login } from "services/api.mjs";
 
 interface UserFormData {
@@ -20,6 +23,10 @@ interface UserFormData {
     senha: string;
     confirmarSenha: string;
     cpf: string;
+    // Novos campos para Médico
+    crm: string;
+    crm_uf: string;
+    specialty: string;
 }
 
 const defaultFormData: UserFormData = {
@@ -30,6 +37,10 @@ const defaultFormData: UserFormData = {
     senha: "",
     confirmarSenha: "",
     cpf: "",
+    // Valores iniciais para campos de Médico
+    crm: "",
+    crm_uf: "",
+    specialty: "",
 };
 
 const cleanNumber = (value: string): string => value.replace(/\D/g, "");
@@ -47,7 +58,13 @@ export default function NovoUsuarioPage() {
     const [error, setError] = useState<string | null>(null);
 
     const handleInputChange = (key: keyof UserFormData, value: string) => {
-        const updatedValue = key === "telefone" ? formatPhone(value) : value;
+        let updatedValue = value;
+        if (key === "telefone") {
+            updatedValue = formatPhone(value);
+        } else if (key === "crm_uf") {
+            // Converte UF para maiúsculas
+            updatedValue = value.toUpperCase();
+        }
         setFormData((prev) => ({ ...prev, [key]: updatedValue }));
     };
 
@@ -65,22 +82,56 @@ export default function NovoUsuarioPage() {
             return;
         }
 
+        // Validação adicional para Médico
+        if (formData.papel === "medico") {
+            if (!formData.crm || !formData.crm_uf) {
+                setError("Para a função 'Médico', o CRM e a UF do CRM são obrigatórios.");
+                return;
+            }
+        }
+
         setIsSaving(true);
 
         try {
-            const payload = {
-                full_name: formData.nomeCompleto,
-                email: formData.email.trim().toLowerCase(),
-                phone: formData.telefone || null,
-                role: formData.papel,
-                password: formData.senha,
-                cpf: formData.cpf,
-            };
+            if (formData.papel === "medico") {
+                // Lógica para criação de Médico
+                const doctorPayload = {
+                    email: formData.email.trim().toLowerCase(),
+                    full_name: formData.nomeCompleto,
+                    cpf: formData.cpf,
+                    crm: formData.crm,
+                    crm_uf: formData.crm_uf,
+                    specialty: formData.specialty || null,
+                    phone_mobile: formData.telefone || null, // Usando phone_mobile conforme o schema
+                };
 
-            console.log("📤 Enviando payload:");
-            console.log(payload);
+                console.log("📤 Enviando payload para Médico:");
+                console.log(doctorPayload);
 
-            await usersService.create_user(payload);
+                // Chamada ao endpoint específico para criação de médico
+                await doctorsService.create(doctorPayload);
+                
+            } else {
+                // Lógica para criação de Outras Roles
+                const isPatient = formData.papel === "paciente";
+
+                const userPayload = {
+                    email: formData.email.trim().toLowerCase(),
+                    password: formData.senha,
+                    full_name: formData.nomeCompleto,
+                    phone: formData.telefone || null,
+                    role: formData.papel,
+                    cpf: formData.cpf,
+                    create_patient_record: isPatient, // true se a role for 'paciente'
+                    phone_mobile: isPatient ? formData.telefone || null : undefined, // Enviar phone_mobile se for paciente
+                };
+
+                console.log("📤 Enviando payload para Usuário Comum:");
+                console.log(userPayload);
+
+                // Chamada ao endpoint padrão para criação de usuário
+                await usersService.create_user(userPayload);
+            }
 
             router.push("/manager/usuario");
         } catch (e: any) {
@@ -90,6 +141,8 @@ export default function NovoUsuarioPage() {
             setIsSaving(false);
         }
     };
+
+    const isMedico = formData.papel === "medico";
 
     return (
         <ManagerLayout>
@@ -139,6 +192,27 @@ export default function NovoUsuarioPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {/* Campos Condicionais para Médico */}
+                            {isMedico && (
+                                <>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="crm">CRM *</Label>
+                                        <Input id="crm" value={formData.crm} onChange={(e) => handleInputChange("crm", e.target.value)} placeholder="Número do CRM" required />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="crm_uf">UF do CRM *</Label>
+                                        <Input id="crm_uf" value={formData.crm_uf} onChange={(e) => handleInputChange("crm_uf", e.target.value)} placeholder="Ex: SP" maxLength={2} required />
+                                    </div>
+
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label htmlFor="specialty">Especialidade (opcional)</Label>
+                                        <Input id="specialty" value={formData.specialty} onChange={(e) => handleInputChange("specialty", e.target.value)} placeholder="Ex: Cardiologia" />
+                                    </div>
+                                </>
+                            )}
+                            {/* Fim dos Campos Condicionais */}
 
                             <div className="space-y-2">
                                 <Label htmlFor="senha">Senha *</Label>
