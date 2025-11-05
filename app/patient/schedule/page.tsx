@@ -134,8 +134,8 @@ export default function ScheduleAppointment() {
                                     {/* Médico */}
                                     <div className="space-y-2">
                                         <Label htmlFor="doctor">Médico</Label>
-                                        <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
-                                            <SelectTrigger>
+                                        <Select value={selectedDoctor} onValueChange={setSelectedDoctor} disabled={loading}>
+                                            <SelectTrigger id="doctor">
                                                 <SelectValue placeholder="Selecione um médico" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -168,7 +168,7 @@ export default function ScheduleAppointment() {
                                         <div className="space-y-2">
                                             <Label htmlFor="time">Horário</Label>
                                             <Select value={selectedTime} onValueChange={setSelectedTime}>
-                                                <SelectTrigger>
+                                                <SelectTrigger id="time">
                                                     <SelectValue placeholder="Selecione um horário" />
                                                 </SelectTrigger>
                                                 <SelectContent>
