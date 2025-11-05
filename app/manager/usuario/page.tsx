@@ -51,7 +51,7 @@ export default function UsersPage() {
   );
   const [selectedRole, setSelectedRole] = useState<string>("");
 
-  // --- Lógica de Paginação ADICIONADA ---
+  // --- Lógica de Paginação INÍCIO ---
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -60,7 +60,7 @@ export default function UsersPage() {
     setItemsPerPage(Number(value));
     setCurrentPage(1); // Resetar para a primeira página
   };
-  // --- Fim da Lógica de Paginação ADICIONADA ---
+  // --- Lógica de Paginação FIM ---
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -150,14 +150,45 @@ export default function UsersPage() {
 
   // Função para mudar de página
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const pageNumbers = [];
-  for (
-    let i = 1;
-    i <= Math.ceil(filteredUsers.length / itemsPerPage);
-    i++
-  ) {
-    pageNumbers.push(i);
-  }
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  // --- Funções e Lógica de Navegação ADICIONADAS ---
+  const goToPrevPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+  
+  // Lógica para gerar os números das páginas visíveis
+  const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
+    const pages: number[] = [];
+    const maxVisiblePages = 5; // Número máximo de botões de página a serem exibidos (ex: 2, 3, 4, 5, 6)
+    const halfRange = Math.floor(maxVisiblePages / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, currentPage + halfRange);
+
+    // Ajusta para manter o número fixo de botões quando nos limites
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      if (endPage === totalPages) {
+        startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+      }
+      if (startPage === 1) {
+        endPage = Math.min(totalPages, maxVisiblePages);
+      }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+  
+  const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
+  // --- Fim das Funções e Lógica de Navegação ADICIONADAS ---
+
 
   return (
     <ManagerLayout>
@@ -175,7 +206,7 @@ export default function UsersPage() {
           </Link>
         </div>
 
-        {/* Filtro e Itens por Página ADICIONADO */}
+        {/* Filtro e Itens por Página */}
         <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-lg border border-gray-200">
           <Filter className="w-5 h-5 text-gray-400" />
           {/* Select de Filtro por Papel */}
@@ -192,7 +223,7 @@ export default function UsersPage() {
               <SelectItem value="user">Usuário</SelectItem>
             </SelectContent>
           </Select>
-          {/* Select de Itens por Página ADICIONADO */}
+          {/* Select de Itens por Página */}
           <Select
             onValueChange={handleItemsPerPageChange}
             defaultValue={String(itemsPerPage)}
@@ -207,7 +238,7 @@ export default function UsersPage() {
             </SelectContent>
           </Select>
         </div>
-        {/* Fim do Filtro e Itens por Página ADICIONADO */}
+        {/* Fim do Filtro e Itens por Página */}
 
         {/* Tabela */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-x-auto">
@@ -284,25 +315,46 @@ export default function UsersPage() {
                 </tbody>
               </table>
 
-              {/* Paginação ADICIONADA */}
-              {pageNumbers.length > 1 && (
+              {/* Paginação ATUALIZADA */}
+              {totalPages > 1 && (
                 <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 border-t border-gray-200">
-                  {pageNumbers.map((number) => (
+                  
+                  {/* Botão Anterior */}
+                  <button
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 1}
+                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                  >
+                    {"< Anterior"}
+                  </button>
+
+                  {/* Números das Páginas */}
+                  {visiblePageNumbers.map((number) => (
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-4 py-2 rounded-md font-medium transition-colors text-sm ${
+                      className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
                         currentPage === number
-                          ? "bg-green-600 text-white shadow-md"
+                          ? "bg-green-600 text-white shadow-md border-green-600"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
                       {number}
                     </button>
                   ))}
+                  
+                  {/* Botão Próximo */}
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                  >
+                    {"Próximo >"}
+                  </button>
+                  
                 </div>
               )}
-              {/* Fim da Paginação ADICIONADA */}
+              {/* Fim da Paginação ATUALIZADA */}
             </>
           )}
         </div>

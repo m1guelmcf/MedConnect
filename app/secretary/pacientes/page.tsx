@@ -1,108 +1,139 @@
+// app/secretary/pacientes/page.tsx
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Eye, Calendar, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import SecretaryLayout from "@/components/secretary-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
 
+// Defina o tamanho da página.
+const PAGE_SIZE = 5; 
+
 export default function PacientesPage() {
+    // --- ESTADOS DE DADOS E GERAL ---
     const [searchTerm, setSearchTerm] = useState("");
     const [convenioFilter, setConvenioFilter] = useState("all");
     const [vipFilter, setVipFilter] = useState("all");
-    const [patients, setPatients] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    
+    // Lista completa, carregada da API uma única vez
+    const [allPatients, setAllPatients] = useState<any[]>([]); 
+    // Lista após a aplicação dos filtros (base para a paginação)
+    const [filteredPatients, setFilteredPatients] = useState<any[]>([]); 
+
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState<string | null>(null);
+    
+    // --- ESTADOS DE PAGINAÇÃO ---
     const [page, setPage] = useState(1);
-    const [hasNext, setHasNext] = useState(true);
-    const [isFetching, setIsFetching] = useState(false);
-    const observerRef = useRef<HTMLDivElement | null>(null);
+    
+    // CÁLCULO DA PAGINAÇÃO
+    const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
+    const startIndex = (page - 1) * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    // Pacientes a serem exibidos na tabela (aplicando a paginação)
+    const currentPatients = filteredPatients.slice(startIndex, endIndex); 
+
+    // --- ESTADOS DE DIALOGS ---
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [patientDetails, setPatientDetails] = useState<any | null>(null);
+    
+    // --- FUNÇÕES DE LÓGICA ---
+
+    // 1. Função para carregar TODOS os pacientes da API
+    const fetchAllPacientes = useCallback(
+        async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // Como o backend retorna um array, chamamos sem paginação
+                const res = await patientsService.list();
+                
+                const mapped = res.map((p: any) => ({
+                    id: String(p.id ?? ""),
+                    nome: p.full_name ?? "—",
+                    telefone: p.phone_mobile ?? p.phone1 ?? "—",
+                    cidade: p.city ?? "—",
+                    estado: p.state ?? "—",
+                    // Formate as datas se necessário, aqui usamos como string
+                    ultimoAtendimento: p.last_visit_at?.split('T')[0] ?? "—", 
+                    proximoAtendimento: p.next_appointment_at?.split('T')[0] ?? "—",
+                    vip: Boolean(p.vip ?? false),
+                    convenio: p.convenio ?? "Particular", // Define um valor padrão
+                    status: p.status ?? undefined,
+                }));
+
+                setAllPatients(mapped);
+            } catch (e: any) {
+                console.error(e);
+                setError(e?.message || "Erro ao buscar pacientes");
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    // 2. Efeito para aplicar filtros e calcular a lista filtrada (chama-se quando allPatients ou filtros mudam)
+    useEffect(() => {
+        const filtered = allPatients.filter((patient) => {
+            // Filtro por termo de busca (Nome ou Telefone)
+            const matchesSearch = 
+                patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                patient.telefone?.includes(searchTerm);
+            
+            // Filtro por Convênio
+            const matchesConvenio = 
+                convenioFilter === "all" || 
+                patient.convenio === convenioFilter;
+            
+            // Filtro por VIP
+            const matchesVip = 
+                vipFilter === "all" || 
+                (vipFilter === "vip" && patient.vip) || 
+                (vipFilter === "regular" && !patient.vip);
+
+            return matchesSearch && matchesConvenio && matchesVip;
+        });
+        
+        setFilteredPatients(filtered);
+        // Garante que a página atual seja válida após a filtragem
+        setPage(1); 
+    }, [allPatients, searchTerm, convenioFilter, vipFilter]);
+
+    // 3. Efeito inicial para buscar os pacientes
+    useEffect(() => {
+        fetchAllPacientes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+
+    // --- LÓGICA DE AÇÕES (DELETAR / VER DETALHES) ---
+    
     const openDetailsDialog = async (patientId: string) => {
         setDetailsDialogOpen(true);
         setPatientDetails(null);
         try {
             const res = await patientsService.getById(patientId);
-            setPatientDetails(res[0]);
+            setPatientDetails(Array.isArray(res) ? res[0] : res); // Supondo que retorne um array com um item
         } catch (e: any) {
             setPatientDetails({ error: e?.message || "Erro ao buscar detalhes" });
         }
     };
 
-    const fetchPacientes = useCallback(
-        async (pageToFetch: number) => {
-            if (isFetching || !hasNext) return;
-            setIsFetching(true);
-            setError(null);
-            try {
-                const res = await patientsService.list();
-                const mapped = res.map((p: any) => ({
-                    id: String(p.id ?? ""),
-                    nome: p.full_name ?? "",
-                    telefone: p.phone_mobile ?? p.phone1 ?? "",
-                    cidade: p.city ?? "",
-                    estado: p.state ?? "",
-                    ultimoAtendimento: p.last_visit_at ?? "",
-                    proximoAtendimento: p.next_appointment_at ?? "",
-                    vip: Boolean(p.vip ?? false),
-                    convenio: p.convenio ?? "", // se não existir, fica vazio
-                    status: p.status ?? undefined,
-                }));
-
-                setPatients((prev) => {
-                    const all = [...prev, ...mapped];
-                    const unique = Array.from(new Map(all.map((p) => [p.id, p])).values());
-                    return unique;
-                });
-
-                if (!mapped.id) setHasNext(false); // parar carregamento
-                else setPage((prev) => prev + 1);
-            } catch (e: any) {
-                setError(e?.message || "Erro ao buscar pacientes");
-            } finally {
-                setIsFetching(false);
-            }
-        },
-        [isFetching, hasNext]
-    );
-
-    useEffect(() => {
-        fetchPacientes(page);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        if (!observerRef.current || !hasNext) return;
-        const observer = new window.IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && !isFetching && hasNext) {
-                fetchPacientes(page);
-            }
-        });
-        observer.observe(observerRef.current);
-        return () => {
-            if (observerRef.current) observer.unobserve(observerRef.current);
-        };
-    }, [fetchPacientes, page, hasNext, isFetching]);
-
     const handleDeletePatient = async (patientId: string) => {
-        // Remove from current list (client-side deletion)
         try {
-            const res = await patientsService.delete(patientId);
-
-            if (res) {
-                alert(`${res.error} ${res.message}`);
-            }
-
-            setPatients((prev) => prev.filter((p) => String(p.id) !== String(patientId)));
+            await patientsService.delete(patientId);
+            // Atualiza a lista completa para refletir a exclusão
+            setAllPatients((prev) => prev.filter((p) => String(p.id) !== String(patientId)));
         } catch (e: any) {
-            setError(e?.message || "Erro ao deletar paciente");
+            alert(`Erro ao deletar paciente: ${e?.message || 'Erro desconhecido'}`);
         }
         setDeleteDialogOpen(false);
         setPatientToDelete(null);
@@ -113,25 +144,18 @@ export default function PacientesPage() {
         setDeleteDialogOpen(true);
     };
 
-    const filteredPatients = patients.filter((patient) => {
-        const matchesSearch = patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) || patient.telefone?.includes(searchTerm);
-        const matchesConvenio = convenioFilter === "all" || (patient.convenio ?? "") === convenioFilter;
-        const matchesVip = vipFilter === "all" || (vipFilter === "vip" && patient.vip) || (vipFilter === "regular" && !patient.vip);
-
-        return matchesSearch && matchesConvenio && matchesVip;
-    });
-
     return (
         <SecretaryLayout>
-            <div className="space-y-6">
+            <div className="space-y-6 px-2 sm:px-4 md:px-8">
+                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-foreground">Pacientes</h1>
                         <p className="text-muted-foreground text-sm md:text-base">Gerencie as informações de seus pacientes</p>
                     </div>
                     <div className="flex gap-2">
-                        <Link href="/secretary/pacientes/novo">
-                            <Button className="w-full md:w-auto">
+                        <Link href="/secretary/pacientes/novo" className="w-full md:w-auto">
+                            <Button className="w-full bg-green-600 hover:bg-green-700">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Adicionar
                             </Button>
@@ -139,30 +163,41 @@ export default function PacientesPage() {
                     </div>
                 </div>
 
-                {/* Bloco de Filtros: Corrigido o uso de classes para responsividade e removida a duplicação dos filtros VIP e Aniversariantes */}
+                {/* Bloco de Filtros */}
                 <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
+                    <Filter className="w-5 h-5 text-gray-400" />
+                    {/* Busca */}
+                    <input
+                        type="text"
+                        placeholder="Buscar por nome ou telefone..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="flex-grow min-w-[150px] p-2 border rounded-md text-sm"
+                    />
+
                     {/* Convênio */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap">Convênio</span>
+                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow max-w-[200px]">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden sm:block">Convênio</span>
                         <Select value={convenioFilter} onValueChange={setConvenioFilter}>
                             <SelectTrigger className="w-full sm:w-40">
-                                <SelectValue placeholder="Selecione o Convênio" />
+                                <SelectValue placeholder="Convênio" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todos</SelectItem>
                                 <SelectItem value="Particular">Particular</SelectItem>
                                 <SelectItem value="SUS">SUS</SelectItem>
                                 <SelectItem value="Unimed">Unimed</SelectItem>
+                                {/* Adicione outros convênios conforme necessário */}
                             </SelectContent>
                         </Select>
                     </div>
 
                     {/* VIP */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap">VIP</span>
+                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow max-w-[150px]">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden sm:block">VIP</span>
                         <Select value={vipFilter} onValueChange={setVipFilter}>
                             <SelectTrigger className="w-full sm:w-32">
-                                <SelectValue placeholder="Selecione" />
+                                <SelectValue placeholder="VIP" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todos</SelectItem>
@@ -171,107 +206,155 @@ export default function PacientesPage() {
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Aniversariantes */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap">Aniversariantes</span>
-                        <Select>
-                            <SelectTrigger className="w-full sm:w-32">
-                                <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="today">Hoje</SelectItem>
-                                <SelectItem value="week">Esta semana</SelectItem>
-                                <SelectItem value="month">Este mês</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
+                    
+                    {/* Aniversariantes (mantido como placeholder) */}
                     <Button variant="outline" className="ml-auto w-full md:w-auto">
-                        <Filter className="w-4 h-4 mr-2" />
-                        Filtro avançado
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Aniversariantes
                     </Button>
                 </div>
 
-                {/* Tabela com rolagem horizontal (overflow-x-auto) para responsividade */}
-                <div className="bg-white rounded-lg border border-gray-200">
+                {/* Tabela */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md">
                     <div className="overflow-x-auto">
                         {error ? (
                             <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
+                        ) : loading ? (
+                            <div className="p-6 text-center text-gray-500 flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 mr-2 animate-spin text-green-600" /> Carregando pacientes...
+                            </div>
                         ) : (
-                            <table className="w-full min-w-[700px]"> {/* Aumentei um pouco o min-width para garantir espaço */}
+                            <table className="w-full min-w-[900px]"> 
                                 <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Telefone</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Cidade</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Estado</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Último atendimento</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Próximo atendimento</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Ações</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[20%]">Nome</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%]">Telefone</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%]">Cidade / Estado</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%]">Convênio</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%]">Último atendimento</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%]">Próximo atendimento</th>
+                                        <th className="text-left p-4 font-medium text-gray-700 w-[5%]">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredPatients.length === 0 ? (
+                                    {currentPatients.length === 0 ? (
                                         <tr>
                                             <td colSpan={7} className="p-8 text-center text-gray-500">
-                                                {patients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
+                                                {allPatients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredPatients.map((patient) => (
+                                        currentPatients.map((patient) => (
                                             <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                                            <span className="text-gray-600 font-medium text-sm">{patient.nome?.charAt(0) || "?"}</span>
+                                                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                            <span className="text-green-600 font-medium text-sm">{patient.nome?.charAt(0) || "?"}</span>
                                                         </div>
-                                                        <span className="font-medium text-gray-900">{patient.nome}</span>
+                                                        <span className="font-medium text-gray-900">
+                                                            {patient.nome}
+                                                            {patient.vip && (
+                                                                <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">VIP</span>
+                                                            )}
+                                                        </span>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-gray-600">{patient.telefone}</td>
-                                                <td className="p-4 text-gray-600">{patient.cidade}</td>
-                                                <td className="p-4 text-gray-600">{patient.estado}</td>
+                                                <td className="p-4 text-gray-600">{`${patient.cidade} / ${patient.estado}`}</td>
+                                                <td className="p-4 text-gray-600">{patient.convenio}</td>
                                                 <td className="p-4 text-gray-600">{patient.ultimoAtendimento}</td>
                                                 <td className="p-4 text-gray-600">{patient.proximoAtendimento}</td>
+                                                
+                                                {/* --- COLUNA AÇÕES CORRIGIDA --- */}
                                                 <td className="p-4">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600">Ações</div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
-                                                                <Eye className="w-4 h-4 mr-2" />
-                                                                Ver detalhes
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem asChild>
-                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`}>
-                                                                    <Edit className="w-4 h-4 mr-2" />
-                                                                    Editar
-                                                                </Link>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem>
-                                                                <Calendar className="w-4 h-4 mr-2" />
-                                                                Marcar consulta
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                                Excluir
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                   <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="text-blue-600 cursor-pointer">Ações</div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
+                                                            <Eye className="w-4 h-4 mr-2" />
+                                                            Ver detalhes
+                                                        </DropdownMenuItem>
+
+                                                        {/* O Trecho CORRIGIDO ABAIXO */}
+                                                        <DropdownMenuItem asChild>
+                                                            {/* O Link deve ter o estilo de um DropdownMenuItem, e englobar todo o conteúdo (ícone + texto) */}
+                                                            <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                                <Edit className="w-4 h-4 mr-2" />
+                                                                Editar
+                                                            </Link>
+                                                        </DropdownMenuItem>
+
+                                                        <DropdownMenuItem>
+                                                            <Calendar className="w-4 h-4 mr-2" />
+                                                            Marcar consulta
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                            <Trash2 className="w-4 h-4 mr-2" />
+                                                            Excluir
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                                 </td>
+                                                {/* --- FIM DA COLUNA AÇÕES CORRIGIDA --- */}
+
                                             </tr>
                                         ))
                                     )}
                                 </tbody>
                             </table>
                         )}
-                        <div ref={observerRef} style={{ height: 1 }} />
-                        {isFetching && <div className="p-4 text-center text-gray-500">Carregando mais pacientes...</div>}
                     </div>
-                </div>
+                    
+                    {/* --- PAGINAÇÃO --- */}
+                    {totalPages > 1 && !loading && (
+                        <div className="flex flex-wrap items-center justify-between p-4 border-t border-gray-200">
+                            
+                            {/* Botões de Navegação */}
+                            <div className="flex space-x-1">
+                                {/* Botão Anterior */}
+                                <Button
+                                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                                    disabled={page === 1}
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    &lt; Anterior
+                                </Button>
 
+                                {/* Renderização dos botões de número de página (Limitando a 5) */}
+                                {Array.from({ length: totalPages }, (_, index) => index + 1)
+                                    // Limita a exibição dos botões para 5 (janela de visualização)
+                                    .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2)) 
+                                    .map((pageNumber) => (
+                                        <Button
+                                            key={pageNumber}
+                                            onClick={() => setPage(pageNumber)}
+                                            variant={pageNumber === page ? "default" : "outline"}
+                                            size="sm"
+                                            className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
+                                        >
+                                            {pageNumber}
+                                        </Button>
+                                    ))}
+
+                                {/* Botão Próximo */}
+                                <Button
+                                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                                    disabled={page === totalPages}
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    Próximo &gt;
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                    {/* --- FIM DA PAGINAÇÃO --- */}
+                </div>
+                
+                {/* AlertDialogs (Mantidos) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -287,74 +370,40 @@ export default function PacientesPage() {
                     </AlertDialogContent>
                 </AlertDialog>
 
-                {/* Modal de detalhes do paciente */}
                 <AlertDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Detalhes do Paciente</AlertDialogTitle>
                             <AlertDialogDescription>
                                 {patientDetails === null ? (
-                                    <div className="text-gray-500">Carregando...</div>
+                                    <div className="text-gray-500">
+                                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-green-600 my-4" />
+                                        Carregando...
+                                    </div>
                                 ) : patientDetails?.error ? (
-                                    <div className="text-red-600">{patientDetails.error}</div>
+                                    <div className="text-red-600 p-4">{patientDetails.error}</div>
                                 ) : (
-                                    <div className="space-y-2 text-left">
-                                        <p>
-                                            <strong>Nome:</strong> {patientDetails.full_name}
+                                    <div className="space-y-2 pt-2 text-left text-sm text-gray-700 max-h-[60vh] overflow-y-auto pr-4">
+                                        <p><strong>Nome:</strong> {patientDetails.full_name}</p>
+                                        <p><strong>CPF:</strong> {patientDetails.cpf}</p>
+                                        <p><strong>Email:</strong> {patientDetails.email}</p>
+                                        <p><strong>Telefone:</strong> {patientDetails.phone_mobile ?? patientDetails.phone1 ?? patientDetails.phone2 ?? "-"}</p>
+                                        <p><strong>Convênio:</strong> {patientDetails.convenio ?? "Particular"}</p>
+                                        <p><strong>VIP:</strong> {patientDetails.vip ? "Sim" : "Não"}</p>
+                                        <p><strong>Nome social:</strong> {patientDetails.social_name ?? "-"}</p>
+                                        <p><strong>Sexo:</strong> {patientDetails.sex ?? "-"}</p>
+                                        <p><strong>Tipo sanguíneo:</strong> {patientDetails.blood_type ?? "-"}</p>
+                                        <p><strong>Peso:</strong> {patientDetails.weight_kg ? `${patientDetails.weight_kg} kg` : "-"}</p>
+                                        <p><strong>Altura:</strong> {patientDetails.height_m ? `${patientDetails.height_m} m` : "-"}</p>
+                                        <p><strong>IMC:</strong> {patientDetails.bmi ?? "-"}</p>
+                                        <p><strong>Endereço:</strong> {patientDetails.street ?? "-"}</p>
+                                        <p><strong>Bairro:</strong> {patientDetails.neighborhood ?? "-"}</p>
+                                        <p><strong>Cidade/Estado:</strong> {patientDetails.city ?? "-"} / {patientDetails.state ?? "-"}</p>
+                                        <p><strong>CEP:</strong> {patientDetails.cep ?? "-"}</p>
+                                        <p className="pt-2 text-xs text-gray-500">
+                                            Criado em: {patientDetails.created_at ?? "-"} | Atualizado em: {patientDetails.updated_at ?? "-"}
                                         </p>
-                                        <p>
-                                            <strong>CPF:</strong> {patientDetails.cpf}
-                                        </p>
-                                        <p>
-                                            <strong>Email:</strong> {patientDetails.email}
-                                        </p>
-                                        <p>
-                                            <strong>Telefone:</strong> {patientDetails.phone_mobile ?? patientDetails.phone1 ?? patientDetails.phone2 ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Nome social:</strong> {patientDetails.social_name ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Sexo:</strong> {patientDetails.sex ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Tipo sanguíneo:</strong> {patientDetails.blood_type ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Peso:</strong> {patientDetails.weight_kg ?? "-"}
-                                            {patientDetails.weight_kg ? "kg" : ""}
-                                        </p>
-                                        <p>
-                                            <strong>Altura:</strong> {patientDetails.height_m ?? "-"}
-                                            {patientDetails.height_m ? "m" : ""}
-                                        </p>
-                                        <p>
-                                            <strong>IMC:</strong> {patientDetails.bmi ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Endereço:</strong> {patientDetails.street ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Bairro:</strong> {patientDetails.neighborhood ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Cidade:</strong> {patientDetails.city ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Estado:</strong> {patientDetails.state ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>CEP:</strong> {patientDetails.cep ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Criado em:</strong> {patientDetails.created_at ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Atualizado em:</strong> {patientDetails.updated_at ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Id:</strong> {patientDetails.id ?? "-"}
-                                        </p>
+                                        <p className="text-xs text-gray-500">Id: {patientDetails.id ?? "-"}</p>
                                     </div>
                                 )}
                             </AlertDialogDescription>

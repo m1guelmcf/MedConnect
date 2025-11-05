@@ -1,3 +1,4 @@
+// app/manager/home/page.tsx (ou doctors/page.tsx, dependendo da sua rota)
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -81,13 +82,51 @@ export default function DoctorsPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Cálculo dos itens a serem exibidos na página atual
+  // 1. Definição do total de páginas
+  const totalPages = Math.ceil(doctors.length / itemsPerPage);
+
+  // 2. Cálculo dos itens a serem exibidos na página atual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = doctors.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Função para mudar de página
+  // 3. Função para mudar de página
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // 4. Funções para Navegação ADICIONADAS
+  const goToPrevPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
+  // 5. Lógica para gerar os números das páginas visíveis (máximo de 5)
+  const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    const halfRange = Math.floor(maxVisiblePages / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, currentPage + halfRange);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      if (endPage === totalPages) {
+        startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+      }
+      if (startPage === 1) {
+        endPage = Math.min(totalPages, maxVisiblePages);
+      }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+  
+  const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
+  // Fim da lógica de números de página visíveis
 
   // Lógica para mudar itens por página, resetando para a página 1
   const handleItemsPerPageChange = (value: string) => {
@@ -206,7 +245,7 @@ export default function DoctorsPage() {
               <SelectItem value="inativo">Inativo</SelectItem>
             </SelectContent>
           </Select>
-          {/* Select de Itens por Página Adicionado */}
+          {/* Select de Itens por Página */}
           <Select
             onValueChange={handleItemsPerPageChange}
             defaultValue={String(itemsPerPage)}
@@ -343,22 +382,43 @@ export default function DoctorsPage() {
           )}
         </div>
 
-        {/* Paginação */}
-        {doctors.length > itemsPerPage && (
+        {/* Paginação ATUALIZADA */}
+        {totalPages > 1 && (
           <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 bg-white rounded-lg border border-gray-200 shadow-md">
-            {Array.from({ length: Math.ceil(doctors.length / itemsPerPage) }, (_, i) => (
+            
+            {/* Botão Anterior */}
+            <button
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+            >
+              {"< Anterior"}
+            </button>
+
+            {/* Números das Páginas */}
+            {visiblePageNumbers.map((number) => (
               <button
-                key={i}
-                onClick={() => paginate(i + 1)}
-                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm ${
-                  currentPage === i + 1
-                    ? "bg-green-600 text-white shadow-md"
+                key={number}
+                onClick={() => paginate(number)}
+                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
+                  currentPage === number
+                    ? "bg-green-600 text-white shadow-md border-green-600"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {i + 1}
+                {number}
               </button>
             ))}
+            
+            {/* Botão Próximo */}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+            >
+              {"Próximo >"}
+            </button>
+            
           </div>
         )}
 
