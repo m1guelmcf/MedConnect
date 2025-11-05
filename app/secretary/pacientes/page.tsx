@@ -383,28 +383,71 @@ export default function PacientesPage() {
                                 ) : patientDetails?.error ? (
                                     <div className="text-red-600 p-4">{patientDetails.error}</div>
                                 ) : (
-                                    <div className="space-y-2 pt-2 text-left text-sm text-gray-700 max-h-[60vh] overflow-y-auto pr-4">
-                                        <p><strong>Nome:</strong> {patientDetails.full_name}</p>
-                                        <p><strong>CPF:</strong> {patientDetails.cpf}</p>
-                                        <p><strong>Email:</strong> {patientDetails.email}</p>
-                                        <p><strong>Telefone:</strong> {patientDetails.phone_mobile ?? patientDetails.phone1 ?? patientDetails.phone2 ?? "-"}</p>
-                                        <p><strong>Convênio:</strong> {patientDetails.convenio ?? "Particular"}</p>
-                                        <p><strong>VIP:</strong> {patientDetails.vip ? "Sim" : "Não"}</p>
-                                        <p><strong>Nome social:</strong> {patientDetails.social_name ?? "-"}</p>
-                                        <p><strong>Sexo:</strong> {patientDetails.sex ?? "-"}</p>
-                                        <p><strong>Tipo sanguíneo:</strong> {patientDetails.blood_type ?? "-"}</p>
-                                        <p><strong>Peso:</strong> {patientDetails.weight_kg ? `${patientDetails.weight_kg} kg` : "-"}</p>
-                                        <p><strong>Altura:</strong> {patientDetails.height_m ? `${patientDetails.height_m} m` : "-"}</p>
-                                        <p><strong>IMC:</strong> {patientDetails.bmi ?? "-"}</p>
-                                        <p><strong>Endereço:</strong> {patientDetails.street ?? "-"}</p>
-                                        <p><strong>Bairro:</strong> {patientDetails.neighborhood ?? "-"}</p>
-                                        <p><strong>Cidade/Estado:</strong> {patientDetails.city ?? "-"} / {patientDetails.state ?? "-"}</p>
-                                        <p><strong>CEP:</strong> {patientDetails.cep ?? "-"}</p>
-                                        <p className="pt-2 text-xs text-gray-500">
-                                            Criado em: {patientDetails.created_at ?? "-"} | Atualizado em: {patientDetails.updated_at ?? "-"}
-                                        </p>
-                                        <p className="text-xs text-gray-500">Id: {patientDetails.id ?? "-"}</p>
-                                    </div>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                            <p className="font-semibold">Nome Completo</p>
+                                            <p>{patientDetails.full_name}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Email</p>
+                                            <p>{patientDetails.email}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Telefone</p>
+                                            <p>{patientDetails.phone_mobile}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Data de Nascimento</p>
+                                            <p>{patientDetails.birth_date}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">CPF</p>
+                                            <p>{patientDetails.cpf}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Tipo Sanguíneo</p>
+                                            <p>{patientDetails.blood_type}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Peso (kg)</p>
+                                            <p>{patientDetails.weight_kg}</p>
+                                            </div>
+                                            <div>
+                                            <p className="font-semibold">Altura (m)</p>
+                                            <p>{patientDetails.height_m}</p>
+                                            </div>
+                                        </div>
+                                        <div className="border-t pt-4 mt-4">
+                                            <h3 className="font-semibold mb-2">Endereço</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="font-semibold">Rua</p>
+                                                <p>{`${patientDetails.street}, ${patientDetails.number}`}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">Complemento</p>
+                                                <p>{patientDetails.complement}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">Bairro</p>
+                                                <p>{patientDetails.neighborhood}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">Cidade</p>
+                                                <p>{patientDetails.cidade}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">Estado</p>
+                                                <p>{patientDetails.estado}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">CEP</p>
+                                                <p>{patientDetails.cep}</p>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        </div>
                                 )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
