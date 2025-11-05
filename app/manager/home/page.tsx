@@ -157,19 +157,13 @@ export default function DoctorsPage() {
 
   return (
     <ManagerLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Médicos Cadastrados</h1>
-            <p className="text-sm text-gray-500">Gerencie todos os profissionais de saúde.</p>
-          </div>
-          <Link href="/manager/home/novo">
-            <Button className="bg-green-600 hover:bg-green-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Novo
-            </Button>
-          </Link>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Médicos Cadastrados</h1>
+          <p className="text-sm text-gray-500">Gerencie todos os profissionais de saúde.</p>
         </div>
+      </div>
 
 
         {/* -> PASSO 2: Conectar os estados aos componentes Select <- */}
