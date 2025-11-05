@@ -18,8 +18,36 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 // IMPORTAR O COMPONENTE CALENDÁRIO DA SHADCN
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"; // Usaremos o date-fns para formatação e comparação de datas
+import { doctorsService } from "@/services/doctorsApi.mjs";
 
-const APPOINTMENTS_STORAGE_KEY = "clinic-appointments";
+type Doctor = {
+  id: string;
+  user_id: string | null;
+  crm: string;
+  crm_uf: string;
+  specialty: string;
+  full_name: string;
+  cpf: string;
+  email: string;
+  phone_mobile: string | null;
+  phone2: string | null;
+  cep: string | null;
+  street: string | null;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  state: string | null;
+  birth_date: string | null;
+  rg: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string | null;
+  max_days_in_advance: number;
+  rating: number | null;
+}
 
 // --- TIPAGEM DA CONSULTA SALVA NO LOCALSTORAGE ---
 interface LocalStorageAppointment {
@@ -34,8 +62,6 @@ interface LocalStorageAppointment {
     phone: string;
 }
 
-const LOGGED_IN_DOCTOR_NAME = "Dr. João Santos";
-
 // Função auxiliar para comparar se duas datas (Date objects) são o mesmo dia
 const isSameDay = (date1: Date, date2: Date) => {
     return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate();
@@ -48,9 +74,24 @@ export default function ExceptionPage() {
     const router = useRouter();
     const [filteredAppointments, setFilteredAppointments] = useState<LocalStorageAppointment[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
-    const doctorIdTemp = "3bb9ee4a-cfdd-4d81-b628-383907dfa225";
+    const [loggedDoctor, setLoggedDoctor] = useState<Doctor>();
     const [tipo, setTipo] = useState<string>("");
+   
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const doctorsList: Doctor[] = await doctorsService.list();
+          const doctor = doctorsList[0];
+    
+          // Salva no estado
+          setLoggedDoctor(doctor);
+        } catch (e: any) {
+          alert(`${e?.error} ${e?.message}`);
+        }
+      };
+    
+      fetchData();
+    }, []);
 
     // NOVO ESTADO 1: Armazena os dias com consultas (para o calendário)
     const [bookedDays, setBookedDays] = useState<Date[]>([]);
@@ -66,11 +107,11 @@ export default function ExceptionPage() {
         const formData = new FormData(form);
 
         const apiPayload = {
-            doctor_id: doctorIdTemp,
-            created_by: doctorIdTemp,
+            doctor_id: loggedDoctor?.id,
+            created_by: loggedDoctor?.user_id,
             date: selectedCalendarDate ? format(selectedCalendarDate, "yyyy-MM-dd") : "",
-            start_time: ((formData.get("horarioEntrada") + ":00") as string) || undefined,
-            end_time: ((formData.get("horarioSaida") + ":00") as string) || undefined,
+            start_time: ((formData.get("horarioEntrada")?formData.get("horarioEntrada") + ":00":null) as string) || null,
+            end_time: ((formData.get("horarioSaida")?formData.get("horarioSaida") + ":00":null) as string) || null,
             kind: tipo || undefined,
             reason: formData.get("reason"),
         };
@@ -110,7 +151,7 @@ export default function ExceptionPage() {
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Adicione exceções</h1>
-                    <p className="text-gray-600">Altere a disponibilidade em casos especiais para o Dr. {userInfo.user_metadata.full_name}</p>
+                    <p className="text-gray-600">Altere a disponibilidade em casos especiais para o Dr. João Silva</p>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -167,13 +208,13 @@ export default function ExceptionPage() {
                                                 <Label htmlFor="horarioEntrada" className="text-sm font-medium text-gray-700">
                                                     Horario De Entrada
                                                 </Label>
-                                                <Input type="time" id="horarioEntrada" name="horarioEntrada" required className="mt-1" />
+                                                <Input type="time" id="horarioEntrada" name="horarioEntrada" className="mt-1" />
                                             </div>
                                             <div>
                                                 <Label htmlFor="horarioSaida" className="text-sm font-medium text-gray-700">
                                                     Horario De Saida
                                                 </Label>
-                                                <Input type="time" id="horarioSaida" name="horarioSaida" required className="mt-1" />
+                                                <Input type="time" id="horarioSaida" name="horarioSaida" className="mt-1" />
                                             </div>
                                         </div>
 
@@ -187,7 +228,7 @@ export default function ExceptionPage() {
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="bloqueio">Bloqueio </SelectItem>
-                                                    <SelectItem value="liberacao">Liberação</SelectItem>
+                                                    <SelectItem value="disponibilidade_extra">Disponibilidade extra</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
