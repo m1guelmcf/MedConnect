@@ -10,6 +10,36 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import ManagerLayout from "@/components/manager-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
 
+// --- INÍCIO DA MODIFICAÇÃO ---
+// PASSO 1: Criar uma função para formatar a data
+const formatDate = (dateString: string | null | undefined): string => {
+    // Se a data não existir, retorna um texto padrão
+    if (!dateString) {
+        return "N/A";
+    }
+
+    try {
+        const date = new Date(dateString);
+        // Verifica se a data é válida após a conversão
+        if (isNaN(date.getTime())) {
+            return "Data inválida";
+        }
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é base 0, então +1
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (error) {
+        // Se houver qualquer erro na conversão, retorna um texto de erro
+        return "Data inválida";
+    }
+};
+// --- FIM DA MODIFICAÇÃO ---
+
+
 export default function PacientesPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [convenioFilter, setConvenioFilter] = useState("all");
@@ -183,34 +213,6 @@ export default function PacientesPage() {
                         </Select>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">VIP</span>
-                        <Select value={vipFilter} onValueChange={setVipFilter}>
-                            <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem value="vip">VIP</SelectItem>
-                                <SelectItem value="regular">Regular</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">Aniversariantes</span>
-                        <Select>
-                            <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="today">Hoje</SelectItem>
-                                <SelectItem value="week">Esta semana</SelectItem>
-                                <SelectItem value="month">Este mês</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     <Button variant="outline" className="ml-auto w-full md:w-auto">
                         <Filter className="w-4 h-4 mr-2" />
                         Filtro avançado
@@ -255,12 +257,15 @@ export default function PacientesPage() {
                                                 <td className="p-4 text-gray-600">{patient.telefone}</td>
                                                 <td className="p-4 text-gray-600">{patient.cidade}</td>
                                                 <td className="p-4 text-gray-600">{patient.estado}</td>
-                                                <td className="p-4 text-gray-600">{patient.ultimoAtendimento}</td>
-                                                <td className="p-4 text-gray-600">{patient.proximoAtendimento}</td>
+                                                {/* --- INÍCIO DA MODIFICAÇÃO --- */}
+                                                {/* PASSO 2: Aplicar a formatação de data na tabela */}
+                                                <td className="p-4 text-gray-600">{formatDate(patient.ultimoAtendimento)}</td>
+                                                <td className="p-4 text-gray-600">{formatDate(patient.proximoAtendimento)}</td>
+                                                {/* --- FIM DA MODIFICAÇÃO --- */}
                                                 <td className="p-4">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600">Ações</div>
+                                                            <div className="text-blue-600 cursor-pointer">Ações</div>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
@@ -369,12 +374,15 @@ export default function PacientesPage() {
                                         <p>
                                             <strong>CEP:</strong> {patientDetails.cep ?? "-"}
                                         </p>
+                                        {/* --- INÍCIO DA MODIFICAÇÃO --- */}
+                                        {/* PASSO 3: Aplicar a formatação de data no modal */}
                                         <p>
-                                            <strong>Criado em:</strong> {patientDetails.created_at ?? "-"}
+                                            <strong>Criado em:</strong> {formatDate(patientDetails.created_at)}
                                         </p>
                                         <p>
-                                            <strong>Atualizado em:</strong> {patientDetails.updated_at ?? "-"}
+                                            <strong>Atualizado em:</strong> {formatDate(patientDetails.updated_at)}
                                         </p>
+                                        {/* --- FIM DA MODIFICAÇÃO --- */}
                                         <p>
                                             <strong>Id:</strong> {patientDetails.id ?? "-"}
                                         </p>
