@@ -94,43 +94,44 @@ export default function AvailabilityPage() {
                         <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados </h2>
 
                         <div className="space-y-6">
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <div>
-                                    <Label className="text-sm font-medium text-gray-700">Dia Da Semana</Label>
-                                    <div className="flex gap-4 mt-2 flex-nowrap">
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="monday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Segunda-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="tuesday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Terça-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="wednesday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Quarta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="thursday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Quinta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="friday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Sexta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="saturday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Sabado</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="sunday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Domingo</span>
-                                        </label>
-                                    </div>
+                            {/* Ajuste de responsividade: removemos o grid para os dias da semana e focamos no div interno */}
+                            <div> 
+                                <Label className="text-sm font-medium text-gray-700">Dia Da Semana</Label>
+                                {/* NOVO: Grid responsivo para os radio buttons dos dias da semana */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-x-2 gap-y-1 mt-2">
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="monday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Segunda</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="tuesday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Terça</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="wednesday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Quarta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="thursday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Quinta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="friday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Sexta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="saturday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Sábado</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="sunday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Domingo</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div className="grid md:grid-cols-5 gap-6">
+                            {/* NOVO: Grid responsivo para os campos de horário e duração */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                                 <div>
                                     <Label htmlFor="horarioEntrada" className="text-sm font-medium text-gray-700">
                                         Horario De Entrada
@@ -149,6 +150,7 @@ export default function AvailabilityPage() {
                                     </Label>
                                     <Input type="number" id="duracaoConsulta" name="duracaoConsulta" required className="mt-1" />
                                 </div>
+                                {/* A modalidade de consulta agora vai ocupar o espaço restante na linha ou ficar embaixo, dependendo do grid */}
                             </div>
 
                             <div>
@@ -168,14 +170,15 @@ export default function AvailabilityPage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-4">
+                    {/* NOVO: Ajuste de responsividade para os botões */}
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
                         <Link href="/doctor/disponibilidade/excecoes">
-                            <Button variant="outline">Adicionar Exceção</Button>
+                            <Button variant="outline" className="w-full sm:w-auto">Adicionar Exceção</Button>
                         </Link>
                         <Link href="/doctor/dashboard">
-                            <Button variant="outline">Cancelar</Button>
+                            <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
                         </Link>
-                        <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                        <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                             Salvar Disponibilidade
                         </Button>
                     </div>

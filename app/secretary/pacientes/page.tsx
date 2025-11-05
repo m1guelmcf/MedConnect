@@ -139,12 +139,13 @@ export default function PacientesPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row flex-wrap gap-4 bg-card p-4 rounded-lg border border-border">
+                {/* Bloco de Filtros: Corrigido o uso de classes para responsividade e removida a duplicação dos filtros VIP e Aniversariantes */}
+                <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
                     {/* Convênio */}
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">Convênio</span>
+                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">Convênio</span>
                         <Select value={convenioFilter} onValueChange={setConvenioFilter}>
-                            <SelectTrigger className="w-full md:w-40">
+                            <SelectTrigger className="w-full sm:w-40">
                                 <SelectValue placeholder="Selecione o Convênio" />
                             </SelectTrigger>
                             <SelectContent>
@@ -156,37 +157,11 @@ export default function PacientesPage() {
                         </Select>
                     </div>
 
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">VIP</span>
+                    {/* VIP */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">VIP</span>
                         <Select value={vipFilter} onValueChange={setVipFilter}>
-                            <SelectTrigger className="w-full md:w-32">
-                                <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem value="vip">VIP</SelectItem>
-                                <SelectItem value="regular">Regular</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">Aniversariantes</span>
-                        <Select>
-                            <SelectTrigger className="w-full md:w-32">
-                                <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="today">Hoje</SelectItem>
-                                <SelectItem value="week">Esta semana</SelectItem>
-                                <SelectItem value="month">Este mês</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">VIP</span>
-                        <Select value={vipFilter} onValueChange={setVipFilter}>
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger className="w-full sm:w-32">
                                 <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
@@ -197,10 +172,11 @@ export default function PacientesPage() {
                         </Select>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">Aniversariantes</span>
+                    {/* Aniversariantes */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto flex-grow">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">Aniversariantes</span>
                         <Select>
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger className="w-full sm:w-32">
                                 <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
@@ -217,12 +193,13 @@ export default function PacientesPage() {
                     </Button>
                 </div>
 
+                {/* Tabela com rolagem horizontal (overflow-x-auto) para responsividade */}
                 <div className="bg-white rounded-lg border border-gray-200">
                     <div className="overflow-x-auto">
                         {error ? (
                             <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
                         ) : (
-                            <table className="w-full min-w-[600px]">
+                            <table className="w-full min-w-[700px]"> {/* Aumentei um pouco o min-width para garantir espaço */}
                                 <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
                                         <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
