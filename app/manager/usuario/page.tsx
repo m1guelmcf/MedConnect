@@ -162,7 +162,7 @@ export default function UsersPage() {
     const goToNextPage = () => {
         setCurrentPage((prev) => Math.min(totalPages, prev + 1));
     };
-    
+
     // Lógica para gerar os números das páginas visíveis
     const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
         const pages: number[] = [];
@@ -180,13 +180,13 @@ export default function UsersPage() {
                 endPage = Math.min(totalPages, maxVisiblePages);
             }
         }
-        
+
         for (let i = startPage; i <= endPage; i++) {
             pages.push(i);
         }
         return pages;
     };
-    
+
     const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
     // --- Fim das Funções e Lógica de Navegação ADICIONADAS ---
 
@@ -194,7 +194,7 @@ export default function UsersPage() {
     return (
         <ManagerLayout>
             <div className="space-y-6 px-2 sm:px-4 md:px-8">
-                
+
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -210,43 +210,56 @@ export default function UsersPage() {
 
                 {/* Filtro e Itens por Página */}
                 <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-lg border border-gray-200">
-                    <Filter className="w-5 h-5 text-gray-400" />
-                    
+
                     {/* Select de Filtro por Papel - Ajustado para resetar a página */}
-                    <Select 
-                        onValueChange={(value) => { 
-                            setSelectedRole(value);
-                            setCurrentPage(1); // Resetar para a primeira página ao mudar o filtro
-                        }} 
-                        value={selectedRole}
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filtrar por papel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="gestor">Gestor</SelectItem>
-                            <SelectItem value="medico">Médico</SelectItem>
-                            <SelectItem value="secretaria">Secretária</SelectItem>
-                            <SelectItem value="user">Usuário</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                        <span className="text-sm font-medium text-foreground">
+                            Filtrar por papel
+                        </span>
+                        <Select
+                            onValueChange={(value) => {
+                                setSelectedRole(value);
+                                setCurrentPage(1); // Resetar para a primeira página ao mudar o filtro
+                            }}
+                            value={selectedRole}>
+
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Filtrar por papel" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="gestor">Gestor</SelectItem>
+                                <SelectItem value="medico">Médico</SelectItem>
+                                <SelectItem value="secretaria">Secretária</SelectItem>
+                                <SelectItem value="user">Usuário</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
                     {/* Select de Itens por Página */}
-                    <Select
-                        onValueChange={handleItemsPerPageChange}
-                        defaultValue={String(itemsPerPage)}
-                    >
-                        <SelectTrigger className="w-[140px]">
-                            <SelectValue placeholder="Itens por pág." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="5">5 por página</SelectItem>
-                            <SelectItem value="10">10 por página</SelectItem>
-                            <SelectItem value="20">20 por página</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                        <span className="text-sm font-medium text-foreground">
+                            Itens por página
+                        </span>
+                        <Select
+                            onValueChange={handleItemsPerPageChange}
+                            defaultValue={String(itemsPerPage)}
+                        >
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Itens por pág." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="5">5 por página</SelectItem>
+                                <SelectItem value="10">10 por página</SelectItem>
+                                <SelectItem value="20">20 por página</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button variant="outline" className="ml-auto w-full md:w-auto">
+                        <Filter className="w-4 h-4 mr-2" />
+                        Filtro avançado
+                    </Button>
                 </div>
                 {/* Fim do Filtro e Itens por Página */}
 
@@ -316,7 +329,7 @@ export default function UsersPage() {
                             {/* Paginação ATUALIZADA */}
                             {totalPages > 1 && (
                                 <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 border-t border-gray-200">
-                                    
+
                                     {/* Botão Anterior */}
                                     <button
                                         onClick={goToPrevPage}
@@ -331,16 +344,15 @@ export default function UsersPage() {
                                         <button
                                             key={number}
                                             onClick={() => paginate(number)}
-                                            className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
-                                                currentPage === number
-                                                    ? "bg-green-600 text-white shadow-md border-green-600"
-                                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                            }`}
+                                            className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${currentPage === number
+                                                ? "bg-green-600 text-white shadow-md border-green-600"
+                                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                                }`}
                                         >
                                             {number}
                                         </button>
                                     ))}
-                                    
+
                                     {/* Botão Próximo */}
                                     <button
                                         onClick={goToNextPage}
@@ -349,7 +361,7 @@ export default function UsersPage() {
                                     >
                                         {"Próximo >"}
                                     </button>
-                                    
+
                                 </div>
                             )}
                             {/* Fim da Paginação ATUALIZADA */}
