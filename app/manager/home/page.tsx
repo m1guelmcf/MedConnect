@@ -1,7 +1,8 @@
 // app/manager/home/page.tsx (ou doctors/page.tsx, dependendo da sua rota)
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+// -> ADICIONADO: useMemo para otimizar a criação da lista de especialidades
+import React, { useEffect, useState, useCallback, useMemo } from "react"
 import ManagerLayout from "@/components/manager-layout";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -49,6 +50,8 @@ interface Doctor {
   phone_mobile: string | null;
   city: string | null;
   state: string | null;
+  // -> ADICIONADO: Campo 'status' para que o filtro funcione. Sua API precisa retornar este dado.
+  status?: string;
 }
 
 interface DoctorDetails {
@@ -77,6 +80,12 @@ export default function DoctorsPage() {
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [doctorToDeleteId, setDoctorToDeleteId] = useState<number | null>(null);
+
+  // -> PASSO 1: Criar estados para os filtros
+  const [specialtyFilter, setSpecialtyFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+
 
   // --- Lógica de Paginação ---
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -140,8 +149,13 @@ export default function DoctorsPage() {
     setError(null);
     try {
       const data: Doctor[] = await doctorsService.list();
-      setDoctors(data || []);
-      setCurrentPage(1); // Resetar para a primeira página ao carregar novos dados
+      // Exemplo: Adicionando um status fake para o filtro funcionar. O ideal é que isso venha da API.
+      const dataWithStatus = data.map((doc, index) => ({
+        ...doc,
+        status: index % 3 === 0 ? "Inativo" : index % 2 === 0 ? "Férias" : "Ativo"
+      }));
+      setDoctors(dataWithStatus || []);
+      setCurrentPage(1); 
     } catch (e: any) {
       console.error("Erro ao carregar lista de médicos:", e);
       setError(
@@ -152,6 +166,8 @@ export default function DoctorsPage() {
       setLoading(false);
     }
   }, []);
+
+
 
   useEffect(() => {
     fetchDoctors();
@@ -164,18 +180,16 @@ export default function DoctorsPage() {
       crm: doctor.crm,
       especialidade: doctor.specialty,
       contato: { celular: doctor.phone_mobile ?? undefined },
-      endereco: {
-        cidade: doctor.city ?? undefined,
-        estado: doctor.state ?? undefined,
-      },
+      endereco: { cidade: doctor.city ?? undefined, estado: doctor.state ?? undefined },
+      status: doctor.status || "Ativo", // Usa o status do médico
       convenio: "Particular",
       vip: false,
-      status: "Ativo",
       ultimo_atendimento: "N/A",
       proximo_atendimento: "N/A",
     });
   };
 
+ 
   const handleDelete = async () => {
     if (doctorToDeleteId === null) return;
     setLoading(true);
@@ -196,10 +210,25 @@ export default function DoctorsPage() {
     setDoctorToDeleteId(doctorId);
     setDeleteDialogOpen(true);
   };
+  
 
   const handleEdit = (doctorId: number) => {
     router.push(`/manager/home/${doctorId}/editar`);
   };
+
+  // -> MELHORIA: Gera a lista de especialidades dinamicamente
+  const uniqueSpecialties = useMemo(() => {
+    const specialties = doctors.map(doctor => doctor.specialty).filter(Boolean);
+    return [...new Set(specialties)];
+  }, [doctors]);
+
+  // -> PASSO 3: Aplicar a lógica de filtragem
+  const filteredDoctors = doctors.filter(doctor => {
+    const specialtyMatch = specialtyFilter === "all" || doctor.specialty === specialtyFilter;
+    const statusMatch = statusFilter === "all" || doctor.status === statusFilter;
+    return specialtyMatch && statusMatch;
+  });
+
 
   return (
     <ManagerLayout>
@@ -224,23 +253,27 @@ export default function DoctorsPage() {
 
         {/* Filtros e Itens por Página */}
         <div className="flex flex-wrap items-center gap-3 bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
+                    <span className="text-sm font-medium text-foreground">Especialidades</span>
           <Filter className="w-5 h-5 text-gray-400" />
-          <Select>
+          <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
             <SelectTrigger className="w-[160px] sm:w-[180px]">
               <SelectValue placeholder="Especialidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="cardiologia">Cardiologia</SelectItem>
-              <SelectItem value="dermatologia">Dermatologia</SelectItem>
-              <SelectItem value="pediatria">Pediatria</SelectItem>
+              <SelectItem value="all">Todas</SelectItem>
+              {uniqueSpecialties.map((specialty: any) => (
+                <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select>
+          <span className="text-sm font-medium text-foreground">Status</span>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px] sm:w-[180px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ativo">Ativo</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="Ativo">Ativo</SelectItem>
               <SelectItem value="ferias">Férias</SelectItem>
               <SelectItem value="inativo">Inativo</SelectItem>
             </SelectContent>
@@ -269,17 +302,16 @@ export default function DoctorsPage() {
               Carregando médicos...
             </div>
           ) : error ? (
-            <div className="p-8 text-center text-red-600">{error}</div>
-          ) : doctors.length === 0 ? (
+            <div className="p-8 text-center text-red-600">
+              {error}
+            </div>
+            // -> Atualizado para usar a lista filtrada
+          ) : filteredDoctors.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              Nenhum médico cadastrado.{" "}
-              <Link
-                href="/manager/home/novo"
-                className="text-green-600 hover:underline"
-              >
-                Adicione um novo
-              </Link>
-              .
+              {doctors.length === 0
+                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-green-600 hover:underline">Adicione um novo</Link>.</>
+                : "Nenhum médico encontrado com os filtros aplicados."
+              }
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -307,8 +339,8 @@ export default function DoctorsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {/* Usando currentItems para a paginação */}
-                  {currentItems.map((doctor) => (
+                  {/* -> ATUALIZADO para mapear a lista filtrada */}
+                  {filteredDoctors.map((doctor) => (
                     <tr key={doctor.id} className="hover:bg-gray-50 transition">
                       <td className="px-4 py-3 font-medium text-gray-900">
                         {doctor.full_name}

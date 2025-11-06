@@ -14,6 +14,62 @@ import { patientsService } from "@/services/patientsApi.mjs";
 // Defina o tamanho da página.
 const PAGE_SIZE = 5; 
 
+// --- INÍCIO DA CORREÇÃO ---
+interface Patient {
+  id: string;
+  nome: string;
+  telefone: string;
+  cidade: string;
+  estado: string;
+  ultimoAtendimento: string;
+  proximoAtendimento: string;
+  vip: boolean;
+  convenio: string;
+  status?: string;
+  // Propriedades detalhadas para o modal
+  full_name?: string;
+  cpf?: string;
+  email?: string;
+  phone_mobile?: string;
+  phone1?: string;
+  phone2?: string;
+  social_name?: string;
+  sex?: string;
+  blood_type?: string;
+  weight_kg?: number;
+  height_m?: number;
+  bmi?: number;
+  street?: string;
+  neighborhood?: string;
+  city?: string; // <-- Adicionado
+  state?: string; // <-- Adicionado
+  cep?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+// --- FIM DA CORREÇÃO ---
+
+// Função para formatar a data
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) {
+    return "N/A";
+  }
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Data inválida";
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch (error) {
+    return "Data inválida";
+  }
+};
+
 export default function PacientesPage() {
     // --- ESTADOS DE DADOS E GERAL ---
     const [searchTerm, setSearchTerm] = useState("");
@@ -68,7 +124,76 @@ export default function PacientesPage() {
                     convenio: p.convenio ?? "Particular", // Define um valor padrão
                     status: p.status ?? undefined,
                 }));
+  const [searchTerm, setSearchTerm] = useState("");
+  const [convenioFilter, setConvenioFilter] = useState("all");
+  const [vipFilter, setVipFilter] = useState("all");
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [patientDetails, setPatientDetails] = useState<Patient | { error: string } | null>(null);
 
+  const openDetailsDialog = async (patientId: string) => {
+    setDetailsDialogOpen(true);
+    setPatientDetails(null);
+    try {
+      const res = await patientsService.getById(patientId);
+      setPatientDetails(res[0]);
+    } catch (e: any) {
+      setPatientDetails({ error: e?.message || "Erro ao buscar detalhes" });
+    }
+  };
+
+  const fetchPacientes = useCallback(
+    async (pageToFetch: number) => {
+      if (isFetching || !hasNext) return;
+      setIsFetching(true);
+      setError(null);
+      try {
+        const res = await patientsService.list();
+        const mapped: Patient[] = res.map((p: any) => ({
+          id: String(p.id ?? ""),
+          nome: p.full_name ?? "",
+          telefone: p.phone_mobile ?? p.phone1 ?? "",
+          cidade: p.city ?? "",
+          estado: p.state ?? "",
+          ultimoAtendimento: p.last_visit_at ?? "",
+          proximoAtendimento: p.next_appointment_at ?? "",
+          vip: Boolean(p.vip ?? false),
+          convenio: p.convenio ?? "",
+          status: p.status ?? undefined,
+        }));
+
+        setPatients((prev) => {
+          const all = [...prev, ...mapped];
+          const unique = Array.from(new Map(all.map((p) => [p.id, p])).values());
+          return unique;
+        });
+
+        if (mapped.length === 0) {
+          setHasNext(false);
+        } else {
+          setPage((prev) => prev + 1);
+        }
+
+      } catch (e: any) {
+        setError(e?.message || "Erro ao buscar pacientes");
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [isFetching, hasNext]
+  );
+
+  useEffect(() => {
+    fetchPacientes(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
                 setAllPatients(mapped);
             } catch (e: any) {
                 console.error(e);
@@ -143,6 +268,20 @@ export default function PacientesPage() {
         setPatientToDelete(patientId);
         setDeleteDialogOpen(true);
     };
+
+  const filteredPatients = patients.filter((patient) => {
+    const matchesSearch =
+      patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.telefone?.includes(searchTerm);
+    const matchesConvenio =
+      convenioFilter === "all" || (patient.convenio ?? "") === convenioFilter;
+    const matchesVip =
+      vipFilter === "all" ||
+      (vipFilter === "vip" && patient.vip) ||
+      (vipFilter === "regular" && !patient.vip);
+
+    return matchesSearch && matchesConvenio && matchesVip;
+  });
 
     return (
         <SecretaryLayout>
