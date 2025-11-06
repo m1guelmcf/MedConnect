@@ -30,34 +30,32 @@ import {
 import ManagerLayout from "@/components/manager-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
 
-// --- INÍCIO DA MODIFICAÇÃO ---
-// PASSO 1: Criar uma função para formatar a data
+// 📅 PASSO 1: Criar uma função para formatar a data
 const formatDate = (dateString: string | null | undefined): string => {
-    // Se a data não existir, retorna um texto padrão
-    if (!dateString) {
-        return "N/A";
+  // Se a data não existir, retorna um texto padrão
+  if (!dateString) {
+    return "N/A";
+  }
+
+  try {
+    const date = new Date(dateString);
+    // Verifica se a data é válida após a conversão
+    if (isNaN(date.getTime())) {
+      return "Data inválida";
     }
 
-    try {
-        const date = new Date(dateString);
-        // Verifica se a data é válida após a conversão
-        if (isNaN(date.getTime())) {
-            return "Data inválida";
-        }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é base 0, então +1
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
 
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é base 0, então +1
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch (error) {
-        // Se houver qualquer erro na conversão, retorna um texto de erro
-        return "Data inválida";
-    }
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch (error) {
+    // Se houver qualquer erro na conversão, retorna um texto de erro
+    return "Data inválida";
+  }
 };
-// --- FIM DA MODIFICAÇÃO ---
 
 
 export default function PacientesPage() {
@@ -257,86 +255,84 @@ export default function PacientesPage() {
           </Button>
         </div>
 
-                <div className="bg-white rounded-lg border border-gray-200">
-                    <div className="overflow-x-auto">
-                        {error ? (
-                            <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
-                        ) : (
-                            <table className="w-full min-w-[600px]">
-                                <thead className="bg-gray-50 border-b border-gray-200">
-                                    <tr>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Telefone</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Cidade</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Estado</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Último atendimento</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Próximo atendimento</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredPatients.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={7} className="p-8 text-center text-gray-500">
-                                                {patients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredPatients.map((patient) => (
-                                            <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                                            <span className="text-gray-600 font-medium text-sm">{patient.nome?.charAt(0) || "?"}</span>
-                                                        </div>
-                                                        <span className="font-medium text-gray-900">{patient.nome}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-gray-600">{patient.telefone}</td>
-                                                <td className="p-4 text-gray-600">{patient.cidade}</td>
-                                                <td className="p-4 text-gray-600">{patient.estado}</td>
-                                                {/* --- INÍCIO DA MODIFICAÇÃO --- */}
-                                                {/* PASSO 2: Aplicar a formatação de data na tabela */}
-                                                <td className="p-4 text-gray-600">{formatDate(patient.ultimoAtendimento)}</td>
-                                                <td className="p-4 text-gray-600">{formatDate(patient.proximoAtendimento)}</td>
-                                                {/* --- FIM DA MODIFICAÇÃO --- */}
-                                                <td className="p-4">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600 cursor-pointer">Ações</div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
-                                                                <Eye className="w-4 h-4 mr-2" />
-                                                                Ver detalhes
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem asChild>
-                                                                <Link href={`/manager/pacientes/${patient.id}/editar`}>
-                                                                    <Edit className="w-4 h-4 mr-2" />
-                                                                    Editar
-                                                                </Link>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem>
-                                                                <Calendar className="w-4 h-4 mr-2" />
-                                                                Marcar consulta
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                                Excluir
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
-                        <div ref={observerRef} style={{ height: 1 }} />
-                        {isFetching && <div className="p-4 text-center text-gray-500">Carregando mais pacientes...</div>}
-                    </div>
-                </div>
+        <div className="bg-white rounded-lg border border-gray-200">
+          <div className="overflow-x-auto">
+            {error ? (
+              <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
+            ) : (
+              <table className="w-full min-w-[600px]">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Telefone</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Cidade</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Estado</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Último atendimento</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Próximo atendimento</th>
+                    <th className="text-left p-2 md:p-4 font-medium text-gray-700">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPatients.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-gray-500">
+                        {patients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredPatients.map((patient) => (
+                      <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                              <span className="text-gray-600 font-medium text-sm">{patient.nome?.charAt(0) || "?"}</span>
+                            </div>
+                            <span className="font-medium text-gray-900">{patient.nome}</span>
+                          </div>
+                        </td>
+                        <td className="p-4 text-gray-600">{patient.telefone}</td>
+                        <td className="p-4 text-gray-600">{patient.cidade}</td>
+                        <td className="p-4 text-gray-600">{patient.estado}</td>
+                        {/* 📅 PASSO 2: Aplicar a formatação de data na tabela */}
+                        <td className="p-4 text-gray-600">{formatDate(patient.ultimoAtendimento)}</td>
+                        <td className="p-4 text-gray-600">{formatDate(patient.proximoAtendimento)}</td>
+                        <td className="p-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <div className="text-blue-600 cursor-pointer">Ações</div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/manager/pacientes/${patient.id}/editar`}>
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Editar
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Calendar className="w-4 h-4 mr-2" />
+                                Marcar consulta
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+            <div ref={observerRef} style={{ height: 1 }} />
+            {isFetching && <div className="p-4 text-center text-gray-500">Carregando mais pacientes...</div>}
+          </div>
+        </div>
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
@@ -361,87 +357,85 @@ export default function PacientesPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-                {/* Modal de detalhes do paciente */}
-                <AlertDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Detalhes do Paciente</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                {patientDetails === null ? (
-                                    <div className="text-gray-500">Carregando...</div>
-                                ) : patientDetails?.error ? (
-                                    <div className="text-red-600">{patientDetails.error}</div>
-                                ) : (
-                                    <div className="space-y-2 text-left">
-                                        <p>
-                                            <strong>Nome:</strong> {patientDetails.full_name}
-                                        </p>
-                                        <p>
-                                            <strong>CPF:</strong> {patientDetails.cpf}
-                                        </p>
-                                        <p>
-                                            <strong>Email:</strong> {patientDetails.email}
-                                        </p>
-                                        <p>
-                                            <strong>Telefone:</strong> {patientDetails.phone_mobile ?? patientDetails.phone1 ?? patientDetails.phone2 ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Nome social:</strong> {patientDetails.social_name ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Sexo:</strong> {patientDetails.sex ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Tipo sanguíneo:</strong> {patientDetails.blood_type ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Peso:</strong> {patientDetails.weight_kg ?? "-"}
-                                            {patientDetails.weight_kg ? "kg" : ""}
-                                        </p>
-                                        <p>
-                                            <strong>Altura:</strong> {patientDetails.height_m ?? "-"}
-                                            {patientDetails.height_m ? "m" : ""}
-                                        </p>
-                                        <p>
-                                            <strong>IMC:</strong> {patientDetails.bmi ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Endereço:</strong> {patientDetails.street ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Bairro:</strong> {patientDetails.neighborhood ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Cidade:</strong> {patientDetails.city ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>Estado:</strong> {patientDetails.state ?? "-"}
-                                        </p>
-                                        <p>
-                                            <strong>CEP:</strong> {patientDetails.cep ?? "-"}
-                                        </p>
-                                        {/* --- INÍCIO DA MODIFICAÇÃO --- */}
-                                        {/* PASSO 3: Aplicar a formatação de data no modal */}
-                                        <p>
-                                            <strong>Criado em:</strong> {formatDate(patientDetails.created_at)}
-                                        </p>
-                                        <p>
-                                            <strong>Atualizado em:</strong> {formatDate(patientDetails.updated_at)}
-                                        </p>
-                                        {/* --- FIM DA MODIFICAÇÃO --- */}
-                                        <p>
-                                            <strong>Id:</strong> {patientDetails.id ?? "-"}
-                                        </p>
-                                    </div>
-                                )}
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Fechar</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </ManagerLayout>
-    );
+        {/* Modal de detalhes do paciente */}
+        <AlertDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Detalhes do Paciente</AlertDialogTitle>
+              <AlertDialogDescription>
+                {patientDetails === null ? (
+                  <div className="text-gray-500">Carregando...</div>
+                ) : patientDetails?.error ? (
+                  <div className="text-red-600">{patientDetails.error}</div>
+                ) : (
+                  <div className="space-y-2 text-left">
+                    <p>
+                      <strong>Nome:</strong> {patientDetails.full_name}
+                    </p>
+                    <p>
+                      <strong>CPF:</strong> {patientDetails.cpf}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {patientDetails.email}
+                    </p>
+                    <p>
+                      <strong>Telefone:</strong> {patientDetails.phone_mobile ?? patientDetails.phone1 ?? patientDetails.phone2 ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Nome social:</strong> {patientDetails.social_name ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Sexo:</strong> {patientDetails.sex ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Tipo sanguíneo:</strong> {patientDetails.blood_type ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Peso:</strong> {patientDetails.weight_kg ?? "-"}
+                      {patientDetails.weight_kg ? "kg" : ""}
+                    </p>
+                    <p>
+                      <strong>Altura:</strong> {patientDetails.height_m ?? "-"}
+                      {patientDetails.height_m ? "m" : ""}
+                    </p>
+                    <p>
+                      <strong>IMC:</strong> {patientDetails.bmi ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Endereço:</strong> {patientDetails.street ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Bairro:</strong> {patientDetails.neighborhood ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Cidade:</strong> {patientDetails.city ?? "-"}
+                    </p>
+                    <p>
+                      <strong>Estado:</strong> {patientDetails.state ?? "-"}
+                    </p>
+                    <p>
+                      <strong>CEP:</strong> {patientDetails.cep ?? "-"}
+                    </p>
+                    {/* 📅 PASSO 3: Aplicar a formatação de data no modal */}
+                    <p>
+                      <strong>Criado em:</strong> {formatDate(patientDetails.created_at)}
+                    </p>
+                    <p>
+                      <strong>Atualizado em:</strong> {formatDate(patientDetails.updated_at)}
+                    </p>
+                    <p>
+                      <strong>Id:</strong> {patientDetails.id ?? "-"}
+                    </p>
+                  </div>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Fechar</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </ManagerLayout>
+  );
 }
