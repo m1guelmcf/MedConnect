@@ -202,12 +202,6 @@ export default function DoctorsPage() {
                         <h1 className="text-2xl font-bold text-gray-900">Médicos Cadastrados</h1>
                         <p className="text-sm text-gray-500">Gerencie todos os profissionais de saúde.</p>
                     </div>
-                    <Link href="/manager/home/novo" className="w-full sm:w-auto">
-                        <Button className="w-full sm:w-auto bg-green-600 hover:bg-green-700">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Adicionar Novo
-                        </Button>
-                    </Link>
                 </div>
 
 

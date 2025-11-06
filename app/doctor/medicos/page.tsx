@@ -197,7 +197,7 @@ export default function PacientesPage() {
               </SelectContent>
             </Select>
             <Link href="/doctor/pacientes/novo">
-                <Button variant="default" className="bg-primary hover:bg-primary/90">
+                <Button variant="default" className="bg-green-600 hover:bg-green-700">
                     Novo Paciente
                 </Button>
             </Link>
@@ -334,7 +334,7 @@ export default function PacientesPage() {
                   onClick={() => paginate(number)}
                   className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-border ${
                     currentPage === number
-                      ? "bg-primary text-primary-foreground shadow-md border-primary"
+                      ? "bg-green-600 text-primary-foreground shadow-md border-green-600"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   }`}
                 >

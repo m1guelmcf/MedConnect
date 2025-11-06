@@ -308,34 +308,30 @@ export default function PacientesPage() {
                             </table>
                         )}
                     </div>
-                    
+
                     {/* Paginação */}
                     {totalPages > 1 && !loading && (
-                        <div className="flex flex-wrap items-center justify-between p-4 border-t border-gray-200">
-                            {/* Adicionado contador de página para melhor informação no mobile */}
-                           
-                            {/* Botões de Navegação */}
-                            <div className="flex space-x-1 order-1 w-full justify-center sm:w-auto sm:justify-start sm:order-2">
+                        <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
+                            {/* Renderização dos botões de número de página (Limitando a 5) */}
+                            <div className="flex space-x-2"> {/* Increased space-x for more separation */}
                                 {/* Botão Anterior */}
                                 <Button
                                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                                     disabled={page === 1}
                                     variant="outline"
-                                    size="sm"
+                                    size="lg" // Changed to "lg" for larger buttons
                                 >
                                     &lt; Anterior
                                 </Button>
 
-                                {/* Renderização dos botões de número de página (Limitando a 5) */}
                                 {Array.from({ length: totalPages }, (_, index) => index + 1)
-                                    // Limita a exibição dos botões para 5 (janela de visualização)
-                                    .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2)) 
+                                    .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
                                     .map((pageNumber) => (
                                         <Button
                                             key={pageNumber}
                                             onClick={() => setPage(pageNumber)}
                                             variant={pageNumber === page ? "default" : "outline"}
-                                            size="sm"
+                                            size="lg" // Changed to "lg" for larger buttons
                                             className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
                                         >
                                             {pageNumber}
@@ -347,7 +343,7 @@ export default function PacientesPage() {
                                     onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
                                     disabled={page === totalPages}
                                     variant="outline"
-                                    size="sm"
+                                    size="lg" // Changed to "lg" for larger buttons
                                 >
                                     Próximo &gt;
                                 </Button>
