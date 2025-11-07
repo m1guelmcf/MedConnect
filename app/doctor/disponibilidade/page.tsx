@@ -21,6 +21,8 @@ import { Eye, Edit, Calendar, Trash2 } from "lucide-react";
 import { AvailabilityEditModal } from "@/components/ui/availability-edit-modal";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
+// ... (Interfaces de tipo omitidas para brevidade, pois não foram alteradas)
+
 interface UserPermissions {
     isAdmin: boolean;
     isManager: boolean;
@@ -52,32 +54,32 @@ interface UserData {
 }
 
 type Doctor = {
-  id: string;
-  user_id: string | null;
-  crm: string;
-  crm_uf: string;
-  specialty: string;
-  full_name: string;
-  cpf: string;
-  email: string;
-  phone_mobile: string | null;
-  phone2: string | null;
-  cep: string | null;
-  street: string | null;
-  number: string | null;
-  complement: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  state: string | null;
-  birth_date: string | null;
-  rg: string | null;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  updated_by: string | null;
-  max_days_in_advance: number;
-  rating: number | null;
+    id: string;
+    user_id: string | null;
+    crm: string;
+    crm_uf: string;
+    specialty: string;
+    full_name: string;
+    cpf: string;
+    email: string;
+    phone_mobile: string | null;
+    phone2: string | null;
+    cep: string | null;
+    street: string | null;
+    number: string | null;
+    complement: string | null;
+    neighborhood: string | null;
+    city: string | null;
+    state: string | null;
+    birth_date: string | null;
+    rg: string | null;
+    active: boolean;
+    created_at: string;
+    updated_at: string;
+    created_by: string;
+    updated_by: string | null;
+    max_days_in_advance: number;
+    rating: number | null;
 }
 
 type Availability = {
@@ -190,7 +192,7 @@ export default function AvailabilityPage() {
                 console.log(doctor);
                 // Busca disponibilidade
                 const availabilityList = await AvailabilityService.list();
-              
+            
                 // Filtra já com a variável local
                 const filteredAvail = availabilityList.filter(
                 (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
@@ -335,43 +337,45 @@ export default function AvailabilityPage() {
                         <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados </h2>
 
                         <div className="space-y-6">
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <div>
-                                    <Label className="text-sm font-medium text-gray-700">Dia Da Semana</Label>
-                                    <div className="flex gap-4 mt-2 flex-nowrap">
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="monday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Segunda-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="tuesday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Terça-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="wednesday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Quarta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="thursday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Quinta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="friday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Sexta-Feira</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="saturday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Sábado</span>
-                                        </label>
-                                        <label className="flex items-center gap-2">
-                                            <input type="radio" name="weekday" value="sunday" className="text-blue-600" />
-                                            <span className="whitespace-nowrap text-sm">Domingo</span>
-                                        </label>
-                                    </div>
+                            {/* **AJUSTE DE RESPONSIVIDADE: DIAS DA SEMANA** */}
+                            <div>
+                                <Label className="text-sm font-medium text-gray-700">Dia Da Semana</Label>
+                                {/* O antigo 'flex gap-4 mt-2 flex-nowrap' foi substituído por um grid responsivo: */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-2 mt-2">
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="monday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Segunda</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="tuesday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Terça</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="wednesday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Quarta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="thursday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Quinta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="friday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Sexta</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="saturday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Sábado</span>
+                                    </label>
+                                    <label className="flex items-center gap-1">
+                                        <input type="radio" name="weekday" value="sunday" className="text-blue-600" />
+                                        <span className="whitespace-nowrap text-sm">Domingo</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div className="grid md:grid-cols-5 gap-6">
+                            {/* **AJUSTE DE RESPONSIVIDADE: HORÁRIO E DURAÇÃO** */}
+                            {/* Ajustado para 1 coluna em móvel, 2 em tablet e 5 em desktop (mantendo o que já existia com ajustes) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                                 <div>
                                     <Label htmlFor="horarioEntrada" className="text-sm font-medium text-gray-700">
                                         Horario De Entrada
@@ -390,6 +394,7 @@ export default function AvailabilityPage() {
                                     </Label>
                                     <Input type="number" id="duracaoConsulta" name="duracaoConsulta" required className="mt-1" />
                                 </div>
+                                {/* O Select de modalidade fica fora deste grid para ocupar uma linha inteira em telas menores, como no original, garantindo clareza */}
                             </div>
 
                             <div>
@@ -409,53 +414,56 @@ export default function AvailabilityPage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-between gap-4">
-                        <Link href="/doctor/disponibilidade/excecoes">
-                            <Button variant="default">Adicionar Exceção</Button>
+                    {/* **AJUSTE DE RESPONSIVIDADE: BOTÕES DE AÇÃO** */}
+                    {/* Alinha à direita em telas maiores e empilha (com o botão primário no final) em telas menores */}
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
+                        <Link href="/doctor/disponibilidade/excecoes" className="w-full sm:w-auto">
+                            <Button variant="default" className="w-full sm:w-auto">Adicionar Exceção</Button>
                         </Link>
-                        <div>
-                            <Link href="/doctor/dashboard">
-                                <Button variant="outline">Cancelar</Button>
+                        <div className="flex gap-4 w-full sm:w-auto">
+                            <Link href="/doctor/dashboard" className="w-full sm:w-auto">
+                                <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
                             </Link>
-                            <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                            <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                                 Salvar Disponibilidade
                             </Button>
                         </div>
                     </div>
                 </form>
+                
+                {/* **AJUSTE DE RESPONSIVIDADE: CARD DE HORÁRIO SEMANAL** */}
                 <div>
                     <Card>
                         <CardHeader>
                             <CardTitle>Horário Semanal</CardTitle>
                             <CardDescription>Confira ou altere a sua disponibilidade da semana</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
+                        {/* Define um grid responsivo para os dias da semana (1 coluna em móvel, 2 em pequeno, 3 em médio e 7 em telas grandes) */}
+                        <CardContent className="space-y-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
                             {["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => {
                                 const times = schedule[day] || [];
                                 return (
                                     <div key={day} className="space-y-4">
-                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                            <div>
-                                                <p className="font-medium capitalize">{weekdaysPT[day]}</p>
-                                            </div>
-                                            <div className="text-center">
+                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg h-full">
+                                            <p className="font-medium capitalize text-center mb-2">{weekdaysPT[day]}</p>
+                                            <div className="text-center w-full">
                                                 {times.length > 0 ? (
                                                     times.map((t, i) => (
                                                         <div key={i}>
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <p  className="text-sm text-gray-600 hover:text-accent-foreground hover:bg-gray-200">
-                                                                        {formatTime(t.start)} <br /> {formatTime(t.end)}
+                                                                    <p  className="text-sm text-gray-600 cursor-pointer p-1 rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
+                                                                        {formatTime(t.start)} - {formatTime(t.end)}
                                                                     </p>
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end">
                                                                     <DropdownMenuItem onClick={() => handleOpenModal(t, day)}>
-                                                                    <Eye className="w-4 h-4 mr-2" />
+                                                                    <Edit className="w-4 h-4 mr-2" />
                                                                     Editar
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                     onClick={() => openDeleteDialog(t, day)}
-                                                                    className="text-red-600">
+                                                                    className="text-red-600 focus:bg-red-50 focus:text-red-600">
                                                                     <Trash2 className="w-4 h-4 mr-2" />
                                                                     Excluir
                                                                     </DropdownMenuItem>
@@ -474,6 +482,8 @@ export default function AvailabilityPage() {
                         </CardContent>
                     </Card>
                 </div>
+                
+                {/* AlertDialog e Modal de Edição (não precisam de grandes ajustes de layout, apenas garantindo que os componentes sejam responsivos internamente) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>

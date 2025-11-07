@@ -128,11 +128,15 @@ export default function PatientAppointmentsPage() {
     toast.info(`Funcionalidade de cancelamento da consulta ${apt.id} ainda não implementada`);
   };
 
-  return (
-    <PatientLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">Minhas Consultas</h1>
-        <p className="text-gray-600">Veja, reagende ou cancele suas consultas</p>
+    return (
+        <PatientLayout>
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold text-foreground">Minhas Consultas</h1>
+                        <p className="text-muted-foreground">Veja, reagende ou cancele suas consultas</p>
+                    </div>
+                </div>
 
         <div className="grid gap-6">
           {isLoading ? (
