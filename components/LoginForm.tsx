@@ -61,7 +61,7 @@ export function LoginForm({ children }: LoginFormProps) {
             case "secretary":
                 redirectPath = "/secretary/pacientes";
                 break;
-            case "paciente":
+            case "patient":
                 redirectPath = "/patient/dashboard";
                 break;
             case "finance":

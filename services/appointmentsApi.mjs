@@ -1,5 +1,8 @@
 import { api } from "./api.mjs";
 
+
+
+
 export const appointmentsService = {
   /**
    * Busca por horários disponíveis para agendamento.
