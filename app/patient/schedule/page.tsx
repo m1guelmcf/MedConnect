@@ -502,6 +502,20 @@ export default function ScheduleAppointment() {
                   </CardContent>
                 </Card>
 
+                {/* Card de Informações Importantes */}
+                <Card className="shadow-md rounded-xl border border-gray-200">
+                  <CardHeader>
+                    <CardTitle className="text-gray-800 text-base">Informações Importantes</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-gray-700 space-y-2">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Chegue com 15 minutos de antecedência</li>
+                      <li>Traga documento com foto</li>
+                      <li>Traga carteirinha do convênio</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
                 <div className="flex gap-2">
                   <Button
                     type="submit"
