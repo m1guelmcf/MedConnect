@@ -44,6 +44,7 @@ interface DoctorData {
   specialty: string;
   department: string;
   permissions: object;
+  role: string
 }
 
 interface PatientLayoutProps {
@@ -79,6 +80,7 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
         crm: "",
         department: "",
         permissions: {},
+        role: userInfo.role
       });
     } else {
       // Se não encontrar, aí sim redireciona.
@@ -144,6 +146,12 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
       icon: Calendar,
       label: "Consultas",
       // Botão para página de consultas marcadas do médico atual
+    },
+    {
+      href: "/doctor/medicos/editorlaudo",
+      icon: Clock,
+      label: "Editor de Laudo",
+      // Botão para página do editor de laudo
     },
     {
       href: "/doctor/medicos",
@@ -291,6 +299,7 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
+                       
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">

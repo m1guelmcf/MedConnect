@@ -33,9 +33,11 @@ export async function login(email, senha) {
     const data = await res.json();
     console.log("✅ Login bem-sucedido:", data);
 
-    if (typeof window !== "undefined" && data.access_token) {
+        if (typeof window !== "undefined" && data.access_token) {
         localStorage.setItem("token", data.access_token);
-    }
+        localStorage.setItem("user_info", JSON.stringify(data.user));
+}
+
 
     return data;
 }
