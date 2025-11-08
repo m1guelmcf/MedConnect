@@ -10,21 +10,10 @@ import { format, addDays } from "date-fns";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Calendar, Clock, User, StickyNote } from "lucide-react";
 import PatientLayout from "@/components/patient-layout";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import {Card,CardContent,CardHeader,CardTitle,} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue,} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
@@ -109,7 +98,6 @@ export default function ScheduleAppointment() {
     }
   }, []);
 
-  // --- Compute availability counts for next 90 days (efficient) ---
   const computeAvailabilityCountsPreview = async (doctorId: string, dispList: Disponibilidade[]) => {
     try {
       const today = new Date();
