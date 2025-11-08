@@ -8,6 +8,7 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { usersService } from "services/usersApi.mjs";
 import { doctorsService } from "services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 export default function ManagerDashboard() {
     // 🔹 Estados para usuários
@@ -55,7 +56,7 @@ export default function ManagerDashboard() {
     }, []);
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="space-y-6">
                 {/* Cabeçalho */}
                 <div>
@@ -185,6 +186,6 @@ export default function ManagerDashboard() {
                     </Card>
                 </div>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

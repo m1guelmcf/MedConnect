@@ -8,8 +8,7 @@ import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { format, addDays } from "date-fns";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Calendar, Clock, User, StickyNote } from "lucide-react";
-import PatientLayout from "@/components/patient-layout";
+import { Calendar, User, StickyNote } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import Sidebar from "@/components/Sidebar";
 
 
 interface Doctor {
@@ -363,7 +363,7 @@ export default function ScheduleAppointment() {
 
  
   return (
-    <PatientLayout>
+    <Sidebar>
       <div className="max-w-6xl mx-auto space-y-4 px-4">
         <h1 className="text-2xl font-semibold">Agendar Consulta</h1>
 
@@ -550,6 +550,6 @@ export default function ScheduleAppointment() {
           </div>
         )}
       </div>
-    </PatientLayout>
+    </Sidebar>
   );
 }

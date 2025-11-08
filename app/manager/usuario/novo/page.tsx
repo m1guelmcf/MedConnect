@@ -10,10 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, Loader2, Pause } from "lucide-react";
-import ManagerLayout from "@/components/manager-layout";
 import { usersService } from "@/services/usersApi.mjs";
-import { doctorsService } from "@/services/doctorsApi.mjs"; // Importação adicionada
-import { login } from "services/api.mjs";
+import { doctorsService } from "@/services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 interface UserFormData {
     email: string;
@@ -145,7 +144,7 @@ export default function NovoUsuarioPage() {
     const isMedico = formData.papel === "medico";
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="w-full h-full p-4 md:p-8 flex justify-center items-start">
                 <div className="w-full max-w-screen-lg space-y-8">
                     <div className="flex items-center justify-between border-b pb-4">
@@ -250,6 +249,6 @@ export default function NovoUsuarioPage() {
                     </form>
                 </div>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

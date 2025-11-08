@@ -1,10 +1,6 @@
 "use client";
 
-import SecretaryLayout from "@/components/secretary-layout";
-import {
-    Card,
-    CardContent,
-    CardDescription,
+import { Card, CardContent, CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -14,6 +10,7 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { patientsService } from "@/services/patientsApi.mjs";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 export default function SecretaryDashboard() {
     // Estados
@@ -100,7 +97,7 @@ export default function SecretaryDashboard() {
     }, []);
 
     return (
-        <SecretaryLayout>
+        <Sidebar>
             <div className="space-y-6">
                 {/* Cabeçalho */}
                 <div>
@@ -299,6 +296,6 @@ export default function SecretaryDashboard() {
                     </Card>
                 </div>
             </div>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }

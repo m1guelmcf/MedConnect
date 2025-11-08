@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { User, Mail, Phone, Calendar, FileText } from "lucide-react"
+import Sidebar from "@/components/Sidebar"
 
 interface PatientData {
   name: string
@@ -50,7 +51,7 @@ export default function PatientProfile() {
   }
 
   return (
-    <PatientLayout>
+    <Sidebar>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -217,6 +218,6 @@ export default function PatientProfile() {
           </div>
         </div>
       </div>
-    </PatientLayout>
+    </Sidebar>
   )
 }

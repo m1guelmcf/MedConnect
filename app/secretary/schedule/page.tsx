@@ -2,7 +2,6 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import SecretaryLayout from "@/components/secretary-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ import { doctorsService } from "@/services/doctorsApi.mjs";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
 import { toast } from "sonner"; // Para notificações
+import Sidebar from "@/components/Sidebar";
 
 export default function ScheduleAppointment() {
     const router = useRouter();
@@ -153,7 +153,7 @@ export default function ScheduleAppointment() {
         }
     };
     return (
-        <SecretaryLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Agendar Consulta</h1>
@@ -350,6 +350,6 @@ export default function ScheduleAppointment() {
                     </div>
                 </div>
             </div>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }

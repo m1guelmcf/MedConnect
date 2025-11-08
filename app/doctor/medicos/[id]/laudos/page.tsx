@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { api } from '@/services/api.mjs';
 import { reportsApi } from '@/services/reportsApi.mjs';
-import DoctorLayout from '@/components/doctor-layout';
+import Sidebar from '@/components/Sidebar';
 
 export default function LaudosPage() {
     const [patient, setPatient] = useState(null);
@@ -49,7 +49,7 @@ export default function LaudosPage() {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="container mx-auto p-4">
                 {loading ? (
                     <p>Carregando...</p>
@@ -123,6 +123,6 @@ export default function LaudosPage() {
                     </>
                 )}
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Calendar as CalendarIcon, MapPin, Phone, User, X, RefreshCw } from "lucide-react";
@@ -12,6 +11,7 @@ import { toast } from "sonner";
 // IMPORTAR O COMPONENTE CALENDÁRIO DA SHADCN
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"; // Usaremos o date-fns para formatação e comparação de datas
+import Sidebar from "@/components/Sidebar";
 
 const APPOINTMENTS_STORAGE_KEY = "clinic-appointments";
 
@@ -141,7 +141,7 @@ export default function DoctorAppointmentsPage() {
 
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Agenda Médica Centralizada</h1>
@@ -267,6 +267,6 @@ export default function DoctorAppointmentsPage() {
                     </div>
                 </div>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

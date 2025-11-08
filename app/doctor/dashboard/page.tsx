@@ -14,6 +14,7 @@ import { AvailabilityService } from "@/services/availabilityApi.mjs";
 import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 type Availability = {
     id: string;
@@ -231,7 +232,7 @@ export default function PatientDashboard() {
     }, [availability]);
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -409,6 +410,6 @@ export default function PatientDashboard() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

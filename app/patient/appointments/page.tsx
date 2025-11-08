@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PatientLayout from "@/components/patient-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 // Tipagem correta para o usuário
 interface UserProfile {
@@ -129,7 +129,7 @@ export default function PatientAppointmentsPage() {
   };
 
     return (
-        <PatientLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <div>
@@ -185,6 +185,6 @@ export default function PatientAppointmentsPage() {
           )}
         </div>
       </div>
-    </PatientLayout>
+    </Sidebar>
   );
 }
