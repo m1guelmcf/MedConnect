@@ -13,9 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { format, addDays } from "date-fns";
-import { User, StickyNote } from "lucide-react";
+import { User, StickyNote, Calendar } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import {api} from "@/services/api.mjs"
 
 export default function ScheduleForm() {
   // Estado do usuário e role
@@ -42,6 +41,7 @@ export default function ScheduleForm() {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
+  // Funções auxiliares
   const getWeekdayNumber = (weekday: string) =>
     ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
       .indexOf(weekday.toLowerCase()) + 1;
@@ -207,71 +207,46 @@ export default function ScheduleForm() {
   }, [selectedDoctor, selectedDate, fetchAvailableSlots]);
 
   // 🔹 Submeter agendamento
-  // 🔹 Submeter agendamento
-    const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
-  let patientId = selectedPatient;
-
-  try {
-    // 🔹 Se for paciente, buscamos o ID real na tabela `patients`
-    if (!isSecretaryLike) {
-      const me = await usersService.getMe();
-      const authId = me?.user?.id;
-
-      if (!authId) {
-        toast({ title: "Erro", description: "Usuário não autenticado." });
-        return;
-      }
-
-      // Busca o registro de paciente correspondente ao usuário autenticado
-      const patientsData = await api.get(`/rest/v1/patients?user_id=eq.${authId}`);
-      if (!patientsData || patientsData.length === 0) {
-        toast({ title: "Erro", description: "Registro de paciente não encontrado." });
-        return;
-      }
-
-      patientId = patientsData[0].id;
-    }
+    const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
+    const patientId = isSecretaryLike ? selectedPatient : userId;
 
     if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
       toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
       return;
     }
 
-    const body = {
-      doctor_id: selectedDoctor,
-      patient_id: patientId,
-      scheduled_at: `${selectedDate}T${selectedTime}:00Z`,
-      duration_minutes: 30,
-      notes,
-      appointment_type: "presencial",
-      created_by: userId,
-    };
-
-    console.log("🩵 Enviando agendamento:", body);
-
     try {
+      const body = {
+        doctor_id: selectedDoctor,
+        patient_id: patientId,
+        scheduled_at: `${selectedDate}T${selectedTime}:00`,
+        duration_minutes: Number(duracao),
+        notes,
+        appointment_type: tipoConsulta,
+      };
+
       await appointmentsService.create(body);
-      toast({ title: "Sucesso", description: "Consulta agendada com sucesso!" });
+        const dateFormatted = selectedDate.split("-").reverse().join("/");
+        toast({
+          title: "Consulta agendada!",
+          description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
+            doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
+          }.`,
+      });
+
+      setSelectedDoctor("");
+      setSelectedDate("");
+      setSelectedTime("");
+      setNotes("");
+      setSelectedPatient("");
     } catch (err) {
-      console.warn("⚠️ Tentando método alternativo...");
-      await appointmentsService.create?.(body);
+      console.error(err);
+      toast({ title: "Erro", description: "Falha ao agendar consulta." });
     }
-
-    setSelectedDoctor("");
-    setSelectedDate("");
-    setSelectedTime("");
-    setNotes("");
-    setSelectedPatient("");
-  } catch (err) {
-    console.error("❌ Erro ao agendar:", err);
-    toast({ title: "Erro", description: "Falha ao agendar consulta." });
-  }
-};
-
-
+  };
 
   // 🔹 Tooltip no calendário
   useEffect(() => {
