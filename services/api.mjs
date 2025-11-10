@@ -106,4 +106,25 @@ export const api = {
     patch: (endpoint, data, options) => request(endpoint, { method: "PATCH", body: JSON.stringify(data), ...options }),
     delete: (endpoint, options) => request(endpoint, { method: "DELETE", ...options }),
     logout: logout,
+    storage: {
+        async upload(bucket, path, file) {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${BASE_URL}/storage/v1/object/${bucket}/${path}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': file.type,
+                    'apikey': API_KEY,
+                    'Authorization': `Bearer ${token}`,
+                    'x-upsert': 'true' // Isso faz com que o arquivo seja substituído se já existir
+                },
+                body: file,
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json();
+                throw new Error(`Erro no upload: ${errorBody.message}`);
+            }
+            return response.json();
+        }
+    },
 };

@@ -47,35 +47,41 @@ export function LoginForm({ children }: LoginFormProps) {
             return;
         }
 
-        const completeUserInfo = { ...user, user_metadata: { ...user.user_metadata, role: selectedDashboardRole } };
-        localStorage.setItem("user_info", JSON.stringify(completeUserInfo));
+         // AQUI ESTÁ A CORREÇÃO:
+    const roleInLowerCase = selectedDashboardRole.toLowerCase();
+    
+    // Adicionando o log que você pediu:
+    console.log("Salvando no localStorage com o perfil:", roleInLowerCase);
 
-        let redirectPath = "";
-        switch (selectedDashboardRole) {
-            case "manager":
-                redirectPath = "/manager/home";
-                break;
-            case "doctor":
-                redirectPath = "/doctor/medicos";
-                break;
-            case "secretary":
-                redirectPath = "/secretary/pacientes";
-                break;
-            case "patient":
-                redirectPath = "/patient/dashboard";
-                break;
-            case "finance":
-                redirectPath = "/finance/home";
-                break;
-        }
+    const completeUserInfo = { ...user, user_metadata: { ...user.user_metadata, role: roleInLowerCase } };
+    localStorage.setItem("user_info", JSON.stringify(completeUserInfo));
 
-        if (redirectPath) {
-            toast({ title: `Entrando como ${selectedDashboardRole}...` });
-            router.push(redirectPath);
-        } else {
-            toast({ title: "Erro", description: "Perfil selecionado inválido.", variant: "destructive" });
-        }
-    };
+    let redirectPath = "";
+    switch (roleInLowerCase) { // Usamos a variável em minúsculas aqui também
+        case "manager":
+            redirectPath = "/manager/home";
+            break;
+        case "doctor":
+            redirectPath = "/doctor/medicos";
+            break;
+        case "secretary":
+            redirectPath = "/secretary/pacientes";
+            break;
+        case "patient":
+            redirectPath = "/patient/dashboard";
+            break;
+        case "finance":
+            redirectPath = "/finance/home";
+            break;
+    }
+
+    if (redirectPath) {
+        toast({ title: `Entrando como ${selectedDashboardRole}...` });
+        router.push(redirectPath);
+    } else {
+        toast({ title: "Erro", description: "Perfil selecionado inválido.", variant: "destructive" });
+    }
+};
 
     /**
      * --- FUNÇÃO ATUALIZADA ---
@@ -111,7 +117,7 @@ export function LoginForm({ children }: LoginFormProps) {
 
             // Caso 1: Usuário é ADMIN, mostra todos os dashboards possíveis.
             if (rolesFromApi.includes("admin")) {
-                setUserRoles(["manager", "doctor", "secretary", "paciente", "finance"]);
+                setUserRoles(["manager", "doctor", "secretary", "patient", "finance"]);
                 setIsLoading(false); // Para o loading para mostrar a tela de seleção
                 return;
             }
@@ -130,7 +136,7 @@ export function LoginForm({ children }: LoginFormProps) {
                     case "secretaria":
                         displayRoles.add("secretary");
                         break;
-                    case "paciente": // Mapeamento de 'patient' (ou outro nome que você use para paciente)
+                    case "patient": // Mapeamento de 'patient' (ou outro nome que você use para patiente)
                         displayRoles.add("patient");
                         break;
                 }
@@ -196,7 +202,13 @@ export function LoginForm({ children }: LoginFormProps) {
                         <p className="text-sm text-muted-foreground text-center">Selecione com qual perfil deseja entrar:</p>
                         <div className="flex flex-col space-y-3 pt-2">
                             {userRoles.map((role) => (
-                                <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleRoleSelection(role)}>
+                                <Button 
+                                    key={role} 
+                                    variant="outline" 
+                                    className="h-11 text-base" 
+                                    // AQUI ESTÁ A CORREÇÃO:
+                                    onClick={() => handleRoleSelection(role === 'paciente' ? 'patient' : role)}
+                                >
                                     Entrar como: {role.charAt(0).toUpperCase() + role.slice(1)}
                                 </Button>
                             ))}
