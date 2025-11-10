@@ -207,46 +207,101 @@ export default function ScheduleForm() {
   }, [selectedDoctor, selectedDate, fetchAvailableSlots]);
 
   // 🔹 Submeter agendamento
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 🔹 Submeter agendamento
+    // 🔹 Submeter agendamento
+// 🔹 Submeter agendamento
+// 🔹 Submeter agendamento
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
-    const patientId = isSecretaryLike ? selectedPatient : userId;
+  const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
+  const patientId = isSecretaryLike ? selectedPatient : userId;
 
-    if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
-      toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
-      return;
-    }
+  if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
+    toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
+    return;
+  }
+
+  try {
+    const body = {
+      doctor_id: selectedDoctor,
+      patient_id: patientId,
+      scheduled_at: `${selectedDate}T${selectedTime}:00`,
+      duration_minutes: Number(duracao),
+      notes,
+      appointment_type: tipoConsulta,
+    };
+
+    // ✅ mantém o fluxo original de criação (funcional)
+    await appointmentsService.create(body);
+
+    const dateFormatted = selectedDate.split("-").reverse().join("/");
+
+    toast({
+      title: "Consulta agendada!",
+      description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
+        doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
+      }.`,
+    });
+
+    // 📞 busca o telefone corretamente
+    let phoneNumber = "+5511999999999"; // fallback
 
     try {
-      const body = {
-        doctor_id: selectedDoctor,
-        patient_id: patientId,
-        scheduled_at: `${selectedDate}T${selectedTime}:00`,
-        duration_minutes: Number(duracao),
-        notes,
-        appointment_type: tipoConsulta,
-      };
+      if (isSecretaryLike) {
+        // se for secretária/admin → usa paciente selecionado
+        const patient = patients.find((p: any) => p.id === patientId);
+        if (patient?.phone_number) phoneNumber = patient.phone_number;
+      } else {
+        // se for paciente → usa o service do próprio user
+        const me = await usersService.getMe();
+        if (me?.profile?.phone) phoneNumber = me.profile.phone;
+      }
 
-      await appointmentsService.create(body);
-        const dateFormatted = selectedDate.split("-").reverse().join("/");
-        toast({
-          title: "Consulta agendada!",
-          description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
-            doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
-          }.`,
-      });
-
-      setSelectedDoctor("");
-      setSelectedDate("");
-      setSelectedTime("");
-      setNotes("");
-      setSelectedPatient("");
+      // padroniza número para formato internacional (+55)
+      if (phoneNumber) {
+        phoneNumber = phoneNumber.replace(/\D/g, ""); // remove caracteres não numéricos
+        if (!phoneNumber.startsWith("55")) phoneNumber = `55${phoneNumber}`;
+        phoneNumber = `+${phoneNumber}`;
+      }
     } catch (err) {
-      console.error(err);
-      toast({ title: "Erro", description: "Falha ao agendar consulta." });
+      console.warn("Não foi possível obter telefone do paciente:", err);
     }
-  };
+
+    // 💬 envia o SMS de confirmação
+    // 💬 Envia o SMS de lembrete (sem mostrar nada ao paciente)
+try {
+  const smsRes = await appointmentsService.send_sms({
+    phone_number: phoneNumber,
+    message: `Lembrete: sua consulta é em ${dateFormatted} às ${selectedTime} na Clínica MediConnect.`,
+    patient_id: patientId,
+  });
+
+  if (smsRes?.success) {
+    console.log("✅ SMS enviado com sucesso:", smsRes.message_sid || smsRes.sid || "(sem SID retornado)");
+  } else {
+    console.warn("⚠️ Falha no envio do SMS:", smsRes);
+  }
+} catch (smsErr) {
+  console.error("❌ Erro ao enviar SMS:", smsErr);
+}
+
+
+    // 🧹 limpa os campos
+    setSelectedDoctor("");
+    setSelectedDate("");
+    setSelectedTime("");
+    setNotes("");
+    setSelectedPatient("");
+  } catch (err) {
+    console.error("❌ Erro ao agendar consulta:", err);
+    toast({ title: "Erro", description: "Falha ao agendar consulta." });
+  }
+};
+
+
+
+
 
   // 🔹 Tooltip no calendário
   useEffect(() => {
