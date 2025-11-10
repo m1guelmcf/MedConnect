@@ -164,7 +164,7 @@ export default function PacientesPage() {
                 </div>
 
                 {/* Bloco de Filtros (Responsividade APLICADA) */}
-                <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
+                 <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
                     <Filter className="w-5 h-5 text-gray-400" />
                     
                     {/* Busca - Ocupa 100% no mobile, depois cresce */}
@@ -173,14 +173,15 @@ export default function PacientesPage() {
                         placeholder="Buscar por nome ou telefone..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full sm:flex-grow sm:min-w-[150px] p-2 border rounded-md text-sm"
+                        // w-full no mobile, depois flex-grow para ocupar o espaço disponível
+                        className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm" 
                     />
 
-                    {/* Convênio - Ocupa metade da linha no mobile */}
-                    <div className="flex items-center gap-2 w-[calc(50%-8px)] sm:w-auto sm:flex-grow sm:max-w-[200px]">
+                    {/* Convênio - Ocupa a largura total em telas pequenas, depois se ajusta */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[200px]">
                         <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">Convênio</span>
                         <Select value={convenioFilter} onValueChange={setConvenioFilter}>
-                            <SelectTrigger className="w-full sm:w-40">
+                            <SelectTrigger className="w-full sm:w-40"> {/* w-full para mobile, w-40 para sm+ */}
                                 <SelectValue placeholder="Convênio" />
                             </SelectTrigger>
                             <SelectContent>
@@ -193,11 +194,11 @@ export default function PacientesPage() {
                         </Select>
                     </div>
 
-                    {/* VIP - Ocupa a outra metade da linha no mobile */}
-                    <div className="flex items-center gap-2 w-[calc(50%-8px)] sm:w-auto sm:flex-grow sm:max-w-[150px]">
+                    {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
                         <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">VIP</span>
                         <Select value={vipFilter} onValueChange={setVipFilter}>
-                            <SelectTrigger className="w-full sm:w-32">
+                            <SelectTrigger className="w-full sm:w-32"> {/* w-full para mobile, w-32 para sm+ */}
                                 <SelectValue placeholder="VIP" />
                             </SelectTrigger>
                             <SelectContent>
@@ -208,16 +209,17 @@ export default function PacientesPage() {
                         </Select>
                     </div>
                     
-                    {/* Aniversariantes - Vai para a linha de baixo no mobile, ocupando 100% */}
+                    {/* Aniversariantes - Ocupa 100% no mobile, e se alinha à direita no md+ */}
                     <Button variant="outline" className="w-full md:w-auto md:ml-auto">
                         <Calendar className="w-4 h-4 mr-2" />
                         Aniversariantes
                     </Button>
                 </div>
 
-                {/* Tabela (Responsividade APLICADA) */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md">
-                    <div className="overflow-x-auto">
+                {/* --- SEÇÃO DE TABELA (VISÍVEL EM TELAS MAIORES OU IGUAIS A MD) --- */}
+                {/* Garantir que a tabela se esconda em telas menores e apareça em MD+ */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md hidden md:block"> 
+                    <div className="overflow-x-auto"> {/* Permite rolagem horizontal se a tabela for muito larga */}
                         {error ? (
                             <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
                         ) : loading ? (
@@ -225,18 +227,14 @@ export default function PacientesPage() {
                                 <Loader2 className="w-6 h-6 mr-2 animate-spin text-green-600" /> Carregando pacientes...
                             </div>
                         ) : (
-                            // min-w ajustado para responsividade
-                            <table className="w-full min-w-[650px] md:min-w-[900px]"> 
+                            <table className="w-full min-w-[650px]"> {/* min-w para evitar que a tabela se contraia demais */}
                                 <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
                                         <th className="text-left p-4 font-medium text-gray-700 w-[20%]">Nome</th>
-                                        {/* Coluna oculta em telas muito pequenas */}
+                                        {/* Ajustes de visibilidade de colunas para diferentes breakpoints */}
                                         <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden sm:table-cell">Telefone</th>
-                                        {/* Coluna oculta em telas pequenas e muito pequenas */}
                                         <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden md:table-cell">Cidade / Estado</th>
-                                        {/* Coluna oculta em telas muito pequenas */}
                                         <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden sm:table-cell">Convênio</th>
-                                        {/* Colunas ocultas em telas médias, pequenas e muito pequenas */}
                                         <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden lg:table-cell">Último atendimento</th>
                                         <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden lg:table-cell">Próximo atendimento</th>
                                         <th className="text-left p-4 font-medium text-gray-700 w-[5%]">Ações</th>
@@ -265,7 +263,6 @@ export default function PacientesPage() {
                                                         </span>
                                                     </div>
                                                 </td>
-                                                {/* Aplicação das classes de visibilidade */}
                                                 <td className="p-4 text-gray-600 hidden sm:table-cell">{patient.telefone}</td>
                                                 <td className="p-4 text-gray-600 hidden md:table-cell">{`${patient.cidade} / ${patient.estado}`}</td>
                                                 <td className="p-4 text-gray-600 hidden sm:table-cell">{patient.convenio}</td>
@@ -308,53 +305,109 @@ export default function PacientesPage() {
                             </table>
                         )}
                     </div>
+                </div>
 
-                    {/* Paginação */}
-                    {totalPages > 1 && !loading && (
-                        <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
-                            {/* Renderização dos botões de número de página (Limitando a 5) */}
-                            <div className="flex space-x-2"> {/* Increased space-x for more separation */}
-                                {/* Botão Anterior */}
-                                <Button
-                                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                                    disabled={page === 1}
-                                    variant="outline"
-                                    size="lg" // Changed to "lg" for larger buttons
-                                >
-                                    &lt; Anterior
-                                </Button>
+                {/* --- SEÇÃO DE CARDS (VISÍVEL APENAS EM TELAS MENORES QUE MD) --- */}
+                {/* Garantir que os cards apareçam em telas menores e se escondam em MD+ */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden"> 
+                    {error ? (
+                        <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
+                    ) : loading ? (
+                        <div className="p-6 text-center text-gray-500 flex items-center justify-center">
+                            <Loader2 className="w-6 h-6 mr-2 animate-spin text-green-600" /> Carregando pacientes...
+                        </div>
+                    ) : filteredPatients.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                            {allPatients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {currentPatients.map((patient) => (
+                                <div key={patient.id} className="bg-gray-50 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center border border-gray-200">
+                                    <div className="flex-grow mb-2 sm:mb-0">
+                                        <div className="font-semibold text-lg text-gray-900 flex items-center">
+                                            {patient.nome}
+                                            {patient.vip && (
+                                                <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">VIP</span>
+                                                            )}
+                                        </div>
+                                        <div className="text-sm text-gray-600">Telefone: {patient.telefone}</div>
+                                        <div className="text-sm text-gray-600">Convênio: {patient.convenio}</div>
+                                    </div>
+                                   <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <div  className="w-full"><Button variant="outline" className="w-full">Ações</Button></div>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
+                                                                <Eye className="w-4 h-4 mr-2" />
+                                                                Ver detalhes
+                                                            </DropdownMenuItem>
 
-                                {Array.from({ length: totalPages }, (_, index) => index + 1)
-                                    .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
-                                    .map((pageNumber) => (
-                                        <Button
-                                            key={pageNumber}
-                                            onClick={() => setPage(pageNumber)}
-                                            variant={pageNumber === page ? "default" : "outline"}
-                                            size="lg" // Changed to "lg" for larger buttons
-                                            className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
-                                        >
-                                            {pageNumber}
-                                        </Button>
-                                    ))}
+                                                            <DropdownMenuItem asChild>
+                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                                    <Edit className="w-4 h-4 mr-2" />
+                                                                    Editar
+                                                                </Link>
+                                                            </DropdownMenuItem>
 
-                                {/* Botão Próximo */}
-                                <Button
-                                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                                    disabled={page === totalPages}
-                                    variant="outline"
-                                    size="lg" // Changed to "lg" for larger buttons
-                                >
-                                    Próximo &gt;
-                                </Button>
-                            </div>
+                                                            <DropdownMenuItem>
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                Marcar consulta
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                                Excluir
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
                 
+                {/* Paginação */}
+                {totalPages > 1 && !loading && (
+                    <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
+                        <div className="flex space-x-2 flex-wrap justify-center"> {/* Adicionado flex-wrap e justify-center para botões da paginação */}
+                            <Button
+                                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                                disabled={page === 1}
+                                variant="outline"
+                                size="lg"
+                            >
+                                &lt; Anterior
+                            </Button>
+
+                            {Array.from({ length: totalPages }, (_, index) => index + 1)
+                                .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
+                                .map((pageNumber) => (
+                                    <Button
+                                        key={pageNumber}
+                                        onClick={() => setPage(pageNumber)}
+                                        variant={pageNumber === page ? "default" : "outline"}
+                                        size="lg"
+                                        className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
+                                    >
+                                        {pageNumber}
+                                    </Button>
+                                ))}
+
+                            <Button
+                                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                                disabled={page === totalPages}
+                                variant="outline"
+                                size="lg"
+                            >
+                                Próximo &gt;
+                            </Button>
+                        </div>
+                    </div>
+                )}
+                
                 {/* AlertDialogs (Permanecem os mesmos) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                    {/* ... (AlertDialog de Exclusão) ... */}
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
@@ -370,7 +423,6 @@ export default function PacientesPage() {
                 </AlertDialog>
 
                 <AlertDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-                    {/* ... (AlertDialog de Detalhes) ... */}
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Detalhes do Paciente</AlertDialogTitle>
@@ -384,7 +436,7 @@ export default function PacientesPage() {
                                     <div className="text-red-600 p-4">{patientDetails.error}</div>
                                 ) : (
                                     <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                             <p className="font-semibold">Nome Completo</p>
                                             <p>{patientDetails.full_name}</p>
@@ -420,7 +472,7 @@ export default function PacientesPage() {
                                         </div>
                                         <div className="border-t pt-4 mt-4">
                                             <h3 className="font-semibold mb-2">Endereço</h3>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <p className="font-semibold">Rua</p>
                                                 <p>{`${patientDetails.street}, ${patientDetails.number}`}</p>
