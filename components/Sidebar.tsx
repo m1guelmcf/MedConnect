@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Bell, Calendar, User, LogOut, ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { Search, Bell, Calendar, User, LogOut, ChevronLeft, ChevronRight, Home, CalendarCheck2, ClipboardPlus, SquareUserRound, CalendarClock, Users, SquareUser, ClipboardList, Stethoscope, ClipboardMinus } from "lucide-react";
 import SidebarUserSection from "@/components/ui/userToolTip";
 
 interface UserData {
@@ -136,33 +136,33 @@ export default function Sidebar({ children }: SidebarProps) {
   const SetMenuItems = (role: any) => {
     const patientItems: MenuItem[] = [
         { href: "/patient/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/patient/schedule", icon: Home, label: "Agendar Consulta" },
-        { href: "/patient/appointments", icon: Home, label: "Minhas Consultas" },
-        { href: "/patient/reports", icon: Home, label: "Meus Laudos" },
-        { href: "/patient/profile", icon: Home, label: "Meus Dados" },    
+        { href: "/patient/schedule", icon: CalendarClock, label: "Agendar Consulta" },
+        { href: "/patient/appointments", icon: CalendarCheck2, label: "Minhas Consultas" },
+        { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
+        { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },    
     ]
 
     const doctorItems: MenuItem[] = [
         { href: "/doctor/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/doctor/medicos", icon: User, label: "Gestão de Pacientes" },
-        { href: "/doctor/consultas", icon: Calendar, label: "Consultas" },
-        { href: "/doctor/disponibilidade", icon: User, label: "Disponibilidade" },
+        { href: "/doctor/medicos", icon: Users, label: "Gestão de Pacientes" },
+        { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" },
+        { href: "/doctor/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
     ]
 
     const secretaryItems: MenuItem[] = [
         { href: "/secretary/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/secretary/appointments", icon: Calendar, label: "Consultas" },
-        { href: "/secretary/schedule", icon: Calendar, label: "Agendar Consulta" },
-        { href: "/secretary/pacientes", icon: User, label: "Gestão de Pacientes" },
+        { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+        { href: "/secretary/schedule", icon: CalendarClock, label: "Agendar Consulta" },
+        { href: "/secretary/pacientes", icon: Users, label: "Gestão de Pacientes" },
     ]
 
     const managerItems: MenuItem[] = [
         { href: "/manager/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "#", icon: Calendar, label: "Relatórios gerenciais" },
-        { href: "/manager/usuario", icon: User, label: "Gestão de Usuários" },
-        { href: "/manager/home", icon: User, label: "Gestão de Médicos" },
-        { href: "/manager/pacientes", icon: User, label: "Gestão de Pacientes" },
-        { href: "/doctor/consultas", icon: Calendar, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
+        { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
+        { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+        { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+        { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+        { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
     ]
 
     let menuItems: MenuItem[];
@@ -190,23 +190,6 @@ export default function Sidebar({ children }: SidebarProps) {
   }
 
   const menuItems = SetMenuItems(role)
-
-
-  /*
-  const menuItems = [
-    { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-    { href: "#", icon: Calendar, label: "Relatórios gerenciais" },
-    { href: "/manager/usuario", icon: User, label: "Gestão de Usuários" },
-    { href: "/manager/home", icon: User, label: "Gestão de Médicos" },
-    { href: "/manager/pacientes", icon: User, label: "Gestão de Pacientes" },
-    { href: "#", icon: User, label: "Disponibilidade" },
-    { href: "#", icon: Calendar, label: "Consultas" },
-    { href: "#", icon: Calendar, label: "Agendar Consulta S" },
-    { href: "#", icon: Home, label: "Agendar Consulta P" },
-    { href: "#", icon: Home, label: "Minhas Consultas" },
-    { href: "#", icon: Home, label: "Meus Laudos" },
-    { href: "#", icon: Home, label: "Meus Dados" },
-  ]; */
 
   if (!userData) {
     return (

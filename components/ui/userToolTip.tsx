@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Home, LogOut } from "lucide-react";
+import { CalendarCheck2, CalendarClock, ClipboardPlus, Home, LogOut, SquareUser } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -36,10 +36,10 @@ export default function SidebarUserSection({
 }: Props) {
     const pathname = usePathname();
     const menuItems: any[] = [
-        { href: "/patient/schedule", icon: Home, label: "Agendar Consulta" },
-        { href: "/patient/appointments", icon: Home, label: "Minhas Consultas" },
-        { href: "/patient/reports", icon: Home, label: "Meus Laudos" },
-        { href: "/patient/profile", icon: Home, label: "Meus Dados" },        
+        { href: "/patient/schedule", icon: CalendarClock, label: "Agendar Consulta" },
+        { href: "/patient/appointments", icon: CalendarCheck2, label: "Minhas Consultas" },
+        { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
+        { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },          
     ]
   return (
     <div className="border-t p-4 mt-auto">
@@ -118,7 +118,7 @@ export default function SidebarUserSection({
         onClick={handleLogout}
       >
         <LogOut className={sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"} />
-        {!sidebarCollapsed && "Sair"}
+        {sidebarCollapsed && "Sair"}
       </Button>
     </div>
   );
