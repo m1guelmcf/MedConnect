@@ -281,17 +281,7 @@ export default function Sidebar({ children }: SidebarProps) {
           sidebarCollapsed ? "ml-16" : "ml-64"
         }`}
       >
-        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1 max-w-md"></div>
-          <div className="flex items-center gap-4 ml-auto">
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                1
-              </Badge>
-            </Button> {/* tira essas divs e muda o header para bg-gray-50 */}
-          </div>
-        </header>
+        <header className="bg-gray-50 px-4 md:px-6 py-4 flex items-center justify-between"></header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
 
