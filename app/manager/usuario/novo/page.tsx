@@ -1,4 +1,4 @@
-// /app/manager/usuario/novo/page.tsx
+// ARQUIVO COMPLETO PARA: app/manager/usuario/novo/page.tsx
 
 "use client";
 
@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Loader2, Pause } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import ManagerLayout from "@/components/manager-layout";
 import { usersService } from "@/services/usersApi.mjs";
-import { doctorsService } from "@/services/doctorsApi.mjs"; // Importação adicionada
+import { doctorsService } from "@/services/doctorsApi.mjs";
 import { login } from "services/api.mjs";
+import { isValidCPF } from "@/lib/utils"; // 1. IMPORTAÇÃO DA FUNÇÃO DE VALIDAÇÃO
 
 interface UserFormData {
     email: string;
@@ -23,7 +24,6 @@ interface UserFormData {
     senha: string;
     confirmarSenha: string;
     cpf: string;
-    // Novos campos para Médico
     crm: string;
     crm_uf: string;
     specialty: string;
@@ -37,7 +37,6 @@ const defaultFormData: UserFormData = {
     senha: "",
     confirmarSenha: "",
     cpf: "",
-    // Valores iniciais para campos de Médico
     crm: "",
     crm_uf: "",
     specialty: "",
@@ -62,7 +61,6 @@ export default function NovoUsuarioPage() {
         if (key === "telefone") {
             updatedValue = formatPhone(value);
         } else if (key === "crm_uf") {
-            // Converte UF para maiúsculas
             updatedValue = value.toUpperCase();
         }
         setFormData((prev) => ({ ...prev, [key]: updatedValue }));
@@ -72,7 +70,7 @@ export default function NovoUsuarioPage() {
         e.preventDefault();
         setError(null);
 
-        if (!formData.email || !formData.nomeCompleto || !formData.papel || !formData.senha || !formData.confirmarSenha) {
+        if (!formData.email || !formData.nomeCompleto || !formData.papel || !formData.senha || !formData.confirmarSenha || !formData.cpf) {
             setError("Por favor, preencha todos os campos obrigatórios.");
             return;
         }
@@ -82,7 +80,12 @@ export default function NovoUsuarioPage() {
             return;
         }
 
-        // Validação adicional para Médico
+        // 2. VALIDAÇÃO DO CPF ANTES DO ENVIO
+        if (!isValidCPF(formData.cpf)) {
+            setError("O CPF informado é inválido. Por favor, verifique os dígitos.");
+            return;
+        }
+
         if (formData.papel === "medico") {
             if (!formData.crm || !formData.crm_uf) {
                 setError("Para a função 'Médico', o CRM e a UF do CRM são obrigatórios.");
@@ -94,7 +97,6 @@ export default function NovoUsuarioPage() {
 
         try {
             if (formData.papel === "medico") {
-                // Lógica para criação de Médico
                 const doctorPayload = {
                     email: formData.email.trim().toLowerCase(),
                     full_name: formData.nomeCompleto,
@@ -102,19 +104,11 @@ export default function NovoUsuarioPage() {
                     crm: formData.crm,
                     crm_uf: formData.crm_uf,
                     specialty: formData.specialty || null,
-                    phone_mobile: formData.telefone || null, // Usando phone_mobile conforme o schema
+                    phone_mobile: formData.telefone || null,
                 };
-
-                console.log("📤 Enviando payload para Médico:");
-                console.log(doctorPayload);
-
-                // Chamada ao endpoint específico para criação de médico
                 await doctorsService.create(doctorPayload);
-                
             } else {
-                // Lógica para criação de Outras Roles
                 const isPatient = formData.papel === "paciente";
-
                 const userPayload = {
                     email: formData.email.trim().toLowerCase(),
                     password: formData.senha,
@@ -122,21 +116,17 @@ export default function NovoUsuarioPage() {
                     phone: formData.telefone || null,
                     role: formData.papel,
                     cpf: formData.cpf,
-                    create_patient_record: isPatient, // true se a role for 'paciente'
-                    phone_mobile: isPatient ? formData.telefone || null : undefined, // Enviar phone_mobile se for paciente
+                    create_patient_record: isPatient,
+                    phone_mobile: isPatient ? formData.telefone || null : undefined,
                 };
-
-                console.log("📤 Enviando payload para Usuário Comum:");
-                console.log(userPayload);
-
-                // Chamada ao endpoint padrão para criação de usuário
                 await usersService.create_user(userPayload);
             }
-
             router.push("/manager/usuario");
         } catch (e: any) {
             console.error("Erro ao criar usuário:", e);
-            setError(e?.message || "Não foi possível criar o usuário. Verifique os dados e tente novamente.");
+            // 3. MENSAGEM DE ERRO MELHORADA
+            const detail = e.message?.split('detail:"')[1]?.split('"')[0] || e.message;
+            setError(detail.replace(/\\/g, '') || "Não foi possível criar o usuário. Verifique os dados e tente novamente.");
         } finally {
             setIsSaving(false);
         }
@@ -193,26 +183,22 @@ export default function NovoUsuarioPage() {
                                 </Select>
                             </div>
 
-                            {/* Campos Condicionais para Médico */}
                             {isMedico && (
                                 <>
                                     <div className="space-y-2">
                                         <Label htmlFor="crm">CRM *</Label>
                                         <Input id="crm" value={formData.crm} onChange={(e) => handleInputChange("crm", e.target.value)} placeholder="Número do CRM" required />
                                     </div>
-
                                     <div className="space-y-2">
                                         <Label htmlFor="crm_uf">UF do CRM *</Label>
                                         <Input id="crm_uf" value={formData.crm_uf} onChange={(e) => handleInputChange("crm_uf", e.target.value)} placeholder="Ex: SP" maxLength={2} required />
                                     </div>
-
                                     <div className="space-y-2 md:col-span-2">
                                         <Label htmlFor="specialty">Especialidade (opcional)</Label>
                                         <Input id="specialty" value={formData.specialty} onChange={(e) => handleInputChange("specialty", e.target.value)} placeholder="Ex: Cardiologia" />
                                     </div>
                                 </>
                             )}
-                            {/* Fim dos Campos Condicionais */}
 
                             <div className="space-y-2">
                                 <Label htmlFor="senha">Senha *</Label>
@@ -233,7 +219,7 @@ export default function NovoUsuarioPage() {
 
                         <div className="space-y-2">
                             <Label htmlFor="cpf">Cpf *</Label>
-                            <Input id="cpf" type="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} placeholder="xxx.xxx.xxx-xx" required />
+                            <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} placeholder="Apenas números" required />
                         </div>
 
                         <div className="flex justify-end gap-4 pt-6 border-t mt-6">
