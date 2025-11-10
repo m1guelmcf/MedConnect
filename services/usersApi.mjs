@@ -21,6 +21,10 @@ export const usersService = {
     return await api.post(`/functions/v1/create-user-with-password`, data);
   },
 
+  async getMeSimple() {
+    return await api.post(`/functions/v1/user-info`);
+  },
+
   async full_data(user_id) {
     if (!user_id) throw new Error("user_id é obrigatório");
 

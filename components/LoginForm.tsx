@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { usersService } from "@/services/usersApi.mjs";
 
 interface LoginFormProps {
     children?: React.ReactNode;
@@ -39,8 +40,7 @@ export function LoginForm({ children }: LoginFormProps) {
      * --- NOVA FUNÇÃO ---
      * Finaliza o login com o perfil de dashboard escolhido e redireciona.
      */
-    const handleRoleSelection = (selectedDashboardRole: string) => {
-        const user = authenticatedUser;
+    const handleRoleSelection = (selectedDashboardRole: string, user: any) => {
         if (!user) {
             toast({ title: "Erro de Sessão", description: "Não foi possível encontrar os dados do usuário. Tente novamente.", variant: "destructive" });
             setUserRoles([]); // Volta para a tela de login
@@ -52,20 +52,20 @@ export function LoginForm({ children }: LoginFormProps) {
 
         let redirectPath = "";
         switch (selectedDashboardRole) {
-            case "manager":
-                redirectPath = "/manager/home";
+            case "gestor":
+                redirectPath = "/manager/dashboard";
                 break;
-            case "doctor":
-                redirectPath = "/doctor/medicos";
+            case "admin":
+                redirectPath = "/manager/dashboard";
                 break;
-            case "secretary":
-                redirectPath = "/secretary/pacientes";
+            case "medico":
+                redirectPath = "/doctor/dashboard";
                 break;
-            case "patient":
+            case "secretaria":
+                redirectPath = "/secretary/dashboard";
+                break;
+            case "paciente":
                 redirectPath = "/patient/dashboard";
-                break;
-            case "finance":
-                redirectPath = "/finance/home";
                 break;
         }
 
@@ -101,52 +101,15 @@ export function LoginForm({ children }: LoginFormProps) {
             // A busca de roles também continua a mesma, usando nosso 'api.get'
             const rolesData = await api.get(`/rest/v1/user_roles?user_id=eq.${user.id}&select=role`);
 
-            if (!rolesData || rolesData.length === 0) {
+            const me = await usersService.getMeSimple()
+            console.log(me.roles)
+
+            if (!me.roles || me.roles.length === 0) {
                 throw new Error("Nenhum perfil de acesso foi encontrado para este usuário.");
             }
 
-            const rolesFromApi: string[] = rolesData.map((r: any) => r.role);
+            handleRoleSelection(me.roles[0], user);
 
-            // --- AQUI COMEÇA A NOVA LÓGICA DE DECISÃO ---
-
-            // Caso 1: Usuário é ADMIN, mostra todos os dashboards possíveis.
-            if (rolesFromApi.includes("admin")) {
-                setUserRoles(["manager", "doctor", "secretary", "paciente", "finance"]);
-                setIsLoading(false); // Para o loading para mostrar a tela de seleção
-                return;
-            }
-
-            // Mapeia os roles da API para os perfis de dashboard que o usuário pode acessar
-            const displayRoles = new Set<string>();
-            rolesFromApi.forEach((role) => {
-                switch (role) {
-                    case "gestor":
-                        displayRoles.add("manager");
-                        displayRoles.add("finance");
-                        break;
-                    case "medico":
-                        displayRoles.add("doctor");
-                        break;
-                    case "secretaria":
-                        displayRoles.add("secretary");
-                        break;
-                    case "paciente": // Mapeamento de 'patient' (ou outro nome que você use para paciente)
-                        displayRoles.add("patient");
-                        break;
-                }
-            });
-
-            const finalRoles = Array.from(displayRoles);
-
-            // Caso 2: Se o usuário tem apenas UM perfil de dashboard, redireciona direto.
-            if (finalRoles.length === 1) {
-                handleRoleSelection(finalRoles[0]);
-            }
-            // Caso 3: Se tem múltiplos perfis (ex: 'gestor'), mostra a tela de seleção.
-            else {
-                setUserRoles(finalRoles);
-                setIsLoading(false);
-            }
         } catch (error) {
             localStorage.removeItem("token");
             localStorage.removeItem("user_info");
@@ -196,7 +159,7 @@ export function LoginForm({ children }: LoginFormProps) {
                         <p className="text-sm text-muted-foreground text-center">Selecione com qual perfil deseja entrar:</p>
                         <div className="flex flex-col space-y-3 pt-2">
                             {userRoles.map((role) => (
-                                <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleRoleSelection(role)}>
+                                <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleRoleSelection(role, authenticatedUser)}>
                                     Entrar como: {role.charAt(0).toUpperCase() + role.slice(1)}
                                 </Button>
                             ))}

@@ -255,7 +255,7 @@ export default function Sidebar({ children }: SidebarProps) {
             userData={userData} 
             sidebarCollapsed={false} 
             handleLogout={handleLogout}
-            isActive={role === "patient"? false: true}>
+            isActive={role === "paciente"? false: true}>
         </SidebarUserSection>
       </div>
 
