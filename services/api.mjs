@@ -89,11 +89,20 @@ async function request(endpoint, options = {}) {
 
     // --- CORREÇÃO 1: PARA O SUBMIT DO AGENDAMENTO ---
     // Se a resposta for um sucesso de criação (201) ou sem conteúdo (204), não quebra.
-    if (response.status === 201 || response.status === 204) {
-        return null;
+    // --- CORREÇÃO: funções do Supabase retornam 200 ou 201, nunca queremos perder o body ---
+        if (response.status === 204) {
+                return null;
+            }
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch {
+                return text || null;
     }
 
-    return response.json();
+
+    
 }
 
 // Exportamos o objeto 'api' com os métodos que os componentes vão usar.

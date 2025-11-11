@@ -46,6 +46,6 @@ export const appointmentsService = {
    */
   delete: (id) => api.delete(`/rest/v1/appointments?id=eq.${id}`),
 
-  send_sms: (data) => api.post("/functions/v1/send-sms", data)
+  
 
 };
