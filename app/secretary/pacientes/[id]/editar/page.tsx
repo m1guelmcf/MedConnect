@@ -265,8 +265,9 @@ export default function EditarPacientePage() {
 
     return (
         <SecretaryLayout>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto"> {/* Adicionado padding responsivo e max-width */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"> {/* Ajustado para layout flexível */}
+            {/* O espaçamento foi reduzido aqui: de `p-4 sm:p-6 lg:p-8` para `p-2 sm:p-4 lg:p-6` */}
+            <div className="space-y-6 p-2 sm:p-4 lg:p-6 max-w-10xl mx-auto"> {/* Alterado padding responsivo */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link href="/secretary/pacientes">
                             <Button variant="ghost" size="sm">
@@ -281,32 +282,7 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Anexos Section - Movido para fora do cabeçalho para melhor organização e responsividade */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6 w-full sm:w-auto"> {/* Ajustado largura */}
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Anexos</h2>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-                            <input ref={anexoInputRef} type="file" className="hidden" />
-                            <Button type="button" variant="outline" disabled={isUploadingAnexo}>
-                                <Paperclip className="w-4 h-4 mr-2" /> {isUploadingAnexo ? "Enviando..." : "Adicionar anexo"}
-                            </Button>
-                        </div>
-                        {anexos.length === 0 ? (
-                            <p className="text-sm text-gray-500">Nenhum anexo encontrado.</p>
-                        ) : (
-                            <ul className="divide-y">
-                                {anexos.map((a) => (
-                                    <li key={a.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2">
-                                        <div className="flex items-center gap-2 min-w-0 mb-2 sm:mb-0">
-                                            <Paperclip className="w-4 h-4 text-gray-500 shrink-0" />
-                                            <span className="text-sm text-gray-800 truncate">{a.nome || a.filename || `Anexo ${a.id}`}</span>
-                                        </div>
-                                        <Button type="button" variant="ghost" className="text-red-600">
-                                            <Trash2 className="w-4 h-4 mr-1" /> Remover
-                                        </Button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                    
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -314,11 +290,11 @@ export default function EditarPacientePage() {
                     <div className="bg-white rounded-lg border border-gray-200 p-6">
                         <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Layout responsivo para os campos */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Photo upload */}
-                            <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1"> {/* Ocupa mais colunas em telas menores */}
+                            <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
                                 <Label>Foto do paciente</Label>
-                                <div className="flex flex-col sm:flex-row items-center gap-4"> {/* Ajustado para layout flexível */}
+                                <div className="flex flex-col sm:flex-row items-center gap-4">
                                     <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
                                         {photoUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
@@ -327,7 +303,7 @@ export default function EditarPacientePage() {
                                             <span className="text-gray-400 text-sm text-center">Sem foto</span>
                                         )}
                                     </div>
-                                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0"> {/* Botões empilhados em telas menores */}
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" />
                                         <Button type="button" variant="outline" disabled={isUploadingPhoto}>
                                             {isUploadingPhoto ? "Enviando..." : "Enviar foto"}
@@ -357,7 +333,7 @@ export default function EditarPacientePage() {
 
                             <div className="space-y-2">
                                 <Label>Sexo *</Label>
-                                <div className="flex flex-col sm:flex-row gap-4"> {/* Ajustado para layout flexível */}
+                                <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center space-x-2">
                                         <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
                                         <Label htmlFor="Masculino">Masculino</Label>
@@ -684,13 +660,13 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row justify-end gap-4"> {/* Botões empilhados em telas menores */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-4">
                         <Link href="/secretary/pacientes">
-                            <Button type="button" variant="outline" className="w-full sm:w-auto"> {/* Largura total em telas pequenas */}
+                            <Button type="button" variant="outline" className="w-full sm:w-auto">
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"> {/* Largura total em telas pequenas */}
+                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                             <Save className="w-4 h-4 mr-2" />
                             Salvar Alterações
                         </Button>
