@@ -1,128 +1,55 @@
-"use client"
+// CÓDIGO COMPLETO PARA: components/hospital-layout.tsx
 
-import type React from "react"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  Search,
-  Bell,
-  Settings,
-  Users,
-  UserCheck,
-  Calendar,
-  Clock,
-  User,
-  LogOut,
-  FileText,
-  BarChart3,
-  Home,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuthLayout } from "@/hooks/useAuthLayout";
+import { api } from "@/services/api.mjs";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Home, Calendar, Clock, FileText, User, LogOut, ChevronLeft, ChevronRight, Bell, Search } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
 
-interface PatientData {
-  name: string
-  email: string
-  phone: string
-  cpf: string
-  birthDate: string
-  address: string
-}
+export default function HospitalLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuthLayout({ requiredRole: 'patiente' });
 
-interface HospitalLayoutProps {
-  children: React.ReactNode
-}
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-export default function HospitalLayout({ children }: HospitalLayoutProps) {
-  const [patientData, setPatientData] = useState<PatientData | null>(null)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  const router = useRouter()
-  const pathname = usePathname()
-
-  useEffect(() => {
-    const data = localStorage.getItem("patientData")
-    if (data) {
-      setPatientData(JSON.parse(data))
-    } else {
-      router.push("/patient/login")
-    }
-  }, [router])
-
-  const handleLogout = () => {
-    setShowLogoutDialog(true)
-  }
-
-  const confirmLogout = () => {
-    localStorage.removeItem("patientData")
-    setShowLogoutDialog(false)
-    router.push("/")
-  }
-
-  const cancelLogout = () => {
-    setShowLogoutDialog(false)
-  }
+  const confirmLogout = async () => {
+    await api.logout();
+    setShowLogoutDialog(false);
+    router.push("/");
+  };
 
   const menuItems = [
-    {
-      href: "/patient/dashboard",
-      icon: Home,
-      label: "Dashboard",
-    },
-    {
-      href: "/patient/appointments",
-      icon: Calendar,
-      label: "Minhas Consultas",
-    },
-    {
-      href: "/patient/schedule",
-      icon: Clock,
-      label: "Agendar Consulta",
-    },
-    {
-      href: "/patient/reports",
-      icon: FileText,
-      label: "Meus Laudos",
-    },
-    {
-      href: "/patient/profile",
-      icon: User,
-      label: "Meus Dados",
-    },
-  ]
+    { href: "/patient/dashboard", icon: Home, label: "Dashboard" },
+    { href: "/patient/appointments", icon: Calendar, label: "Minhas Consultas" },
+    { href: "/patient/schedule", icon: Clock, label: "Agendar Consulta" },
+    { href: "/patient/reports", icon: FileText, label: "Meus Laudos" },
+    { href: "/patient/profile", icon: User, label: "Meus Dados" },
+  ];
 
-  if (!patientData) {
-    return <div>Carregando...</div>
+  if (isLoading || !user) {
+    return <div className="flex h-screen w-full items-center justify-center">Carregando...</div>;
   }
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/*  Sidebar  */}
-      <div
-        className={`bg-card border-r border-border transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"} h-screen flex flex-col`}
-      >
+      <div className={`bg-card border-r border-border transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"} h-screen flex flex-col`}>
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             {!sidebarCollapsed && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-                </div>
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><div className="w-4 h-4 bg-primary-foreground rounded-sm"></div></div>
                 <span className="font-semibold text-foreground">MediConnect</span>
               </div>
             )}
@@ -131,97 +58,64 @@ export default function HospitalLayout({ children }: HospitalLayoutProps) {
             </Button>
           </div>
         </div>
-
         <nav className="flex-1 p-2">
           {menuItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-
+            const Icon = item.icon;
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <Link key={item.href} href={item.href}>
-                <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
-                >
+                <div className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"}`}>
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && <span className="font-medium">{item.label}</span>}
                 </div>
               </Link>
-            )
+            );
           })}
         </nav>
-
         <div className="border-t p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" />
-              <AvatarFallback>
-                {patientData.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </AvatarFallback>
+              <AvatarImage src={user.avatarFullUrl} />
+              <AvatarFallback>{user.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{patientData.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{patientData.email}</p>
+              <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="w-full bg-transparent" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
+          <Button variant="outline" size="sm" className="w-full bg-transparent" onClick={() => setShowLogoutDialog(true)}>
+            <LogOut className="mr-2 h-4 w-4" /> Sair
           </Button>
         </div>
       </div>
-          
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="bg-card border-b border-border px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1 max-w-md">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input placeholder="Buscar paciente" className="pl-10 bg-background border-border" />
+                <Input placeholder="Buscar patiente" className="pl-10 bg-background border-border" />
               </div>
             </div>
-
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-destructive text-destructive-foreground text-xs">
-                  1
-                </Badge>
+                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-destructive text-destructive-foreground text-xs">1</Badge>
               </Button>
             </div>
           </div>
         </header>
-
-        {/* Page Content */}
         <main className="flex-1 p-6">{children}</main>
       </div>
-
-      {/* Logout confirmation dialog */}
       <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Confirmar Saída</DialogTitle>
-            <DialogDescription>
-              Deseja realmente sair do sistema? Você precisará fazer login novamente para acessar sua conta.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Confirmar Saída</DialogTitle><DialogDescription>Deseja realmente sair do sistema?</DialogDescription></DialogHeader>
           <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={cancelLogout}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
+            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={confirmLogout}><LogOut className="mr-2 h-4 w-4" />Sair</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
