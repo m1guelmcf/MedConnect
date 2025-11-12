@@ -61,4 +61,40 @@ export const usersService = {
       permissions,
     };
   },
+   async resetPassword(email) {
+  if (!email) throw new Error("Email é obrigatório para resetar a senha.");
+
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/recover`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+
+    const data = await res.json().catch(() => ({}));
+
+
+    if (!res.ok) {
+      console.error("Erro no resetPassword:", res.status, data);
+      throw new Error(`Erro ${res.status}: ${data.message || "Falha ao resetar senha."}`);
+    }
+
+
+    console.log("✅ Reset de senha:", data);
+    return data;
+  } catch (err) {
+    console.error("❌ Erro na chamada resetPassword:", err);
+    throw new Error(err.message || "Erro inesperado na recuperação de senha.");
+  }
+},
+
+
 };
