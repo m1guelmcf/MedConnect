@@ -142,12 +142,13 @@ export default function SecretaryLayout({ children }: SecretaryLayoutProps) {
           <div className="flex items-center justify-between">
             {!sidebarCollapsed && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-                </div>
-                <span className="font-semibold text-foreground">
-                  MediConnect
-                </span>
+                {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
+                <img
+                  src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
+                  alt="Logo MediConnect"
+                  className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
+                />
+                <span className="font-semibold text-gray-900">MedConnect</span>
               </div>
             )}
             <Button
@@ -175,10 +176,11 @@ export default function SecretaryLayout({ children }: SecretaryLayoutProps) {
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                    isActive
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    }`}
+                  }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -230,10 +232,10 @@ export default function SecretaryLayout({ children }: SecretaryLayoutProps) {
 
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"
-          }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        }`}
       >
-
         <main className="flex-1 p-6">{children}</main>
       </div>
 

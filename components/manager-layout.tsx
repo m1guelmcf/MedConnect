@@ -130,16 +130,20 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div
-        className={`bg-white border-r border-gray-200 transition-all duration-300 fixed top-0 h-screen flex flex-col z-30 ${sidebarCollapsed ? "w-16" : "w-64"
-          }`}
+        className={`bg-white border-r border-gray-200 transition-all duration-300 fixed top-0 h-screen flex flex-col z-30 ${
+          sidebarCollapsed ? "w-16" : "w-64"
+        }`}
       >
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="font-semibold text-gray-900">MediConnect</span>
+              {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
+              <img
+                src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
+                alt="Logo MediConnect"
+                className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
+              />
+              <span className="font-semibold text-gray-900">MedConnect</span>
             </div>
           )}
           <Button
@@ -163,10 +167,11 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
             return (
               <Link key={item.label} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                    isActive
                       ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
                       : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                  }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -217,10 +222,10 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
       </div>
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 w-full ${sidebarCollapsed ? "ml-16" : "ml-64"
-          }`}
+        className={`flex-1 flex flex-col transition-all duration-300 w-full ${
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        }`}
       >
-
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
 

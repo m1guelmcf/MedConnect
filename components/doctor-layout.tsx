@@ -167,8 +167,9 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
     // O restante do seu código JSX permanece exatamente o mesmo
     <div className="min-h-screen bg-background flex">
       <div
-        className={`bg-card border-r border transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
-          } fixed left-0 top-0 h-screen flex flex-col z-50`}
+        className={`bg-card border-r border transition-all duration-300 ${
+          sidebarCollapsed ? "w-16" : "w-64"
+        } fixed left-0 top-0 h-screen flex flex-col z-50`}
       >
         <div className="p-4 border-b border">
           <div className="flex items-center justify-between">
@@ -204,10 +205,11 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
-                    ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                    : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                    isActive
+                      ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -221,18 +223,22 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
         // ... (seu código anterior)
         {/* Sidebar para desktop */}
         <div
-          className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
-            } fixed left-0 top-0 h-screen flex flex-col z-50`}
+          className={`bg-white border-r border-gray-200 transition-all duration-300 ${
+            sidebarCollapsed ? "w-16" : "w-64"
+          } fixed left-0 top-0 h-screen flex flex-col z-50`}
         >
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               {!sidebarCollapsed && (
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <div className="w-4 h-4 bg-white rounded-sm"></div>
-                  </div>
+                  {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
+                  <img
+                    src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
+                    alt="Logo MediConnect"
+                    className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
+                  />
                   <span className="font-semibold text-gray-900">
-                    MediConnect
+                    MedConnect
                   </span>
                 </div>
               )}
@@ -261,10 +267,11 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
               return (
                 <Link key={item.href} href={item.href}>
                   <div
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
-                      ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                      isActive
+                        ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
                     {!sidebarCollapsed && (
@@ -313,8 +320,9 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             </div>
 
             <div
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-muted-foreground hover:bg-accent cursor-pointer ${sidebarCollapsed ? "justify-center" : ""
-                }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-muted-foreground hover:bg-accent cursor-pointer ${
+                sidebarCollapsed ? "justify-center" : ""
+              }`}
               onClick={handleLogout}
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
@@ -330,8 +338,9 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
         ></div>
       )}
       <div
-        className={`bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 md:hidden ${isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"
-          }`}
+        className={`bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 md:hidden ${
+          isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"
+        }`}
       >
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -360,10 +369,11 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             return (
               <Link key={item.href} href={item.href} onClick={toggleMobileMenu}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
-                    ? "bg-accent text-accent-foreground border-r-2 border-primary"
-                    : "text-muted-foreground hover:bg-accent"
-                    }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                    isActive
+                      ? "bg-accent text-accent-foreground border-r-2 border-primary"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">{item.label}</span>
@@ -409,10 +419,10 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
       </div>
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"
-          }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        }`}
       >
-
         <main className="flex-1 p-6">{children}</main>
       </div>
 

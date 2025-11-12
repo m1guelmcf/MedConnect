@@ -15,9 +15,20 @@ export default function InicialPage() {
         <span>Email: contato@mediconnect.com</span>
       </div>
 
-      {/* Header principal */}
+      {/* Header principal - Com Logo REAL */}
       <header className="bg-card shadow-md py-4 px-4 md:px-6 flex justify-between items-center relative">
-        <h1 className="text-2xl font-bold text-primary">MediConnect</h1>
+        {/* Agrupamento do Logo e Nome do Site */}
+        <a href="#home" className="flex items-center space-x-1 cursor-pointer">
+          {/* 1. IMAGEM/LOGO REAL: Referenciando o arquivo placeholder-logo.png na pasta public */}
+          <img
+            src="/android-chrome-512x512.png" // O caminho se inicia a partir da pasta 'public'
+            alt="Logo MediConnect"
+            className="w-14 h-14 object-contain" // ALTERADO: Aumentado para w-14 h-14
+          />
+
+          {/* 2. NOME DO SITE */}
+          <h1 className="text-2xl font-bold text-primary">MediConnect</h1>
+        </a>
 
         {/* Botão do menu hambúrguer para telas menores */}
         <div className="md:hidden flex items-center space-x-4">
@@ -62,8 +73,9 @@ export default function InicialPage() {
 
         {/* Navegação principal */}
         <nav
-          className={`${isMenuOpen ? "block" : "hidden"
-            } absolute top-[76px] left-0 w-full bg-card shadow-md py-4 md:relative md:top-auto md:left-auto md:w-auto md:block md:bg-transparent md:shadow-none z-10`}
+          className={`${
+            isMenuOpen ? "block" : "hidden"
+          } absolute top-[76px] left-0 w-full bg-card shadow-md py-4 md:relative md:top-auto md:left-auto md:w-auto md:block md:bg-transparent md:shadow-none z-10`}
         >
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 text-muted-foreground font-medium items-center">
             <Link href="#home" className="hover:text-primary">
@@ -135,10 +147,12 @@ export default function InicialPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 max-w-5xl mx-auto">
           <div className="p-6 bg-background rounded-xl shadow hover:shadow-lg transition">
-            <h3 className="text-xl font-semibold text-primary">Clínica Geral</h3>
+            <h3 className="text-xl font-semibold text-primary">
+              Clínica Geral
+            </h3>
             <p className="text-muted-foreground mt-2 text-sm">
-              Seu primeiro passo para o cuidado. Atendimento focado na prevenção e
-              no diagnóstico inicial.
+              Seu primeiro passo para o cuidado. Atendimento focado na prevenção
+              e no diagnóstico inicial.
             </p>
             <Button className="mt-4 w-full">Agendar</Button>
           </div>
