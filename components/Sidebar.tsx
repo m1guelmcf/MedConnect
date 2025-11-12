@@ -45,8 +45,6 @@ interface MenuItem {
   label: string;
 }
 
-type Role = "manager" | "doctor" | "secretary" | "patient" | "admin";
-
 interface SidebarProps {
   children: React.ReactNode;
 }
@@ -167,19 +165,19 @@ export default function Sidebar({ children }: SidebarProps) {
 
     let menuItems: MenuItem[];
     switch (role) {
-        case "manager":
+        case "gestor":
             menuItems = managerItems;
             break;
         case "admin":
             menuItems = managerItems;
             break;    
-        case "doctor":
+        case "medico":
             menuItems = doctorItems;
             break;
-        case "secretary":
+        case "secretaria":
             menuItems = secretaryItems;
             break;
-        case "patient":
+        case "paciente":
             menuItems = patientItems;
             break;    
         default:

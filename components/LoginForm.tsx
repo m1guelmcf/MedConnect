@@ -1,11 +1,10 @@
-// Caminho: components/LoginForm.tsx
+// ARQUIVO COMPLETO E CORRIGIDO PARA: components/LoginForm.tsx
+
 "use client";
 
 import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-// Nossos serviços de API centralizados e limpos
 import { login, api } from "@/services/api.mjs";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ export function LoginForm({ children }: LoginFormProps) {
     const router = useRouter();
     const { toast } = useToast();
 
-    // --- NOVOS ESTADOS PARA CONTROLE DE MÚLTIPLOS PERFIS ---
     const [userRoles, setUserRoles] = useState<string[]>([]);
     const [authenticatedUser, setAuthenticatedUser] = useState<any>(null);
 
@@ -43,30 +41,23 @@ export function LoginForm({ children }: LoginFormProps) {
     const handleRoleSelection = (selectedDashboardRole: string, user: any) => {
         if (!user) {
             toast({ title: "Erro de Sessão", description: "Não foi possível encontrar os dados do usuário. Tente novamente.", variant: "destructive" });
-            setUserRoles([]); // Volta para a tela de login
+            setUserRoles([]);
             return;
         }
 
-        const completeUserInfo = { ...user, user_metadata: { ...user.user_metadata, role: selectedDashboardRole } };
+        const roleInLowerCase = selectedDashboardRole.toLowerCase();
+        console.log("Salvando no localStorage com o perfil:", roleInLowerCase);
+
+        const completeUserInfo = { ...user, user_metadata: { ...user.user_metadata, role: roleInLowerCase } };
         localStorage.setItem("user_info", JSON.stringify(completeUserInfo));
 
         let redirectPath = "";
         switch (selectedDashboardRole) {
-            case "gestor":
-                redirectPath = "/manager/dashboard";
-                break;
-            case "admin":
-                redirectPath = "/manager/dashboard";
-                break;
-            case "medico":
-                redirectPath = "/doctor/dashboard";
-                break;
-            case "secretaria":
-                redirectPath = "/secretary/dashboard";
-                break;
-            case "paciente":
-                redirectPath = "/patient/dashboard";
-                break;
+            case "gestor": redirectPath = "/manager/dashboard"; break;
+            case "admin": redirectPath = "/manager/dashboard"; break;
+            case "medico": redirectPath = "/doctor/dashboard"; break;
+            case "secretaria": redirectPath = "/secretary/dashboard"; break;
+            case "paciente": redirectPath = "/patient/dashboard"; break;
         }
 
         if (redirectPath) {
@@ -77,10 +68,6 @@ export function LoginForm({ children }: LoginFormProps) {
         }
     };
 
-    /**
-     * --- FUNÇÃO ATUALIZADA ---
-     * Lida com a submissão do formulário, busca os perfis e decide o próximo passo.
-     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -88,17 +75,12 @@ export function LoginForm({ children }: LoginFormProps) {
         localStorage.removeItem("user_info");
 
         try {
-            // A chamada de login continua a mesma
             const authData = await login(form.email, form.password);
             const user = authData.user;
             if (!user || !user.id) {
                 throw new Error("Resposta de autenticação inválida.");
             }
 
-            // Armazena o usuário para uso posterior na seleção de perfil
-            setAuthenticatedUser(user);
-
-            // A busca de roles também continua a mesma, usando nosso 'api.get'
             const rolesData = await api.get(`/rest/v1/user_roles?user_id=eq.${user.id}&select=role`);
 
             const me = await usersService.getMeSimple()
@@ -113,23 +95,22 @@ export function LoginForm({ children }: LoginFormProps) {
         } catch (error) {
             localStorage.removeItem("token");
             localStorage.removeItem("user_info");
-
             toast({
                 title: "Erro no Login",
                 description: error instanceof Error ? error.message : "Ocorreu um erro inesperado.",
                 variant: "destructive",
             });
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
 
-    // --- JSX ATUALIZADO COM RENDERIZAÇÃO CONDICIONAL ---
+    // Estado para guardar os botões de seleção de perfil
+    const [roleSelectionUI, setRoleSelectionUI] = useState<React.ReactNode | null>(null);
+
     return (
         <Card className="w-full bg-transparent border-0 shadow-none">
             <CardContent className="p-0">
-                {userRoles.length === 0 ? (
-                    // VISÃO 1: Formulário de Login (se nenhum perfil foi carregado ainda)
+                {!roleSelectionUI ? (
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="email">E-mail</Label>
@@ -153,7 +134,6 @@ export function LoginForm({ children }: LoginFormProps) {
                         </Button>
                     </form>
                 ) : (
-                    // VISÃO 2: Tela de Seleção de Perfil (se múltiplos perfis foram encontrados)
                     <div className="space-y-4 animate-in fade-in-50">
                         <h3 className="text-lg font-medium text-center text-foreground">Você tem múltiplos perfis</h3>
                         <p className="text-sm text-muted-foreground text-center">Selecione com qual perfil deseja entrar:</p>
@@ -166,7 +146,6 @@ export function LoginForm({ children }: LoginFormProps) {
                         </div>
                     </div>
                 )}
-
                 {children}
             </CardContent>
         </Card>
