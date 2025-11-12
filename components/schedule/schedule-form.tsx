@@ -14,7 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { format, addDays } from "date-fns";
 import { User, StickyNote, Calendar } from "lucide-react";
+import {smsService } from "@/services/Sms.mjs"
 import { toast } from "@/hooks/use-toast";
+
 
 export default function ScheduleForm() {
   // Estado do usuário e role
@@ -207,46 +209,118 @@ export default function ScheduleForm() {
   }, [selectedDoctor, selectedDate, fetchAvailableSlots]);
 
   // 🔹 Submeter agendamento
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 🔹 Submeter agendamento
+    // 🔹 Submeter agendamento
+// 🔹 Submeter agendamento
+// 🔹 Submeter agendamento
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
-    const patientId = isSecretaryLike ? selectedPatient : userId;
+  const isSecretaryLike = ["secretaria", "admin", "gestor"].includes(role);
+  const patientId = isSecretaryLike ? selectedPatient : userId;
 
-    if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
-      toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
-      return;
-    }
+  if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
+    toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
+    return;
+  }
 
-    try {
-      const body = {
-        doctor_id: selectedDoctor,
-        patient_id: patientId,
-        scheduled_at: `${selectedDate}T${selectedTime}:00`,
-        duration_minutes: Number(duracao),
-        notes,
-        appointment_type: tipoConsulta,
-      };
+  try {
+    const body = {
+      doctor_id: selectedDoctor,
+      patient_id: patientId,
+      scheduled_at: `${selectedDate}T${selectedTime}:00`,
+      duration_minutes: Number(duracao),
+      notes,
+      appointment_type: tipoConsulta,
+    };
 
-      await appointmentsService.create(body);
-        const dateFormatted = selectedDate.split("-").reverse().join("/");
-        toast({
-          title: "Consulta agendada!",
-          description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
-            doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
-          }.`,
-      });
+    // ✅ mantém o fluxo original de criação (funcional)
+    await appointmentsService.create(body);
 
-      setSelectedDoctor("");
-      setSelectedDate("");
-      setSelectedTime("");
-      setNotes("");
-      setSelectedPatient("");
-    } catch (err) {
-      console.error(err);
-      toast({ title: "Erro", description: "Falha ao agendar consulta." });
-    }
-  };
+    const dateFormatted = selectedDate.split("-").reverse().join("/");
+
+    toast({
+      title: "Consulta agendada!",
+      description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
+        doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
+      }.`,
+    });
+
+let phoneNumber = "+5511999999999"; // fallback
+
+try {
+  if (isSecretaryLike) {
+    // Secretária/admin → telefone do paciente selecionado
+    const patient = patients.find((p: any) => p.id === patientId);
+
+    // Pacientes criados no sistema podem ter phone ou phone_mobile
+    const rawPhone = patient?.phone || patient?.phone_mobile || null;
+
+    if (rawPhone) phoneNumber = rawPhone;
+  } else {
+    // Paciente → telefone vem do perfil do próprio usuário logado
+    const me = await usersService.getMe();
+
+    
+const rawPhone =
+  me?.profile?.phone ||
+  (typeof me?.profile === "object" && "phone_mobile" in me.profile ? (me.profile as any).phone_mobile : null) ||
+  (typeof me === "object" && "user_metadata" in me ? (me as any).user_metadata?.phone : null) ||
+  null;
+
+    if (rawPhone) phoneNumber = rawPhone;
+  }
+
+  // 🔹 Normaliza para formato internacional (+55)
+  if (phoneNumber) {
+    phoneNumber = phoneNumber.replace(/\D/g, "");
+    if (!phoneNumber.startsWith("55")) phoneNumber = `55${phoneNumber}`;
+    phoneNumber = `+${phoneNumber}`;
+  }
+
+  console.log("📞 Telefone usado:", phoneNumber);
+} catch (err) {
+  console.warn("⚠️ Não foi possível obter telefone do paciente:", err);
+}
+
+
+    // 💬 envia o SMS de confirmação
+    // 💬 Envia o SMS de lembrete (sem mostrar nada ao paciente)
+// 💬 Envia o SMS de lembrete (somente loga no console, não mostra no sistema)
+try {
+  const smsRes = await smsService.sendSms({
+    phone_number: phoneNumber,
+    message: `Lembrete: sua consulta é em ${dateFormatted} às ${selectedTime} na Clínica MediConnect.`,
+    patient_id: patientId,
+  });
+
+  if (smsRes?.success) {
+    console.log("✅ SMS enviado com sucesso:", smsRes.message_sid);
+  } else {
+    console.warn("⚠️ Falha no envio do SMS:", smsRes);
+  }
+} catch (smsErr) {
+  console.error("❌ Erro ao enviar SMS:", smsErr);
+}
+
+
+
+
+    // 🧹 limpa os campos
+    setSelectedDoctor("");
+    setSelectedDate("");
+    setSelectedTime("");
+    setNotes("");
+    setSelectedPatient("");
+  } catch (err) {
+    console.error("❌ Erro ao agendar consulta:", err);
+    toast({ title: "Erro", description: "Falha ao agendar consulta." });
+  }
+};
+
+
+
+
 
   // 🔹 Tooltip no calendário
   useEffect(() => {
