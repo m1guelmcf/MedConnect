@@ -134,9 +134,8 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <div
-        className={`bg-card border-r border-border transition-all duration-300 ${
-          sidebarCollapsed ? "w-16" : "w-64"
-        } fixed left-0 top-0 h-screen flex flex-col z-10`}
+        className={`bg-card border-r border-border transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
+          } fixed left-0 top-0 h-screen flex flex-col z-10`}
       >
         {/* Header da Sidebar */}
         <div className="p-4 border-b border-border">
@@ -177,11 +176,10 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
+                    }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -237,25 +235,9 @@ export default function PatientLayout({ children }: PatientLayoutProps) {
 
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"
+          }`}
       >
-        {/* Header */}
-        <header className="bg-card border-b border-border px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1 max-w-md"></div>
-
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-destructive text-destructive-foreground text-xs">
-                  1
-                </Badge>
-              </Button>
-            </div>
-          </div>
-        </header>
 
         {/* Page Content */}
         <main className="flex-1 p-6">{children}</main>

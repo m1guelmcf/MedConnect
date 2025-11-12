@@ -62,9 +62,8 @@ export default function InicialPage() {
 
         {/* Navegação principal */}
         <nav
-          className={`${
-            isMenuOpen ? "block" : "hidden"
-          } absolute top-[76px] left-0 w-full bg-card shadow-md py-4 md:relative md:top-auto md:left-auto md:w-auto md:block md:bg-transparent md:shadow-none z-10`}
+          className={`${isMenuOpen ? "block" : "hidden"
+            } absolute top-[76px] left-0 w-full bg-card shadow-md py-4 md:relative md:top-auto md:left-auto md:w-auto md:block md:bg-transparent md:shadow-none z-10`}
         >
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 text-muted-foreground font-medium items-center">
             <Link href="#home" className="hover:text-primary">

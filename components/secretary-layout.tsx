@@ -175,11 +175,10 @@ export default function SecretaryLayout({ children }: SecretaryLayoutProps) {
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
+                    }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -231,24 +230,9 @@ export default function SecretaryLayout({ children }: SecretaryLayoutProps) {
 
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"
+          }`}
       >
-        <header className="bg-card border-b border-border px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1 max-w-md"></div>
-
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-destructive text-destructive-foreground text-xs">
-                  1
-                </Badge>
-              </Button>
-            </div>
-          </div>
-        </header>
 
         <main className="flex-1 p-6">{children}</main>
       </div>

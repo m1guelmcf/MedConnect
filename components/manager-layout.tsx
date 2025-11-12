@@ -130,9 +130,8 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div
-        className={`bg-white border-r border-gray-200 transition-all duration-300 fixed top-0 h-screen flex flex-col z-30 ${
-          sidebarCollapsed ? "w-16" : "w-64"
-        }`}
+        className={`bg-white border-r border-gray-200 transition-all duration-300 fixed top-0 h-screen flex flex-col z-30 ${sidebarCollapsed ? "w-16" : "w-64"
+          }`}
       >
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
@@ -164,11 +163,10 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
             return (
               <Link key={item.label} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
                       ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
                       : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -219,21 +217,10 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
       </div>
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 w-full ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 w-full ${sidebarCollapsed ? "ml-16" : "ml-64"
+          }`}
       >
-        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1 max-w-md"></div>
-          <div className="flex items-center gap-4 ml-auto">
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                1
-              </Badge>
-            </Button>
-          </div>
-        </header>
+
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
 

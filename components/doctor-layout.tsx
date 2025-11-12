@@ -167,9 +167,8 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
     // O restante do seu código JSX permanece exatamente o mesmo
     <div className="min-h-screen bg-background flex">
       <div
-        className={`bg-card border-r border transition-all duration-300 ${
-          sidebarCollapsed ? "w-16" : "w-64"
-        } fixed left-0 top-0 h-screen flex flex-col z-50`}
+        className={`bg-card border-r border transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
+          } fixed left-0 top-0 h-screen flex flex-col z-50`}
       >
         <div className="p-4 border-b border">
           <div className="flex items-center justify-between">
@@ -205,11 +204,10 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
-                      ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
+                    ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
+                    : "text-gray-600 hover:bg-gray-50"
+                    }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -223,9 +221,8 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
         // ... (seu código anterior)
         {/* Sidebar para desktop */}
         <div
-          className={`bg-white border-r border-gray-200 transition-all duration-300 ${
-            sidebarCollapsed ? "w-16" : "w-64"
-          } fixed left-0 top-0 h-screen flex flex-col z-50`}
+          className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
+            } fixed left-0 top-0 h-screen flex flex-col z-50`}
         >
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -264,11 +261,10 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
               return (
                 <Link key={item.href} href={item.href}>
                   <div
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                      isActive
-                        ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
+                      ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
+                      : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
                     {!sidebarCollapsed && (
@@ -317,9 +313,8 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             </div>
 
             <div
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-muted-foreground hover:bg-accent cursor-pointer ${
-                sidebarCollapsed ? "justify-center" : ""
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-muted-foreground hover:bg-accent cursor-pointer ${sidebarCollapsed ? "justify-center" : ""
+                }`}
               onClick={handleLogout}
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
@@ -335,9 +330,8 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
         ></div>
       )}
       <div
-        className={`bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 md:hidden ${
-          isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"
-        }`}
+        className={`bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 md:hidden ${isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"
+          }`}
       >
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -366,11 +360,10 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
             return (
               <Link key={item.href} href={item.href} onClick={toggleMobileMenu}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
-                      ? "bg-accent text-accent-foreground border-r-2 border-primary"
-                      : "text-muted-foreground hover:bg-accent"
-                  }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${isActive
+                    ? "bg-accent text-accent-foreground border-r-2 border-primary"
+                    : "text-muted-foreground hover:bg-accent"
+                    }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">{item.label}</span>
@@ -416,24 +409,9 @@ export default function DoctorLayout({ children }: PatientLayoutProps) {
       </div>
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"
+          }`}
       >
-        <header className="bg-card border-b border px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1"></div>
-
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                  1
-                </Badge>
-              </Button>
-            </div>
-          </div>
-        </header>
 
         <main className="flex-1 p-6">{children}</main>
       </div>
