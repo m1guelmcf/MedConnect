@@ -4,7 +4,6 @@
 
 import type React from "react";
 import { useState, useEffect, useMemo } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import { useAuthLayout } from "@/hooks/useAuthLayout";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { patientsService } from "@/services/patientsApi.mjs";
@@ -130,7 +129,7 @@ export default function DoctorAppointmentsPage() {
   };
 
   if (isAuthLoading) {
-    return <DoctorLayout><div>Carregando...</div></DoctorLayout>;
+    return <Sidebar><div>Carregando...</div></Sidebar>;
   }
 
   return (
