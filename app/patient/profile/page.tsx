@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import PatientLayout from "@/components/patient-layout";
+import Sidebar from "@/components/Sidebar"
 import { useAuthLayout } from "@/hooks/useAuthLayout";
 import { patientsService } from "@/services/patientsApi.mjs";
 import { api } from "@/services/api.mjs";
@@ -121,11 +121,11 @@ export default function PatientProfile() {
   };
 
   if (isAuthLoading || !patientData) {
-    return <PatientLayout><div>Carregando seus dados...</div></PatientLayout>;
+    return <Sidebar><div>Carregando seus dados...</div></Sidebar>;
   }
 
   return (
-    <PatientLayout>
+    <Sidebar>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -198,6 +198,6 @@ export default function PatientProfile() {
           </div>
         </div>
       </div>
-    </PatientLayout>
-  );
+    </Sidebar>
+  )
 }

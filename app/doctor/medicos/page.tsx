@@ -2,25 +2,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Eye, Edit, Calendar, Trash2, Loader2 } from "lucide-react";
 import { api } from "@/services/api.mjs";
 import { PatientDetailsModal } from "@/components/ui/patient-details-modal";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import Sidebar from "@/components/Sidebar";
 
 interface Paciente {
   id: string;
@@ -171,7 +160,7 @@ export default function PacientesPage() {
   }, [fetchPacientes]);
 
   return (
-    <DoctorLayout>
+    <Sidebar>
       <div className="space-y-6 px-2 sm:px-4 md:px-6">
         {/* Cabeçalho */}
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -363,6 +352,6 @@ export default function PacientesPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
-    </DoctorLayout>
+    </Sidebar>
   );
 }

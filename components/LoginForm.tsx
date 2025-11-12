@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { usersService } from "@/services/usersApi.mjs";
 
 interface LoginFormProps {
     children?: React.ReactNode;
@@ -31,8 +32,12 @@ export function LoginForm({ children }: LoginFormProps) {
     const { toast } = useToast();
 
     const [userRoles, setUserRoles] = useState<string[]>([]);
-    
-    // *** MUDANÇA 1: A função agora recebe o objeto 'user' como parâmetro ***
+    const [authenticatedUser, setAuthenticatedUser] = useState<any>(null);
+
+    /**
+     * --- NOVA FUNÇÃO ---
+     * Finaliza o login com o perfil de dashboard escolhido e redireciona.
+     */
     const handleRoleSelection = (selectedDashboardRole: string, user: any) => {
         if (!user) {
             toast({ title: "Erro de Sessão", description: "Não foi possível encontrar os dados do usuário. Tente novamente.", variant: "destructive" });
@@ -47,12 +52,12 @@ export function LoginForm({ children }: LoginFormProps) {
         localStorage.setItem("user_info", JSON.stringify(completeUserInfo));
 
         let redirectPath = "";
-        switch (roleInLowerCase) {
-            case "manager": redirectPath = "/manager/home"; break;
-            case "doctor": redirectPath = "/doctor/medicos"; break;
-            case "secretary": redirectPath = "/secretary/pacientes"; break;
-            case "patient": redirectPath = "/patient/dashboard"; break;
-            case "finance": redirectPath = "/finance/home"; break;
+        switch (selectedDashboardRole) {
+            case "gestor": redirectPath = "/manager/dashboard"; break;
+            case "admin": redirectPath = "/manager/dashboard"; break;
+            case "medico": redirectPath = "/doctor/dashboard"; break;
+            case "secretaria": redirectPath = "/secretary/dashboard"; break;
+            case "paciente": redirectPath = "/patient/dashboard"; break;
         }
 
         if (redirectPath) {
@@ -77,55 +82,16 @@ export function LoginForm({ children }: LoginFormProps) {
             }
 
             const rolesData = await api.get(`/rest/v1/user_roles?user_id=eq.${user.id}&select=role`);
-            if (!rolesData || rolesData.length === 0) {
+
+            const me = await usersService.getMeSimple()
+            console.log(me.roles)
+
+            if (!me.roles || me.roles.length === 0) {
                 throw new Error("Nenhum perfil de acesso foi encontrado para este usuário.");
             }
 
-            const rolesFromApi: string[] = rolesData.map((r: any) => r.role);
-            
-            // *** MUDANÇA 2: Passamos o objeto 'user' diretamente para a função de seleção ***
-            const handleSelectionWithUser = (role: string) => handleRoleSelection(role, user);
+            handleRoleSelection(me.roles[0], user);
 
-            if (rolesFromApi.includes("admin")) {
-                const allRoles = ["manager", "doctor", "secretary", "patient", "finance"];
-                setUserRoles(allRoles);
-                // Atualizamos o onClick para usar a nova função que já tem o 'user'
-                const roleButtons = allRoles.map((role) => (
-                    <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleSelectionWithUser(role)}>
-                        Entrar como: {role.charAt(0).toUpperCase() + role.slice(1)}
-                    </Button>
-                ));
-                // Precisamos de um estado para renderizar os botões
-                setRoleSelectionUI(roleButtons); 
-                setIsLoading(false);
-                return;
-            }
-
-            const displayRoles = new Set<string>();
-            rolesFromApi.forEach((role) => {
-                switch (role) {
-                    case "gestor": displayRoles.add("manager"); displayRoles.add("finance"); break;
-                    case "medico": displayRoles.add("doctor"); break;
-                    case "secretaria": displayRoles.add("secretary"); break;
-                    case "paciente": displayRoles.add("patient"); break;
-                }
-            });
-
-            const finalRoles = Array.from(displayRoles);
-
-            if (finalRoles.length === 1) {
-                handleSelectionWithUser(finalRoles[0]);
-            } else {
-                setUserRoles(finalRoles);
-                // Atualizamos o onClick aqui também
-                const roleButtons = finalRoles.map((role) => (
-                    <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleSelectionWithUser(role)}>
-                        Entrar como: {role.charAt(0).toUpperCase() + role.slice(1)}
-                    </Button>
-                ));
-                setRoleSelectionUI(roleButtons);
-                setIsLoading(false);
-            }
         } catch (error) {
             localStorage.removeItem("token");
             localStorage.removeItem("user_info");
@@ -172,7 +138,11 @@ export function LoginForm({ children }: LoginFormProps) {
                         <h3 className="text-lg font-medium text-center text-foreground">Você tem múltiplos perfis</h3>
                         <p className="text-sm text-muted-foreground text-center">Selecione com qual perfil deseja entrar:</p>
                         <div className="flex flex-col space-y-3 pt-2">
-                            {roleSelectionUI}
+                            {userRoles.map((role) => (
+                                <Button key={role} variant="outline" className="h-11 text-base" onClick={() => handleRoleSelection(role, authenticatedUser)}>
+                                    Entrar como: {role.charAt(0).toUpperCase() + role.slice(1)}
+                                </Button>
+                            ))}
                         </div>
                     </div>
                 )}

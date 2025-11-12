@@ -1,11 +1,12 @@
 // app/patient/appointments/page.tsx
-import PatientLayout from "@/components/patient-layout";
+import Sidebar from "@/components/Sidebar";
 import ScheduleForm from "@/components/schedule/schedule-form";
+
 
 export default function PatientAppointments() {
   return (
-    <PatientLayout>
+    <Sidebar>
       <ScheduleForm />
-    </PatientLayout>
+    </Sidebar>
   );
 }

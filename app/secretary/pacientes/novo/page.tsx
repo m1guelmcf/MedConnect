@@ -1,4 +1,3 @@
-// Caminho: app/(manager)/usuario/novo/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,13 +6,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// O Select foi removido pois não é mais necessário
 import { Save, Loader2 } from "lucide-react";
-import ManagerLayout from "@/components/manager-layout";
-// Os imports originais foram mantidos, como solicitado
 import { usersService } from "services/usersApi.mjs";
-import { doctorsService } from "services/doctorsApi.mjs";
-import { login } from "services/api.mjs";
+import Sidebar from "@/components/Sidebar";
 
 // Interface simplificada para refletir apenas os campos necessários
 interface UserFormData {
@@ -97,7 +92,7 @@ export default function NovoUsuarioPage() {
     };
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="w-full h-full p-4 md:p-8 flex justify-center items-start">
                 <div className="w-full max-w-screen-lg space-y-8">
                     <div className="flex items-center justify-between border-b pb-4">
@@ -167,6 +162,6 @@ export default function NovoUsuarioPage() {
                     </form>
                 </div>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

@@ -4,7 +4,6 @@
 
 import type React from "react";
 import { useState, useEffect, useMemo } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import { useAuthLayout } from "@/hooks/useAuthLayout";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { patientsService } from "@/services/patientsApi.mjs";
@@ -19,6 +18,7 @@ import { Clock, Calendar as CalendarIcon, User, X, RefreshCw, Loader2, MapPin, P
 import { format, isFuture, parseISO, isValid, isToday, isTomorrow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import Sidebar from "@/components/Sidebar";
 
 // Interfaces (sem alteração)
 interface EnrichedAppointment {
@@ -129,11 +129,11 @@ export default function DoctorAppointmentsPage() {
   };
 
   if (isAuthLoading) {
-    return <DoctorLayout><div>Carregando...</div></DoctorLayout>;
+    return <Sidebar><div>Carregando...</div></Sidebar>;
   }
 
   return (
-    <DoctorLayout>
+    <Sidebar>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Agenda Médica</h1>
@@ -224,6 +224,6 @@ export default function DoctorAppointmentsPage() {
           </div>
         </div>
       </div>
-    </DoctorLayout>
+    </Sidebar>
   );
 }

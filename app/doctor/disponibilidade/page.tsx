@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import DoctorLayout from "@/components/doctor-layout";
 
 import { AvailabilityService } from "@/services/availabilityApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
@@ -17,9 +16,10 @@ import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Eye, Edit, Calendar, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { AvailabilityEditModal } from "@/components/ui/availability-edit-modal";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import Sidebar from "@/components/Sidebar";
 
 // ... (Interfaces de tipo omitidas para brevidade, pois não foram alteradas)
 
@@ -323,7 +323,7 @@ export default function AvailabilityPage() {
         };
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
@@ -506,6 +506,6 @@ export default function AvailabilityPage() {
                 onSubmit={handleEdit}
             />
             
-        </DoctorLayout>
+        </Sidebar>
     );
 }

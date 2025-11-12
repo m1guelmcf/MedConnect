@@ -1,11 +1,11 @@
-import SecretaryLayout from "@/components/secretary-layout";
+import Sidebar from "@/components/Sidebar";
 import ScheduleForm from "@/components/schedule/schedule-form";
 
 export default function SecretaryAppointments() {
   return (
-    <SecretaryLayout>
+    <Sidebar>
       <ScheduleForm />
-    </SecretaryLayout>
+    </Sidebar>
   );
 }
 
