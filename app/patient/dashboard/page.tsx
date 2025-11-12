@@ -1,4 +1,3 @@
-import PatientLayout from "@/components/patient-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, User, Plus } from "lucide-react"

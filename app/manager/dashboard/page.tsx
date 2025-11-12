@@ -1,6 +1,5 @@
 "use client";
 
-import ManagerLayout from "@/components/manager-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Plus, User } from "lucide-react";

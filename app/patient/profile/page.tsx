@@ -121,7 +121,7 @@ export default function PatientProfile() {
   };
 
   if (isAuthLoading || !patientData) {
-    return <PatientLayout><div>Carregando seus dados...</div></PatientLayout>;
+    return <Sidebar><div>Carregando seus dados...</div></Sidebar>;
   }
 
   return (

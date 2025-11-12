@@ -17,7 +17,6 @@ import { format } from "date-fns";
 import TiptapEditor from "@/components/ui/tiptap-editor";
 
 import { reportsApi } from "@/services/reportsApi.mjs";
-import DoctorLayout from "@/components/doctor-layout";
 import Sidebar from "@/components/Sidebar";
 
 
