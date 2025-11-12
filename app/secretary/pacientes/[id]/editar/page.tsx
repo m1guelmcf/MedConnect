@@ -13,9 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Trash2, Paperclip, Upload } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import SecretaryLayout from "@/components/secretary-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
-// import { json } from "stream/consumers"; // Removido, pois não é usado e pode causar erro.
+import Sidebar from "@/components/Sidebar";
 
 export default function EditarPacientePage() {
     const router = useRouter();
@@ -264,7 +263,7 @@ export default function EditarPacientePage() {
     };
 
     return (
-        <SecretaryLayout>
+        <Sidebar>
             {/* O espaçamento foi reduzido aqui: de `p-4 sm:p-6 lg:p-8` para `p-2 sm:p-4 lg:p-6` */}
             <div className="space-y-6 p-2 sm:p-4 lg:p-6 max-w-10xl mx-auto"> {/* Alterado padding responsivo */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -673,6 +672,6 @@ export default function EditarPacientePage() {
                     </div>
                 </form>
             </div>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }

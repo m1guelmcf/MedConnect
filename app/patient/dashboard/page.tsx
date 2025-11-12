@@ -1,12 +1,12 @@
-import PatientLayout from "@/components/patient-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, User, Plus } from "lucide-react"
 import Link from "next/link"
+import Sidebar from "@/components/Sidebar"
 
 export default function PatientDashboard() {
   return (
-    <PatientLayout>
+    <Sidebar>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -108,6 +108,6 @@ export default function PatientDashboard() {
           </Card>
         </div>
       </div>
-    </PatientLayout>
+    </Sidebar>
   )
 }

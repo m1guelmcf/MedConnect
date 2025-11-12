@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import DoctorLayout from "@/components/doctor-layout"; // Supondo que DoctorLayout é onde a sidebar está
 
 import { AvailabilityService } from "@/services/availabilityApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
@@ -17,9 +16,10 @@ import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Eye, Edit, Calendar, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { AvailabilityEditModal } from "@/components/ui/availability-edit-modal";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import Sidebar from "@/components/Sidebar";
 
 // ... (Interfaces de tipo omitidas para brevidade, pois não foram alteradas)
 
@@ -323,15 +323,8 @@ export default function AvailabilityPage() {
         };
 
     return (
-        // Alteração aqui: Adicione classes para garantir que o DoctorLayout permita a rolagem correta
-        // Você precisará ajustar o componente DoctorLayout para ter a sidebar fixa e o conteúdo principal rolável.
-        // Exemplo de estrutura para DoctorLayout:
-        // <div className="flex h-screen overflow-hidden">
-        //     <aside className="w-64 fixed inset-y-0 z-50 overflow-y-auto border-r bg-white">...</aside> // Sidebar
-        //     <main className="flex-1 overflow-y-auto lg:ml-64">...</main> // Conteúdo principal
-        // </div>
-        <DoctorLayout>
-            <div className="space-y-6 flex-1 overflow-y-auto p-6"> {/* Adicionado flex-1 overflow-y-auto e p-6 */}
+        <Sidebar>
+            <div className="space-y-6 flex-1 overflow-y-auto p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Definir Disponibilidade</h1>
@@ -513,6 +506,7 @@ export default function AvailabilityPage() {
                 onClose={handleCloseModal}
                 onSubmit={handleEdit}
             />
-        </DoctorLayout>
+            
+        </Sidebar>
     );
 }

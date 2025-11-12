@@ -2,7 +2,6 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +16,7 @@ import { format } from "date-fns";
 import TiptapEditor from "@/components/ui/tiptap-editor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { reportsApi } from "@/services/reportsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 export default function EditarLaudoPage() {
     const router = useRouter();
@@ -108,7 +108,7 @@ export default function EditarLaudoPage() {
 
     if (loading) {
         return (
-            <DoctorLayout>
+            <Sidebar>
                  <div className="container mx-auto p-4">
                     <Card>
                         <CardHeader>
@@ -130,12 +130,12 @@ export default function EditarLaudoPage() {
                         </CardContent>
                     </Card>
                 </div>
-            </DoctorLayout>
+            </Sidebar>
         )
     }
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="container mx-auto p-4">
                 <Card>
                     <CardHeader>
@@ -232,6 +232,6 @@ export default function EditarLaudoPage() {
                     </CardContent>
                 </Card>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

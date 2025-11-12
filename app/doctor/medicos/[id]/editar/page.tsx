@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import DoctorLayout from "@/components/doctor-layout";
+import Sidebar from "@/components/Sidebar";
 
 // Mock data - in a real app, this would come from an API
 const mockDoctors = [
@@ -124,7 +124,7 @@ export default function EditarMedicoPage() {
     };
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex items-center gap-4">
                     <Link href="/medicos">
@@ -512,6 +512,6 @@ export default function EditarMedicoPage() {
                     </div>
                 </form>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

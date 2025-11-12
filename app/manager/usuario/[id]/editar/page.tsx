@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Save, Loader2, ArrowLeft } from "lucide-react" 
-import ManagerLayout from "@/components/manager-layout"
+import Sidebar from "@/components/Sidebar"
 
 // Mock user service for demonstration. Replace with your actual API service.
 const usersService = {
@@ -155,17 +155,17 @@ export default function EditarUsuarioPage() {
 
   if (loading) {
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="flex justify-center items-center h-full w-full py-16">
                 <Loader2 className="w-8 h-8 animate-spin text-green-600" />
                 <p className="ml-2 text-gray-600">Carregando dados do usuário...</p>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
   }
 
   return (
-    <ManagerLayout>
+    <Sidebar>
     <div className="w-full max-w-2xl mx-auto space-y-6 p-4 md:p-8"> 
       <div className="flex items-center justify-between">
         <div>
@@ -274,6 +274,6 @@ export default function EditarUsuarioPage() {
         </div>
       </form>
     </div>
-    </ManagerLayout>
+    </Sidebar>
   );
 }

@@ -1,28 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import ManagerLayout from "@/components/manager-layout";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Eye, Filter, Loader2 } from "lucide-react";
-import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { api, login } from "services/api.mjs"; // Verifique o caminho correto para 'api' e 'login'
-import { usersService } from "services/usersApi.mjs"; // Verifique o caminho correto para 'usersApi.mjs'
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { api, login } from "services/api.mjs";
+import { usersService } from "services/usersApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 interface FlatUser {
     id: string;
@@ -178,7 +164,7 @@ export default function UsersPage() {
     const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="space-y-6 px-2 sm:px-4 md:px-8">
 
                 {/* Header */}
@@ -427,6 +413,6 @@ export default function UsersPage() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

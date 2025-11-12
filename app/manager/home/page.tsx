@@ -1,25 +1,17 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import ManagerLayout from "@/components/manager-layout";
-import Link from "next/link";
+import React, { useEffect, useState, useCallback, useMemo } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 import { doctorsService } from "services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
+
 
 interface Doctor {
     id: number;
@@ -187,7 +179,7 @@ export default function DoctorsPage() {
     };
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="space-y-6 px-2 sm:px-4 md:px-6">
                 {/* Cabeçalho */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -483,6 +475,6 @@ export default function DoctorsPage() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save, Loader2 } from "lucide-react";
-import ManagerLayout from "@/components/manager-layout";
 import { usersService } from "services/usersApi.mjs";
-import { doctorsService } from "services/doctorsApi.mjs";
-import { login } from "services/api.mjs";
+import Sidebar from "@/components/Sidebar";
 
 // Interface simplificada para refletir apenas os campos necessários
 interface UserFormData {
@@ -94,7 +92,7 @@ export default function NovoUsuarioPage() {
     };
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             {/* Container principal com padding responsivo e centralização */}
             <div className="w-full h-full p-4 md:p-8 lg:p-12 flex justify-center items-start">
                 {/* Conteúdo do formulário com largura máxima para telas maiores */}
@@ -168,6 +166,6 @@ export default function NovoUsuarioPage() {
                     </form>
                 </div>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

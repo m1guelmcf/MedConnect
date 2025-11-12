@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
-import ManagerLayout from "@/components/manager-layout";
+import Sidebar from "@/components/Sidebar";
 
 // Defina o tamanho da página.
 const PAGE_SIZE = 5; 
@@ -144,7 +144,7 @@ export default function PacientesPage() {
     };
 
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="space-y-6 px-2 sm:px-4 md:px-8">
                 {/* Header (Responsividade OK) */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -501,6 +501,6 @@ export default function PacientesPage() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }
