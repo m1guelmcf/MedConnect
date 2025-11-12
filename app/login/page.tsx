@@ -134,7 +134,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-
         {/* PAINEL DIREITO: A Imagem e Branding */}
         <div className="hidden lg:block relative">
           {/* Usamos o componente <Image> para otimização e performance */}

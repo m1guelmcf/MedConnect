@@ -324,7 +324,7 @@ export default function AvailabilityPage() {
 
     return (
         <Sidebar>
-            <div className="space-y-6">
+            <div className="space-y-6 flex-1 overflow-y-auto p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Definir Disponibilidade</h1>
@@ -416,11 +416,12 @@ export default function AvailabilityPage() {
 
                     {/* **AJUSTE DE RESPONSIVIDADE: BOTÕES DE AÇÃO** */}
                     {/* Alinha à direita em telas maiores e empilha (com o botão primário no final) em telas menores */}
+                    {/* Alteração aqui: Adicionado w-full aos Links e Buttons para ocuparem a largura total em telas pequenas */}
                     <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
                         <Link href="/doctor/disponibilidade/excecoes" className="w-full sm:w-auto">
                             <Button variant="default" className="w-full sm:w-auto">Adicionar Exceção</Button>
                         </Link>
-                        <div className="flex gap-4 w-full sm:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"> {/* Ajustado para empilhar os botões Cancelar e Salvar em telas pequenas */}
                             <Link href="/doctor/dashboard" className="w-full sm:w-auto">
                                 <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
                             </Link>

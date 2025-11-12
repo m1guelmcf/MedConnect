@@ -93,18 +93,22 @@ export default function NovoUsuarioPage() {
 
     return (
         <Sidebar>
-            <div className="w-full h-full p-4 md:p-8 flex justify-center items-start">
-                <div className="w-full max-w-screen-lg space-y-8">
-                    <div className="flex items-center justify-between border-b pb-4">
+            {/* Container principal com padding responsivo e centralização */}
+            <div className="w-full h-full p-4 md:p-8 lg:p-12 flex justify-center items-start">
+                {/* Conteúdo do formulário com largura máxima para telas maiores */}
+                <div className="w-full max-w-screen-md lg:max-w-screen-lg space-y-8">
+                    {/* Cabeçalho da página */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-4 gap-4"> {/* Ajustado para empilhar em telas pequenas */}
                         <div>
-                            <h1 className="text-3xl font-extrabold text-gray-900">Novo Usuário</h1>
-                            <p className="text-md text-gray-500">Preencha os dados para cadastrar um novo usuário no sistema.</p>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Novo Usuário</h1> {/* Tamanho de texto responsivo */}
+                            <p className="text-sm sm:text-md text-gray-500">Preencha os dados para cadastrar um novo usuário no sistema.</p> {/* Tamanho de texto responsivo */}
                         </div>
                         <Link href="/manager/usuario">
-                            <Button variant="outline">Cancelar</Button>
+                            <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button> {/* Botão ocupa largura total em telas pequenas */}
                         </Link>
                     </div>
 
+                    {/* Formulário */}
                     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 md:p-10 border rounded-xl shadow-lg">
                         {error && (
                             <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-300">
@@ -113,8 +117,9 @@ export default function NovoUsuarioPage() {
                             </div>
                         )}
 
+                        {/* Campos do formulário em grid responsivo */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2 md:col-span-2">
+                            <div className="space-y-2 md:col-span-2"> {/* Nome Completo ocupa 2 colunas em telas maiores */}
                                 <Label htmlFor="nomeCompleto">Nome Completo *</Label>
                                 <Input id="nomeCompleto" value={formData.nomeCompleto} onChange={(e) => handleInputChange("nomeCompleto", e.target.value)} placeholder="Nome e Sobrenome" required />
                             </div>
@@ -124,7 +129,10 @@ export default function NovoUsuarioPage() {
                                 <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} placeholder="exemplo@dominio.com" required />
                             </div>
 
-                            {/* O seletor de Papel (Função) foi removido */}
+                            <div className="space-y-2">
+                                <Label htmlFor="telefone">Telefone</Label>
+                                <Input id="telefone" value={formData.telefone} onChange={(e) => handleInputChange("telefone", e.target.value)} placeholder="(00) 00000-0000" maxLength={15} />
+                            </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="senha">Senha *</Label>
@@ -136,25 +144,21 @@ export default function NovoUsuarioPage() {
                                 <Input id="confirmarSenha" type="password" value={formData.confirmarSenha} onChange={(e) => handleInputChange("confirmarSenha", e.target.value)} placeholder="Repita a senha" required />
                                 {formData.senha && formData.confirmarSenha && formData.senha !== formData.confirmarSenha && <p className="text-xs text-red-500">As senhas não coincidem.</p>}
                             </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="telefone">Telefone</Label>
-                                <Input id="telefone" value={formData.telefone} onChange={(e) => handleInputChange("telefone", e.target.value)} placeholder="(00) 00000-0000" maxLength={15} />
+                            
+                            <div className="space-y-2 md:col-span-2"> {/* CPF ocupa 2 colunas em telas maiores */}
+                                <Label htmlFor="cpf">CPF *</Label>
+                                <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} placeholder="xxx.xxx.xxx-xx" required />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="cpf">Cpf *</Label>
-                            <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} placeholder="xxx.xxx.xxx-xx" required />
-                        </div>
-
-                        <div className="flex justify-end gap-4 pt-6 border-t mt-6">
+                        {/* Botões de ação */}
+                        <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t mt-6"> {/* Botões empilhados em telas pequenas */}
                             <Link href="/manager/usuario">
-                                <Button type="button" variant="outline" disabled={isSaving}>
+                                <Button type="button" variant="outline" disabled={isSaving} className="w-full sm:w-auto">
                                     Cancelar
                                 </Button>
                             </Link>
-                            <Button type="submit" className="bg-green-600 hover:bg-green-700" disabled={isSaving}>
+                            <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
                                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                                 {isSaving ? "Salvando..." : "Salvar Usuário"}
                             </Button>

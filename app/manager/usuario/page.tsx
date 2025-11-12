@@ -1,4 +1,3 @@
-// app/manager/usuario/page.tsx
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -35,17 +34,15 @@ export default function UsersPage() {
     const [userDetails, setUserDetails] = useState<UserInfoResponse | null>(
         null
     );
-    // Ajuste 1: Definir 'all' como valor inicial para garantir que todos os usuários sejam exibidos por padrão.
     const [selectedRole, setSelectedRole] = useState<string>("all");
 
     // --- Lógica de Paginação INÍCIO ---
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Lógica para mudar itens por página, resetando para a página 1
     const handleItemsPerPageChange = (value: string) => {
         setItemsPerPage(Number(value));
-        setCurrentPage(1); // Resetar para a primeira página
+        setCurrentPage(1);
     };
     // --- Lógica de Paginação FIM ---
 
@@ -81,8 +78,7 @@ export default function UsersPage() {
             });
 
             setUsers(mapped);
-            setCurrentPage(1); // Resetar a página após carregar
-            console.log("[fetchUsers] mapped count:", mapped.length);
+            setCurrentPage(1);
         } catch (err: any) {
             console.error("Erro ao buscar usuários:", err);
             setError("Não foi possível carregar os usuários. Veja console.");
@@ -109,9 +105,7 @@ export default function UsersPage() {
         setUserDetails(null);
 
         try {
-            console.log("[openDetailsDialog] user_id:", flatUser.user_id);
             const data = await usersService.full_data(flatUser.user_id);
-            console.log("[openDetailsDialog] full_data returned:", data);
             setUserDetails(data);
         } catch (err: any) {
             console.error("Erro ao carregar detalhes:", err);
@@ -124,23 +118,19 @@ export default function UsersPage() {
         }
     };
 
-    // 1. Filtragem
     const filteredUsers =
         selectedRole && selectedRole !== "all"
             ? users.filter((u) => u.role === selectedRole)
             : users;
 
-    // 2. Paginação (aplicada sobre a lista filtrada)
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
-    // Função para mudar de página
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-    // --- Funções e Lógica de Navegação ADICIONADAS ---
     const goToPrevPage = () => {
         setCurrentPage((prev) => Math.max(1, prev - 1));
     };
@@ -149,15 +139,13 @@ export default function UsersPage() {
         setCurrentPage((prev) => Math.min(totalPages, prev + 1));
     };
 
-    // Lógica para gerar os números das páginas visíveis
     const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
         const pages: number[] = [];
-        const maxVisiblePages = 5; // Número máximo de botões de página a serem exibidos (ex: 2, 3, 4, 5, 6)
+        const maxVisiblePages = 5;
         const halfRange = Math.floor(maxVisiblePages / 2);
         let startPage = Math.max(1, currentPage - halfRange);
         let endPage = Math.min(totalPages, currentPage + halfRange);
 
-        // Ajusta para manter o número fixo de botões quando nos limites
         if (endPage - startPage + 1 < maxVisiblePages) {
             if (endPage === totalPages) {
                 startPage = Math.max(1, totalPages - maxVisiblePages + 1);
@@ -174,8 +162,6 @@ export default function UsersPage() {
     };
 
     const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
-    // --- Fim das Funções e Lógica de Navegação ADICIONADAS ---
-
 
     return (
         <Sidebar>
@@ -199,17 +185,17 @@ export default function UsersPage() {
 
                     {/* Select de Filtro por Papel - Ajustado para resetar a página */}
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">
                             Filtrar por papel
                         </span>
                         <Select
                             onValueChange={(value) => {
                                 setSelectedRole(value);
-                                setCurrentPage(1); // Resetar para a primeira página ao mudar o filtro
+                                setCurrentPage(1);
                             }}
                             value={selectedRole}>
 
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full sm:w-[180px]"> {/* w-full para mobile, w-[180px] para sm+ */}
                                 <SelectValue placeholder="Filtrar por papel" />
                             </SelectTrigger>
                             <SelectContent>
@@ -225,14 +211,14 @@ export default function UsersPage() {
 
                     {/* Select de Itens por Página */}
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">
                             Itens por página
                         </span>
                         <Select
                             onValueChange={handleItemsPerPageChange}
                             defaultValue={String(itemsPerPage)}
                         >
-                            <SelectTrigger className="w-[140px]">
+                            <SelectTrigger className="w-full sm:w-[140px]"> {/* w-full para mobile, w-[140px] para sm+ */}
                                 <SelectValue placeholder="Itens por pág." />
                             </SelectTrigger>
                             <SelectContent>
@@ -249,7 +235,7 @@ export default function UsersPage() {
                 </div>
                 {/* Fim do Filtro e Itens por Página */}
 
-                {/* Tabela */}
+                {/* Tabela/Lista */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-x-auto">
                     {loading ? (
                         <div className="p-8 text-center text-gray-500">
@@ -264,10 +250,10 @@ export default function UsersPage() {
                         </div>
                     ) : (
                         <>
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50 hidden md:table-header-group">
+                            {/* Tabela para Telas Médias e Grandes */}
+                            <table className="min-w-full divide-y divide-gray-200 hidden md:table">
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">E-mail</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefone</th>
@@ -276,15 +262,8 @@ export default function UsersPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {/* Usando currentItems para a paginação */}
                                     {currentItems.map((u) => (
-                                        <tr
-                                            key={u.id}
-                                            className="flex flex-col md:table-row md:flex-row border-b md:border-0 hover:bg-gray-50"
-                                        >
-                                            <td className="px-6 py-4 text-sm text-gray-500 break-all md:whitespace-nowrap">
-                                                {u.id}
-                                            </td>
+                                        <tr key={u.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 text-sm text-gray-900">
                                                 {u.full_name}
                                             </td>
@@ -312,7 +291,33 @@ export default function UsersPage() {
                                 </tbody>
                             </table>
 
-                            {/* Paginação ATUALIZADA */}
+                            {/* Layout em Cards/Lista para Telas Pequenas */}
+                            <div className="md:hidden divide-y divide-gray-200">
+                                {currentItems.map((u) => (
+                                    <div key={u.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-medium text-gray-900 truncate">
+                                                {u.full_name || "—"}
+                                            </div>
+                                            <div className="text-sm text-gray-500 capitalize">
+                                                {u.role || "—"}
+                                            </div>
+                                        </div>
+                                        <div className="ml-4 flex-shrink-0">
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => openDetailsDialog(u)}
+                                                title="Visualizar"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Paginação */}
                             {totalPages > 1 && (
                                 <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 border-t border-gray-200">
 
@@ -350,7 +355,6 @@ export default function UsersPage() {
 
                                 </div>
                             )}
-                            {/* Fim da Paginação ATUALIZADA */}
                         </>
                     )}
                 </div>
@@ -387,7 +391,6 @@ export default function UsersPage() {
                                             <strong>Roles:</strong>{" "}
                                             {userDetails.roles?.join(", ")}
                                         </div>
-                                        {/* Melhoria na visualização das permissões no modal */}
                                         <div className="pt-2">
                                             <strong className="block mb-1">Permissões:</strong>
                                             <ul className="list-disc list-inside space-y-0.5 text-sm">
