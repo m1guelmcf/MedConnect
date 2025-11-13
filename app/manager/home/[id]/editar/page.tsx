@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Save, Loader2, ArrowLeft } from "lucide-react" 
-import ManagerLayout from "@/components/manager-layout"
+import Sidebar from "@/components/Sidebar"
 import { doctorsService } from "services/doctorsApi.mjs"; 
 
 const UF_LIST = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -207,17 +207,17 @@ export default function EditarMedicoPage() {
   };
   if (loading) {
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="flex justify-center items-center h-full w-full py-16">
                 <Loader2 className="w-8 h-8 animate-spin text-green-600" />
                 <p className="ml-2 text-gray-600">Carregando dados do médico...</p>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
   }
 
   return (
-    <ManagerLayout>
+    <Sidebar>
     <div className="w-full space-y-6 p-4 md:p-8"> 
       <div className="flex items-center justify-between">
         <div>
@@ -487,6 +487,6 @@ export default function EditarMedicoPage() {
         </div>
       </form>
     </div>
-    </ManagerLayout>
+    </Sidebar>
   );
 }

@@ -1,25 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react"
-import ManagerLayout from "@/components/manager-layout";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 import { doctorsService } from "services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 
 interface Doctor {
@@ -33,7 +24,6 @@ interface Doctor {
     status?: string;
 }
 
-
 interface DoctorDetails {
     nome: string;
     crm: string;
@@ -41,11 +31,11 @@ interface DoctorDetails {
     contato: {
         celular?: string;
         telefone1?: string;
-    }
+    };
     endereco: {
         cidade?: string;
         estado?: string;
-    }
+    };
     convenio?: string;
     vip?: boolean;
     status?: string;
@@ -80,7 +70,7 @@ export default function DoctorsPage() {
             const data: Doctor[] = await doctorsService.list();
             const dataWithStatus = data.map((doc, index) => ({
                 ...doc,
-                status: index % 3 === 0 ? "Inativo" : index % 2 === 0 ? "Férias" : "Ativo"
+                status: index % 3 === 0 ? "Inativo" : index % 2 === 0 ? "Férias" : "Ativo",
             }));
             setDoctors(dataWithStatus || []);
             setCurrentPage(1);
@@ -93,11 +83,9 @@ export default function DoctorsPage() {
         }
     }, []);
 
-
     useEffect(() => {
         fetchDoctors();
     }, [fetchDoctors]);
-
 
     const openDetailsDialog = async (doctor: Doctor) => {
         setDetailsDialogOpen(true);
@@ -114,7 +102,6 @@ export default function DoctorsPage() {
             proximo_atendimento: "N/A",
         });
     };
-
 
     const handleDelete = async () => {
         if (doctorToDeleteId === null) return;
@@ -138,11 +125,11 @@ export default function DoctorsPage() {
     };
 
     const uniqueSpecialties = useMemo(() => {
-        const specialties = doctors.map(doctor => doctor.specialty).filter(Boolean);
+        const specialties = doctors.map((doctor) => doctor.specialty).filter(Boolean);
         return [...new Set(specialties)];
     }, [doctors]);
 
-    const filteredDoctors = doctors.filter(doctor => {
+    const filteredDoctors = doctors.filter((doctor) => {
         const specialtyMatch = specialtyFilter === "all" || doctor.specialty === specialtyFilter;
         const statusMatch = statusFilter === "all" || doctor.status === statusFilter;
         return specialtyMatch && statusMatch;
@@ -191,11 +178,9 @@ export default function DoctorsPage() {
         setCurrentPage(1);
     };
 
-
     return (
-        <ManagerLayout>
+        <Sidebar>
             <div className="space-y-6 px-2 sm:px-4 md:px-6">
-
                 {/* Cabeçalho */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
@@ -204,29 +189,26 @@ export default function DoctorsPage() {
                     </div>
                 </div>
 
-
                 {/* Filtros e Itens por Página */}
                 <div className="flex flex-wrap items-center gap-3 bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">
-                            Especialidade
-                        </span>
+                        <span className="text-sm font-medium text-foreground">Especialidade</span>
                         <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
                             <SelectTrigger className="w-[160px] sm:w-[180px]">
                                 <SelectValue placeholder="Especialidade" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todas</SelectItem>
-                                {uniqueSpecialties.map(specialty => (
-                                    <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+                                {uniqueSpecialties.map((specialty) => (
+                                    <SelectItem key={specialty} value={specialty}>
+                                        {specialty}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">
-                            Status
-                        </span>
+                        <span className="text-sm font-medium text-foreground">Status</span>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger className="w-[160px] sm:w-[180px]">
                                 <SelectValue placeholder="Status" />
@@ -240,12 +222,8 @@ export default function DoctorsPage() {
                         </Select>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">
-                            Itens por página
-                        </span>
-                        <Select
-                            onValueChange={handleItemsPerPageChange}
-                            defaultValue={String(itemsPerPage)}>
+                        <span className="text-sm font-medium text-foreground">Itens por página</span>
+                        <Select onValueChange={handleItemsPerPageChange} defaultValue={String(itemsPerPage)}>
                             <SelectTrigger className="w-[140px]">
                                 <SelectValue placeholder="Itens por pág." />
                             </SelectTrigger>
@@ -262,9 +240,8 @@ export default function DoctorsPage() {
                     </Button>
                 </div>
 
-
-                {/* Tabela de Médicos */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-hidden">
+                {/* Tabela de Médicos (Visível em Telas Médias e Maiores) */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-hidden hidden md:block">
                     {loading ? (
                         <div className="p-8 text-center text-gray-500">
                             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-green-600" />
@@ -287,8 +264,8 @@ export default function DoctorsPage() {
                                         <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
                                         <th className="text-left p-2 md:p-4 font-medium text-gray-700">CRM</th>
                                         <th className="text-left p-2 md:p-4 font-medium text-gray-700">Especialidade</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Status</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Cidade/Estado</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700 hidden lg:table-cell">Status</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700 hidden xl:table-cell">Cidade/Estado</th>
                                         <th className="text-right p-4 font-medium text-gray-700">Ações</th>
                                     </tr>
                                 </thead>
@@ -305,7 +282,6 @@ export default function DoctorsPage() {
                                                     : "N/A"}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                {/* ===== INÍCIO DA ALTERAÇÃO ===== */}
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
@@ -331,12 +307,66 @@ export default function DoctorsPage() {
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
-                                                {/* ===== FIM DA ALTERAÇÃO ===== */}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* Cards de Médicos (Visível Apenas em Telas Pequenas) */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden">
+                    {loading ? (
+                        <div className="p-8 text-center text-gray-500">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-green-600" />
+                            Carregando médicos...
+                        </div>
+                    ) : error ? (
+                        <div className="p-8 text-center text-red-600">{error}</div>
+                    ) : filteredDoctors.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                            {doctors.length === 0
+                                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-green-600 hover:underline">Adicione um novo</Link>.</>
+                                : "Nenhum médico encontrado com os filtros aplicados."
+                            }
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {currentItems.map((doctor) => (
+                                <div key={doctor.id} className="bg-white-50 rounded-lg p-4 flex justify-between items-center border border-white-200">
+                                    <div>
+                                        <div className="font-semibold text-gray-900">{doctor.full_name}</div>
+                                        <div className="text-sm text-gray-600">{doctor.specialty}</div>
+                                    </div>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                Ver detalhes
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/manager/home/${doctor.id}/editar`}>
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Editar
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                <Calendar className="mr-2 h-4 w-4" />
+                                                Marcar consulta
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(doctor.id)}>
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Excluir
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -356,10 +386,11 @@ export default function DoctorsPage() {
                             <button
                                 key={number}
                                 onClick={() => paginate(number)}
-                                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${currentPage === number
-                                    ? "bg-green-600 text-white shadow-md border-green-600"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                    }`}
+                                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
+                                    currentPage === number
+                                        ? "bg-green-600 text-white shadow-md border-green-600"
+                                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                }`}
                             >
                                 {number}
                             </button>
@@ -380,9 +411,7 @@ export default function DoctorsPage() {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Confirma a exclusão?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Esta ação é irreversível e excluirá permanentemente o registro deste médico.
-                            </AlertDialogDescription>
+                            <AlertDialogDescription>Esta ação é irreversível e excluirá permanentemente o registro deste médico.</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
@@ -403,25 +432,41 @@ export default function DoctorsPage() {
                                     <div className="space-y-3 text-left">
                                         <h3 className="font-semibold mt-2">Informações Principais</h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
-                                            <div><strong>CRM:</strong> {doctorDetails.crm}</div>
-                                            <div><strong>Especialidade:</strong> {doctorDetails.especialidade}</div>
-                                            <div><strong>Celular:</strong> {doctorDetails.contato.celular || 'N/A'}</div>
-                                            <div><strong>Localização:</strong> {`${doctorDetails.endereco.cidade || 'N/A'}/${doctorDetails.endereco.estado || 'N/A'}`}</div>
+                                            <div>
+                                                <strong>CRM:</strong> {doctorDetails.crm}
+                                            </div>
+                                            <div>
+                                                <strong>Especialidade:</strong> {doctorDetails.especialidade}
+                                            </div>
+                                            <div>
+                                                <strong>Celular:</strong> {doctorDetails.contato.celular || "N/A"}
+                                            </div>
+                                            <div>
+                                                <strong>Localização:</strong> {`${doctorDetails.endereco.cidade || "N/A"}/${doctorDetails.endereco.estado || "N/A"}`}
+                                            </div>
                                         </div>
 
                                         <h3 className="font-semibold mt-4">Atendimento e Convênio</h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
-                                            <div><strong>Convênio:</strong> {doctorDetails.convenio || 'N/A'}</div>
-                                            <div><strong>VIP:</strong> {doctorDetails.vip ? "Sim" : "Não"}</div>
-                                            <div><strong>Status:</strong> {doctorDetails.status || 'N/A'}</div>
-                                            <div><strong>Último atendimento:</strong> {doctorDetails.ultimo_atendimento || 'N/A'}</div>
-                                            <div><strong>Próximo atendimento:</strong> {doctorDetails.proximo_atendimento || 'N/A'}</div>
+                                            <div>
+                                                <strong>Convênio:</strong> {doctorDetails.convenio || "N/A"}
+                                            </div>
+                                            <div>
+                                                <strong>VIP:</strong> {doctorDetails.vip ? "Sim" : "Não"}
+                                            </div>
+                                            <div>
+                                                <strong>Status:</strong> {doctorDetails.status || "N/A"}
+                                            </div>
+                                            <div>
+                                                <strong>Último atendimento:</strong> {doctorDetails.ultimo_atendimento || "N/A"}
+                                            </div>
+                                            <div>
+                                                <strong>Próximo atendimento:</strong> {doctorDetails.proximo_atendimento || "N/A"}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
-                                {doctorDetails === null && !loading && (
-                                    <div className="text-red-600">Detalhes não disponíveis.</div>
-                                )}
+                                {doctorDetails === null && !loading && <div className="text-red-600">Detalhes não disponíveis.</div>}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -430,6 +475,6 @@ export default function DoctorsPage() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </ManagerLayout>
+        </Sidebar>
     );
 }

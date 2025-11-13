@@ -3,14 +3,12 @@
 import type React from "react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import DoctorLayout from "@/components/doctor-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, Calendar as CalendarIcon, MapPin, Phone, User, X, RefreshCw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Calendar as CalendarIcon, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { exceptionsService } from "@/services/exceptionApi.mjs";
@@ -19,6 +17,7 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"; // Usaremos o date-fns para formatação e comparação de datas
 import { doctorsService } from "@/services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 type Doctor = {
   id: string;
@@ -147,7 +146,7 @@ export default function ExceptionPage() {
     const displayDate = selectedCalendarDate ? new Date(selectedCalendarDate).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" }) : "Selecione uma data";
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Adicione exceções</h1>
@@ -254,6 +253,6 @@ export default function ExceptionPage() {
                     </div>
                 </div>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }
