@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -9,24 +8,24 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Eye, EyeOff, ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { usersService } from "@/services/usersApi.mjs" // Mantém a importação
+import { isValidCPF } from "@/lib/utils"
 
 export default function PatientRegister() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  // REMOVIDO: Estados para 'showPassword' e 'showConfirmPassword'
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "",
-    confirmPassword: "",
     phone: "",
     cpf: "",
     birthDate: "",
-    address: "",
+    // REMOVIDO: Campos 'password' e 'confirmPassword'
   })
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -37,22 +36,52 @@ export default function PatientRegister() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("As senhas não coincidem!")
+    // --- VALIDAÇÃO DE CPF ---
+    if (!isValidCPF(formData.cpf)) {
+      toast({
+        title: "CPF Inválido",
+        description: "O CPF informado não é válido. Verifique os dígitos.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
       return
     }
 
-    setIsLoading(true)
+    // --- LÓGICA DE REGISTRO COM ENDPOINT PÚBLICO ---
+    try {
+      // ALTERADO: Payload ajustado para o endpoint 'register-patient'
+      const payload = {
+        email: formData.email.trim().toLowerCase(),
+        full_name: formData.name,
+        phone_mobile: formData.phone, // O endpoint espera 'phone_mobile'
+        cpf: formData.cpf.replace(/\D/g, ''),
+        birth_date: formData.birthDate,
+      }
 
-    // Simulação de registro - em produção, conectar com API real
-    setTimeout(() => {
-      // Salvar dados do usuário no localStorage para simulação
-      const { confirmPassword, ...userData } = formData
-      localStorage.setItem("patientData", JSON.stringify(userData))
-      router.push("/patient/dashboard")
+      // ALTERADO: Chamada para a nova função de serviço
+      await usersService.registerPatient(payload)
+
+      // ALTERADO: Mensagem de sucesso para refletir o fluxo de confirmação por e-mail
+      toast({
+        title: "Cadastro enviado com sucesso!",
+        description: "Enviamos um link de confirmação para o seu e-mail. Por favor, verifique sua caixa de entrada para ativar sua conta.",
+      })
+
+      // Redireciona para a página de login
+      router.push("/login")
+
+    } catch (error: any) {
+      console.error("Erro no registro:", error)
+      toast({
+        title: "Erro ao Criar Conta",
+        description: error.message || "Não foi possível concluir o cadastro. Verifique seus dados e tente novamente.",
+        variant: "destructive",
+      })
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -67,136 +96,85 @@ export default function PatientRegister() {
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Cadastro de Paciente</CardTitle>
-            <CardDescription>Preencha seus dados para criar sua conta</CardDescription>
+            <CardTitle className="text-2xl">Crie sua Conta de Paciente</CardTitle>
+            <CardDescription>Preencha seus dados para acessar o portal MedConnect</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
+                  <Label htmlFor="name">Nome Completo *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
+                  <Label htmlFor="cpf">CPF *</Label>
                   <Input
                     id="cpf"
                     value={formData.cpf}
                     onChange={(e) => handleInputChange("cpf", e.target.value)}
                     placeholder="000.000.000-00"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
+                  <Label htmlFor="phone">Telefone *</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="(11) 99999-9999"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="birthDate">Data de Nascimento</Label>
+                <Label htmlFor="birthDate">Data de Nascimento *</Label>
                 <Input
                   id="birthDate"
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => handleInputChange("birthDate", e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Rua, número, bairro, cidade, estado"
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              {/* REMOVIDO: Seção de senha e confirmação de senha */}
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Criando conta..." : "Criar Conta"}
+                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Criando conta...</> : "Criar Conta"}
               </Button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Já tem uma conta?{" "}
-                <Link href="/patient/login" className="text-blue-600 hover:underline">
+                <Link href="/login" className="text-blue-600 hover:underline">
                   Faça login aqui
                 </Link>
               </p>
