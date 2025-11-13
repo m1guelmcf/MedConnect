@@ -12,8 +12,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Bell, Calendar, User, LogOut, ChevronLeft, ChevronRight, Home, CalendarCheck2, ClipboardPlus, SquareUserRound, CalendarClock, Users, SquareUser, ClipboardList, Stethoscope, ClipboardMinus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  Bell,
+  Calendar,
+  User,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  CalendarCheck2,
+  ClipboardPlus,
+  SquareUserRound,
+  CalendarClock,
+  Users,
+  SquareUser,
+  ClipboardList,
+  Stethoscope,
+  ClipboardMinus,
+} from "lucide-react";
 import SidebarUserSection from "@/components/ui/userToolTip";
 
 interface UserData {
@@ -37,7 +62,6 @@ interface UserData {
   }[];
   is_anonymous: boolean;
 }
-
 
 interface MenuItem {
   href: string;
@@ -69,34 +93,32 @@ export default function Sidebar({ children }: SidebarProps) {
         id: userInfo.id ?? "",
         email: userInfo.email ?? "",
         app_metadata: {
-            user_role: userInfo.app_metadata?.user_role ?? "patient",
+          user_role: userInfo.app_metadata?.user_role ?? "patient",
         },
         user_metadata: {
-            cpf: userInfo.user_metadata?.cpf ?? "",
-            email_verified: userInfo.user_metadata?.email_verified ?? false,
-            full_name: userInfo.user_metadata?.full_name ?? "",
-            phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
-            role: userInfo.user_metadata?.role ?? "",
+          cpf: userInfo.user_metadata?.cpf ?? "",
+          email_verified: userInfo.user_metadata?.email_verified ?? false,
+          full_name: userInfo.user_metadata?.full_name ?? "",
+          phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
+          role: userInfo.user_metadata?.role ?? "",
         },
         identities:
-            userInfo.identities?.map((identity: any) => ({
+          userInfo.identities?.map((identity: any) => ({
             identity_id: identity.identity_id ?? "",
             id: identity.id ?? "",
             user_id: identity.user_id ?? "",
             provider: identity.provider ?? "",
-            })) ?? [],
+          })) ?? [],
         is_anonymous: userInfo.is_anonymous ?? false,
-    });
-    setRole(userInfo.user_metadata?.role)
+      });
+      setRole(userInfo.user_metadata?.role);
     } else {
       // O redirecionamento para /login já estava correto. Ótimo!
       router.push("/login");
     }
   }, [router]);
-  
+
   useEffect(() => {
-    
-    
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setSidebarCollapsed(true);
@@ -133,61 +155,85 @@ export default function Sidebar({ children }: SidebarProps) {
 
   const SetMenuItems = (role: any) => {
     const patientItems: MenuItem[] = [
-        { href: "/patient/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/patient/schedule", icon: CalendarClock, label: "Agendar Consulta" },
-        { href: "/patient/appointments", icon: CalendarCheck2, label: "Minhas Consultas" },
-        { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
-        { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },    
-    ]
+      { href: "/patient/dashboard", icon: Home, label: "Dashboard" },
+      {
+        href: "/patient/schedule",
+        icon: CalendarClock,
+        label: "Agendar Consulta",
+      },
+      {
+        href: "/patient/appointments",
+        icon: CalendarCheck2,
+        label: "Minhas Consultas",
+      },
+      { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
+      { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },
+    ];
 
     const doctorItems: MenuItem[] = [
-        { href: "/doctor/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/doctor/medicos", icon: Users, label: "Gestão de Pacientes" },
-        { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" },
-        { href: "/doctor/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
-    ]
+      { href: "/doctor/dashboard", icon: Home, label: "Dashboard" },
+      { href: "/doctor/medicos", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" },
+      {
+        href: "/doctor/disponibilidade",
+        icon: ClipboardList,
+        label: "Disponibilidade",
+      },
+    ];
 
     const secretaryItems: MenuItem[] = [
-        { href: "/secretary/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
-        { href: "/secretary/schedule", icon: CalendarClock, label: "Agendar Consulta" },
-        { href: "/secretary/pacientes", icon: Users, label: "Gestão de Pacientes" },
-    ]
+      { href: "/secretary/dashboard", icon: Home, label: "Dashboard" },
+      {
+        href: "/secretary/appointments",
+        icon: CalendarCheck2,
+        label: "Consultas",
+      },
+      {
+        href: "/secretary/schedule",
+        icon: CalendarClock,
+        label: "Agendar Consulta",
+      },
+      {
+        href: "/secretary/pacientes",
+        icon: Users,
+        label: "Gestão de Pacientes",
+      },
+    ];
 
     const managerItems: MenuItem[] = [
-        { href: "/manager/dashboard", icon: Home, label: "Dashboard" },  
-        { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
-        { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
-        { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
-        { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-        { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
-    ]
+      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+      { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
+      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
+    ];
 
     let menuItems: MenuItem[];
     switch (role) {
-        case "gestor":
-            menuItems = managerItems;
-            break;
-        case "admin":
-            menuItems = managerItems;
-            break;    
-        case "medico":
-            menuItems = doctorItems;
-            break;
-        case "secretaria":
-            menuItems = secretaryItems;
-            break;
-        case "paciente":
-            menuItems = patientItems;
-            break;    
-        default:
-            menuItems = patientItems;        
-            break;
+      case "gestor":
+        menuItems = managerItems;
+        break;
+      case "admin":
+        menuItems = managerItems;
+        break;
+      case "medico":
+        menuItems = doctorItems;
+        break;
+      case "secretaria":
+        menuItems = secretaryItems;
+        break;
+      case "paciente":
+        menuItems = patientItems;
+        break;
+      default:
+        menuItems = patientItems;
+        break;
     }
     return menuItems;
-  }
+  };
 
-  const menuItems = SetMenuItems(role)
+  const menuItems = SetMenuItems(role);
 
   if (!userData) {
     return (
@@ -207,9 +253,12 @@ export default function Sidebar({ children }: SidebarProps) {
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
+              {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
+              <img
+                src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
+                alt="Logo MediConnect"
+                className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
+              />
               <span className="font-semibold text-gray-900">MedConnect</span>
             </div>
           )}
@@ -250,11 +299,11 @@ export default function Sidebar({ children }: SidebarProps) {
           })}
         </nav>
         <SidebarUserSection
-            userData={userData} 
-            sidebarCollapsed={false} 
-            handleLogout={handleLogout}
-            isActive={role === "paciente"? false: true}>
-        </SidebarUserSection>
+          userData={userData}
+          sidebarCollapsed={false}
+          handleLogout={handleLogout}
+          isActive={role === "paciente" ? false : true}
+        ></SidebarUserSection>
       </div>
 
       <div
