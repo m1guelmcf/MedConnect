@@ -114,7 +114,7 @@ export default function NovoUsuarioPage() {
                     password: formData.senha,
                     full_name: formData.nomeCompleto,
                     phone: formData.telefone || null,
-                    role: formData.papel,
+                    roles: [formData.papel, "paciente"],
                     cpf: formData.cpf,
                     create_patient_record: isPatient,
                     phone_mobile: isPatient ? formData.telefone || null : undefined,
@@ -126,7 +126,7 @@ export default function NovoUsuarioPage() {
             console.error("Erro ao criar usuário:", e);
             // 3. MENSAGEM DE ERRO MELHORADA
             const detail = e.message?.split('detail:"')[1]?.split('"')[0] || e.message;
-            setError(detail.replace(/\\/g, '') || "Não foi possível criar o usuário. Verifique os dados e tente novamente.");
+            setError(detail.replace(/\\/g, "") || "Não foi possível criar o usuário. Verifique os dados e tente novamente.");
         } finally {
             setIsSaving(false);
         }
