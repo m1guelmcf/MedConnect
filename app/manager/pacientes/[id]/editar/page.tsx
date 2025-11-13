@@ -13,9 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Trash2, Paperclip, Upload } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import SecretaryLayout from "@/components/secretary-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
-import { json } from "stream/consumers";
+import Sidebar from "@/components/Sidebar";
 
 export default function EditarPacientePage() {
     const router = useRouter();
@@ -247,7 +246,7 @@ export default function EditarPacientePage() {
     };
 
     return (
-        <SecretaryLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex items-center gap-4">
                     <Link href="/manager/pacientes">
@@ -677,6 +676,6 @@ export default function EditarPacientePage() {
                     </div>
                 </form>
             </div>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }

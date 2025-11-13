@@ -29,24 +29,53 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  CalendarCheck2,
+  ClipboardPlus,
+  SquareUserRound,
+  CalendarClock,
+  Users,
+  SquareUser,
+  ClipboardList,
+  Stethoscope,
+  ClipboardMinus,
 } from "lucide-react";
+import SidebarUserSection from "@/components/ui/userToolTip";
 
-interface ManagerData {
+interface UserData {
   id: string;
-  name: string;
   email: string;
-  phone: string;
-  cpf: string;
-  department: string;
-  permissions: object;
+  app_metadata: {
+    user_role: string;
+  };
+  user_metadata: {
+    cpf: string;
+    email_verified: boolean;
+    full_name: string;
+    phone_mobile: string;
+    role: string;
+  };
+  identities: {
+    identity_id: string;
+    id: string;
+    user_id: string;
+    provider: string;
+  }[];
+  is_anonymous: boolean;
 }
 
-interface ManagerLayoutProps {
+interface MenuItem {
+  href: string;
+  icon: React.ElementType;
+  label: string;
+}
+
+interface SidebarProps {
   children: React.ReactNode;
 }
 
-export default function ManagerLayout({ children }: ManagerLayoutProps) {
-  const [managerData, setManagerData] = useState<ManagerData | null>(null);
+export default function Sidebar({ children }: SidebarProps) {
+  const [userData, setUserData] = useState<UserData>();
+  const [role, setRole] = useState<string>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();
@@ -60,15 +89,29 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
     if (userInfoString && token) {
       const userInfo = JSON.parse(userInfoString);
 
-      setManagerData({
-        id: userInfo.id || "",
-        name: userInfo.user_metadata?.full_name || "Gestor(a)",
-        email: userInfo.email || "",
-        department: userInfo.user_metadata?.role || "Gestão",
-        phone: userInfo.phone || "",
-        cpf: "",
-        permissions: {},
+      setUserData({
+        id: userInfo.id ?? "",
+        email: userInfo.email ?? "",
+        app_metadata: {
+          user_role: userInfo.app_metadata?.user_role ?? "patient",
+        },
+        user_metadata: {
+          cpf: userInfo.user_metadata?.cpf ?? "",
+          email_verified: userInfo.user_metadata?.email_verified ?? false,
+          full_name: userInfo.user_metadata?.full_name ?? "",
+          phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
+          role: userInfo.user_metadata?.role ?? "",
+        },
+        identities:
+          userInfo.identities?.map((identity: any) => ({
+            identity_id: identity.identity_id ?? "",
+            id: identity.id ?? "",
+            user_id: identity.user_id ?? "",
+            provider: identity.provider ?? "",
+          })) ?? [],
+        is_anonymous: userInfo.is_anonymous ?? false,
       });
+      setRole(userInfo.user_metadata?.role);
     } else {
       // O redirecionamento para /login já estava correto. Ótimo!
       router.push("/login");
@@ -110,16 +153,89 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
 
   const cancelLogout = () => setShowLogoutDialog(false);
 
-  const menuItems = [
-    { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-    { href: "#", icon: Calendar, label: "Relatórios gerenciais" },
-    { href: "/manager/usuario", icon: User, label: "Gestão de Usuários" },
-    { href: "/manager/home", icon: User, label: "Gestão de Médicos" },
-    { href: "/manager/pacientes", icon: User, label: "Gestão de Pacientes" },
-    { href: "#", icon: Calendar, label: "Configurações" },
-  ];
+  const SetMenuItems = (role: any) => {
+    const patientItems: MenuItem[] = [
+      { href: "/patient/dashboard", icon: Home, label: "Dashboard" },
+      {
+        href: "/patient/schedule",
+        icon: CalendarClock,
+        label: "Agendar Consulta",
+      },
+      {
+        href: "/patient/appointments",
+        icon: CalendarCheck2,
+        label: "Minhas Consultas",
+      },
+      { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
+      { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },
+    ];
 
-  if (!managerData) {
+    const doctorItems: MenuItem[] = [
+      { href: "/doctor/dashboard", icon: Home, label: "Dashboard" },
+      { href: "/doctor/medicos", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" },
+      {
+        href: "/doctor/disponibilidade",
+        icon: ClipboardList,
+        label: "Disponibilidade",
+      },
+    ];
+
+    const secretaryItems: MenuItem[] = [
+      { href: "/secretary/dashboard", icon: Home, label: "Dashboard" },
+      {
+        href: "/secretary/appointments",
+        icon: CalendarCheck2,
+        label: "Consultas",
+      },
+      {
+        href: "/secretary/schedule",
+        icon: CalendarClock,
+        label: "Agendar Consulta",
+      },
+      {
+        href: "/secretary/pacientes",
+        icon: Users,
+        label: "Gestão de Pacientes",
+      },
+    ];
+
+    const managerItems: MenuItem[] = [
+      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+      { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
+      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
+    ];
+
+    let menuItems: MenuItem[];
+    switch (role) {
+      case "gestor":
+        menuItems = managerItems;
+        break;
+      case "admin":
+        menuItems = managerItems;
+        break;
+      case "medico":
+        menuItems = doctorItems;
+        break;
+      case "secretaria":
+        menuItems = secretaryItems;
+        break;
+      case "paciente":
+        menuItems = patientItems;
+        break;
+      default:
+        menuItems = patientItems;
+        break;
+    }
+    return menuItems;
+  };
+
+  const menuItems = SetMenuItems(role);
+
+  if (!userData) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         Carregando...
@@ -137,10 +253,13 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="font-semibold text-gray-900">MediConnect</span>
+              {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
+              <img
+                src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
+                alt="Logo MediConnect"
+                className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
+              />
+              <span className="font-semibold text-gray-900">MedConnect</span>
             </div>
           )}
           <Button
@@ -179,43 +298,12 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
             );
           })}
         </nav>
-
-        <div className="border-t p-4 mt-auto">
-          <div className="flex items-center space-x-3 mb-4">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" />
-              <AvatarFallback>
-                {managerData.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </AvatarFallback>
-            </Avatar>
-            {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {managerData.name}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {managerData.department}
-                </p>
-              </div>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className={
-              sidebarCollapsed
-                ? "w-full bg-transparent flex justify-center items-center p-2"
-                : "w-full bg-transparent"
-            }
-            onClick={handleLogout}
-          >
-            <LogOut className={sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"} />
-            {!sidebarCollapsed && "Sair"}
-          </Button>
-        </div>
+        <SidebarUserSection
+          userData={userData}
+          sidebarCollapsed={false}
+          handleLogout={handleLogout}
+          isActive={role === "paciente" ? false : true}
+        ></SidebarUserSection>
       </div>
 
       <div
@@ -223,17 +311,7 @@ export default function ManagerLayout({ children }: ManagerLayoutProps) {
           sidebarCollapsed ? "ml-16" : "ml-64"
         }`}
       >
-        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1 max-w-md"></div>
-          <div className="flex items-center gap-4 ml-auto">
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                1
-              </Badge>
-            </Button>
-          </div>
-        </header>
+        <header className="bg-gray-50 px-4 md:px-6 py-4 flex items-center justify-between"></header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
 

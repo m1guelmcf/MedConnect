@@ -89,11 +89,20 @@ async function request(endpoint, options = {}) {
 
     // --- CORREÇÃO 1: PARA O SUBMIT DO AGENDAMENTO ---
     // Se a resposta for um sucesso de criação (201) ou sem conteúdo (204), não quebra.
-    if (response.status === 201 || response.status === 204) {
-        return null;
+    // --- CORREÇÃO: funções do Supabase retornam 200 ou 201, nunca queremos perder o body ---
+        if (response.status === 204) {
+                return null;
+            }
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch {
+                return text || null;
     }
 
-    return response.json();
+
+    
 }
 
 // Exportamos o objeto 'api' com os métodos que os componentes vão usar.
@@ -106,4 +115,25 @@ export const api = {
     patch: (endpoint, data, options) => request(endpoint, { method: "PATCH", body: JSON.stringify(data), ...options }),
     delete: (endpoint, options) => request(endpoint, { method: "DELETE", ...options }),
     logout: logout,
+    storage: {
+        async upload(bucket, path, file) {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${BASE_URL}/storage/v1/object/${bucket}/${path}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': file.type,
+                    'apikey': API_KEY,
+                    'Authorization': `Bearer ${token}`,
+                    'x-upsert': 'true' // Isso faz com que o arquivo seja substituído se já existir
+                },
+                body: file,
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json();
+                throw new Error(`Erro no upload: ${errorBody.message}`);
+            }
+            return response.json();
+        }
+    },
 };

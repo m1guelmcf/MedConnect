@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import PatientLayout from "@/components/patient-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
 import { FileText, Download, Eye, Calendar, User, X } from "lucide-react"
+import Sidebar from "@/components/Sidebar"
 
 interface Report {
   id: string
@@ -287,7 +287,7 @@ export default function ReportsPage() {
   const pendingReports = reports.filter((report) => report.status === "pendente")
 
   return (
-    <PatientLayout>
+    <Sidebar>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Meus Laudos</h1>
@@ -536,6 +536,6 @@ export default function ReportsPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </PatientLayout>
+    </Sidebar>
   )
 }

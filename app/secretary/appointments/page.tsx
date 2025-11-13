@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import SecretaryLayout from "@/components/secretary-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog } from "@/components/ui/dialog";
 import { Calendar, Clock, MapPin, Phone, User, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { patientsService } from "@/services/patientsApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
+import Sidebar from "@/components/Sidebar";
 
 export default function SecretaryAppointments() {
     const [appointments, setAppointments] = useState<any[]>([]);
@@ -144,7 +141,7 @@ export default function SecretaryAppointments() {
     const appointmentStatuses = ["requested", "confirmed", "checked_in", "completed", "cancelled", "no_show"];
 
     return (
-        <SecretaryLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <div>
@@ -225,6 +222,6 @@ export default function SecretaryAppointments() {
             <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
                 {/* ... (código do modal de deleção) ... */}
             </Dialog>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }
