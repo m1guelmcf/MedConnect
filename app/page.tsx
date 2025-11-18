@@ -26,7 +26,7 @@ export default function InicialPage() {
             className="w-20 h-20 object-contain transition-transform hover:scale-105"
           />
           <h1 className="text-2xl font-extrabold text-[#1E2A78] tracking-tight">
-            MediConnect
+            MedConnect
           </h1>
         </a>
 
