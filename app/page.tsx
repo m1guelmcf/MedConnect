@@ -27,7 +27,7 @@ export default function InicialPage() {
           />
 
           {/* 2. NOME DO SITE */}
-          <h1 className="text-2xl font-bold text-primary">MediConnect</h1>
+          <h1 className="text-2xl font-bold text-primary">MedConnect</h1>
         </a>
 
         {/* Botão do menu hambúrguer para telas menores */}
