@@ -240,7 +240,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 <img
                   src="/Logo MedConnect.png"
                   alt="Logo MedConnect"
-                  className="w-10 h-10 object-contain"
+                  className="w-12 h-12 object-contain"
                 />
               </div>
 
