@@ -183,25 +183,25 @@ export default function AvailabilityPage() {
         saturday: "Sábado",
     };
     const fetchData = async () => {
-            try {
-                const loggedUser = await usersService.getMe();
-                const doctorList = await doctorsService.list();
-                setUserData(loggedUser);
-                const doctor = findDoctorById(loggedUser.user.id, doctorList);
-                setDoctorId(doctor?.id);
-                console.log(doctor);
-                // Busca disponibilidade
-                const availabilityList = await AvailabilityService.list();
-            
-                // Filtra já com a variável local
-                const filteredAvail = availabilityList.filter(
-                (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
-                );
-                setAvailability(filteredAvail);
-            } catch (e: any) {
-                alert(`${e?.error} ${e?.message}`);
-            }
-        };
+        try {
+            const loggedUser = await usersService.getMe();
+            const doctorList = await doctorsService.list();
+            setUserData(loggedUser);
+            const doctor = findDoctorById(loggedUser.user.id, doctorList);
+            setDoctorId(doctor?.id);
+            console.log(doctor);
+            // Busca disponibilidade
+            const availabilityList = await AvailabilityService.list();
+        
+            // Filtra já com a variável local
+            const filteredAvail = availabilityList.filter(
+            (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
+            );
+            setAvailability(filteredAvail);
+        } catch (e: any) {
+            alert(`${e?.error} ${e?.message}`);
+        }
+    };
 
     useEffect(() => {        
         fetchData();
@@ -284,6 +284,7 @@ export default function AvailabilityPage() {
                 description: err?.message || "Não foi possível criar a disponibilidade",
             });
         } finally {
+            fetchData()
             setIsLoading(false);
         }
     };
@@ -318,6 +319,7 @@ export default function AvailabilityPage() {
                     description: e?.message || "Não foi possível deletar a disponibilidade",
                 });
             }
+            fetchData()
             setDeleteDialogOpen(false);
             setSelectedAvailability(null);
         };
@@ -453,7 +455,7 @@ export default function AvailabilityPage() {
                                                         <div key={i}>
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <p  className="text-sm text-gray-600 cursor-pointer p-1 rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
+                                                                    <p  className="text-sm text-gray-600 cursor-pointer rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
                                                                         {formatTime(t.start)} - {formatTime(t.end)}
                                                                     </p>
                                                                 </DropdownMenuTrigger>
