@@ -209,11 +209,8 @@ export default function PacientesPage() {
                         </Select>
                     </div>
                     
-                    {/* Aniversariantes - Ocupa 100% no mobile, e se alinha à direita no md+ */}
-                    <Button variant="outline" className="w-full md:w-auto md:ml-auto">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Aniversariantes
-                    </Button>
+                
+                    
                 </div>
 
                 {/* --- SEÇÃO DE TABELA (VISÍVEL EM TELAS MAIORES OU IGUAIS A MD) --- */}
