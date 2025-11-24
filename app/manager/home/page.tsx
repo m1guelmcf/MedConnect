@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input" // <--- 1. Importação adicionada
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2, Search } from "lucide-react" // <--- Adicionado ícone Search
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 import { doctorsService } from "services/doctorsApi.mjs";
@@ -56,6 +57,7 @@ export default function DoctorsPage() {
     const [doctorToDeleteId, setDoctorToDeleteId] = useState<number | null>(null);
 
     // --- Estados para Filtros ---
+    const [searchTerm, setSearchTerm] = useState(""); // <--- 2. Novo estado para a busca
     const [specialtyFilter, setSpecialtyFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
 
@@ -129,10 +131,21 @@ export default function DoctorsPage() {
         return [...new Set(specialties)];
     }, [doctors]);
 
+    // --- 3. Atualização da Lógica de Filtragem ---
     const filteredDoctors = doctors.filter((doctor) => {
         const specialtyMatch = specialtyFilter === "all" || doctor.specialty === specialtyFilter;
         const statusMatch = statusFilter === "all" || doctor.status === statusFilter;
-        return specialtyMatch && statusMatch;
+        
+        // Lógica da barra de pesquisa
+        const searchLower = searchTerm.toLowerCase();
+        const nameMatch = doctor.full_name?.toLowerCase().includes(searchLower);
+        const phoneMatch = doctor.phone_mobile?.includes(searchLower);
+        // Opcional: buscar também por CRM se desejar
+        const crmMatch = doctor.crm?.toLowerCase().includes(searchLower);
+
+        const searchMatch = searchTerm === "" || nameMatch || phoneMatch || crmMatch;
+
+        return specialtyMatch && statusMatch && searchMatch;
     });
 
     const totalPages = Math.ceil(filteredDoctors.length / itemsPerPage);
@@ -189,55 +202,64 @@ export default function DoctorsPage() {
                     </div>
                 </div>
 
-                {/* Filtros e Itens por Página */}
-                <div className="flex flex-wrap items-center gap-3 bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">Especialidade</span>
-                        <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
-                            <SelectTrigger className="w-[160px] sm:w-[180px]">
-                                <SelectValue placeholder="Especialidade" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todas</SelectItem>
-                                {uniqueSpecialties.map((specialty) => (
-                                    <SelectItem key={specialty} value={specialty}>
-                                        {specialty}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                {/* --- Filtros e Barra de Pesquisa Atualizada --- */}
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
+                    
+                    {/* Barra de Pesquisa (Estilo similar à foto) */}
+                    <div className="relative w-full md:flex-1">
+                        <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input 
+                            placeholder="Buscar por nome ou telefone..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 w-full bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                        />
                     </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">Status</span>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-[160px] sm:w-[180px]">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem value="Ativo">Ativo</SelectItem>
-                                <SelectItem value="Férias">Férias</SelectItem>
-                                <SelectItem value="Inativo">Inativo</SelectItem>
-                            </SelectContent>
-                        </Select>
+
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Especialidade" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todas Especialidades</SelectItem>
+                                    {uniqueSpecialties.map((specialty) => (
+                                        <SelectItem key={specialty} value={specialty}>
+                                            {specialty}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-full sm:w-[150px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Status: Todos</SelectItem>
+                                    <SelectItem value="Ativo">Ativo</SelectItem>
+                                    <SelectItem value="Férias">Férias</SelectItem>
+                                    <SelectItem value="Inativo">Inativo</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="hidden lg:block">
+                             <Select onValueChange={handleItemsPerPageChange} defaultValue={String(itemsPerPage)}>
+                                <SelectTrigger className="w-[70px]">
+                                    <SelectValue placeholder="10" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5</SelectItem>
+                                    <SelectItem value="10">10</SelectItem>
+                                    <SelectItem value="20">20</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground">Itens por página</span>
-                        <Select onValueChange={handleItemsPerPageChange} defaultValue={String(itemsPerPage)}>
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Itens por pág." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">5 por página</SelectItem>
-                                <SelectItem value="10">10 por página</SelectItem>
-                                <SelectItem value="20">20 por página</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <Button variant="outline" className="ml-auto w-full md:w-auto">
-                        <Filter className="w-4 h-4 mr-2" />
-                        Filtro avançado
-                    </Button>
                 </div>
 
                 {/* Tabela de Médicos (Visível em Telas Médias e Maiores) */}
@@ -272,10 +294,20 @@ export default function DoctorsPage() {
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {currentItems.map((doctor) => (
                                         <tr key={doctor.id} className="hover:bg-gray-50 transition">
-                                            <td className="px-4 py-3 font-medium text-gray-900">{doctor.full_name}</td>
+                                            <td className="px-4 py-3 font-medium text-gray-900">
+                                                {doctor.full_name}
+                                                <div className="text-xs text-gray-400 md:hidden">{doctor.phone_mobile}</div>
+                                            </td>
                                             <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{doctor.crm}</td>
                                             <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{doctor.specialty}</td>
-                                            <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">{doctor.status || "N/A"}</td>
+                                            <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">
+                                                <span className={`px-2 py-1 rounded-full text-xs ${
+                                                    doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
+                                                    doctor.status === 'Inativo' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                    {doctor.status || "N/A"}
+                                                </span>
+                                            </td>
                                             <td className="px-4 py-3 text-gray-500 hidden xl:table-cell">
                                                 {(doctor.city || doctor.state)
                                                     ? `${doctor.city || ""}${doctor.city && doctor.state ? '/' : ''}${doctor.state || ""}`
@@ -284,7 +316,7 @@ export default function DoctorsPage() {
                                             <td className="px-4 py-3 text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                                        <div className="text-blue-600 cursor-pointer inline-block hover:underline">Ações</div>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
@@ -335,14 +367,26 @@ export default function DoctorsPage() {
                     ) : (
                         <div className="space-y-4">
                             {currentItems.map((doctor) => (
-                                <div key={doctor.id} className="bg-white-50 rounded-lg p-4 flex justify-between items-center border border-white-200">
+                                <div key={doctor.id} className="bg-gray-50 rounded-lg p-4 flex justify-between items-center border border-gray-100">
                                     <div>
                                         <div className="font-semibold text-gray-900">{doctor.full_name}</div>
+                                        <div className="text-xs text-gray-500 mb-1">{doctor.phone_mobile}</div>
                                         <div className="text-sm text-gray-600">{doctor.specialty}</div>
+                                        <div className="text-xs mt-1">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                                    doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
+                                                    doctor.status === 'Inativo' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                    {doctor.status || "N/A"}
+                                            </span>
+                                        </div>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Abrir menu</span>
+                                                <div className="font-bold text-gray-500">...</div>
+                                            </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
@@ -354,10 +398,6 @@ export default function DoctorsPage() {
                                                     <Edit className="mr-2 h-4 w-4" />
                                                     Editar
                                                 </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <Calendar className="mr-2 h-4 w-4" />
-                                                Marcar consulta
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(doctor.id)}>
                                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -406,7 +446,7 @@ export default function DoctorsPage() {
                     </div>
                 )}
 
-                {/* Dialogs de Exclusão e Detalhes */}
+                {/* Dialogs (Exclusão e Detalhes) mantidos igual ao original... */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>

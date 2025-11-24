@@ -4,7 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Eye, Filter, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input"; // <--- 1. Importação Adicionada
+import { Plus, Eye, Filter, Loader2, Search } from "lucide-react"; // <--- 1. Ícone Search Adicionado
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { api, login } from "services/api.mjs";
 import { usersService } from "services/usersApi.mjs";
@@ -34,6 +35,9 @@ export default function UsersPage() {
     const [userDetails, setUserDetails] = useState<UserInfoResponse | null>(
         null
     );
+    
+    // --- Estados de Filtro ---
+    const [searchTerm, setSearchTerm] = useState(""); // <--- 2. Estado da busca
     const [selectedRole, setSelectedRole] = useState<string>("all");
 
     // --- Lógica de Paginação INÍCIO ---
@@ -118,10 +122,21 @@ export default function UsersPage() {
         }
     };
 
-    const filteredUsers =
-        selectedRole && selectedRole !== "all"
-            ? users.filter((u) => u.role === selectedRole)
-            : users;
+    // --- 3. Lógica de Filtragem Atualizada ---
+    const filteredUsers = users.filter((u) => {
+        // Filtro por Papel (Role)
+        const roleMatch = selectedRole === "all" || u.role === selectedRole;
+
+        // Filtro da Barra de Pesquisa (Nome, Email ou Telefone)
+        const searchLower = searchTerm.toLowerCase();
+        const nameMatch = u.full_name?.toLowerCase().includes(searchLower);
+        const emailMatch = u.email?.toLowerCase().includes(searchLower);
+        const phoneMatch = u.phone?.includes(searchLower);
+        
+        const searchMatch = !searchTerm || nameMatch || emailMatch || phoneMatch;
+
+        return roleMatch && searchMatch;
+    });
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -180,60 +195,71 @@ export default function UsersPage() {
                     </Link>
                 </div>
 
-                {/* Filtro e Itens por Página */}
-                <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-lg border border-gray-200">
+                {/* --- 4. Filtro (Barra de Pesquisa + Selects) --- */}
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 bg-white p-4 rounded-lg border border-gray-200">
 
-                    {/* Select de Filtro por Papel - Ajustado para resetar a página */}
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                            Filtrar por papel
-                        </span>
-                        <Select
-                            onValueChange={(value) => {
-                                setSelectedRole(value);
-                                setCurrentPage(1);
+                    {/* Barra de Pesquisa */}
+                    <div className="relative w-full md:flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input 
+                            placeholder="Buscar por nome, e-mail ou telefone..." 
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1); // Reseta a paginação ao pesquisar
                             }}
-                            value={selectedRole}>
-
-                            <SelectTrigger className="w-full sm:w-[180px]"> {/* w-full para mobile, w-[180px] para sm+ */}
-                                <SelectValue placeholder="Filtrar por papel" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="gestor">Gestor</SelectItem>
-                                <SelectItem value="medico">Médico</SelectItem>
-                                <SelectItem value="secretaria">Secretária</SelectItem>
-                                <SelectItem value="user">Usuário</SelectItem>
-                            </SelectContent>
-                        </Select>
+                            className="pl-10 w-full bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                        />
                     </div>
 
-                    {/* Select de Itens por Página */}
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                            Itens por página
-                        </span>
-                        <Select
-                            onValueChange={handleItemsPerPageChange}
-                            defaultValue={String(itemsPerPage)}
-                        >
-                            <SelectTrigger className="w-full sm:w-[140px]"> {/* w-full para mobile, w-[140px] para sm+ */}
-                                <SelectValue placeholder="Itens por pág." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">5 por página</SelectItem>
-                                <SelectItem value="10">10 por página</SelectItem>
-                                <SelectItem value="20">20 por página</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        {/* Select de Filtro por Papel */}
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                            <Select
+                                onValueChange={(value) => {
+                                    setSelectedRole(value);
+                                    setCurrentPage(1);
+                                }}
+                                value={selectedRole}>
+
+                                <SelectTrigger className="w-full sm:w-[150px]">
+                                    <SelectValue placeholder="Papel" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="gestor">Gestor</SelectItem>
+                                    <SelectItem value="medico">Médico</SelectItem>
+                                    <SelectItem value="secretaria">Secretária</SelectItem>
+                                    <SelectItem value="user">Usuário</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Select de Itens por Página */}
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                            <Select
+                                onValueChange={handleItemsPerPageChange}
+                                defaultValue={String(itemsPerPage)}
+                            >
+                                <SelectTrigger className="w-full sm:w-[80px]">
+                                    <SelectValue placeholder="10" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5</SelectItem>
+                                    <SelectItem value="10">10</SelectItem>
+                                    <SelectItem value="20">20</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <Button variant="outline" className="ml-auto w-full md:w-auto hidden lg:flex">
+                            <Filter className="w-4 h-4 mr-2" />
+                            Filtros
+                        </Button>
                     </div>
-                    <Button variant="outline" className="ml-auto w-full md:w-auto">
-                        <Filter className="w-4 h-4 mr-2" />
-                        Filtro avançado
-                    </Button>
                 </div>
-                {/* Fim do Filtro e Itens por Página */}
+                {/* Fim do Filtro */}
 
                 {/* Tabela/Lista */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-x-auto">
@@ -299,7 +325,10 @@ export default function UsersPage() {
                                             <div className="text-sm font-medium text-gray-900 truncate">
                                                 {u.full_name || "—"}
                                             </div>
-                                            <div className="text-sm text-gray-500 capitalize">
+                                            <div className="text-xs text-gray-500 truncate">
+                                                {u.email}
+                                            </div>
+                                            <div className="text-sm text-gray-500 capitalize mt-1">
                                                 {u.role || "—"}
                                             </div>
                                         </div>
