@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
 import ManagerLayout from "@/components/manager-layout";
@@ -267,7 +267,9 @@ export default function PacientesPage() {
                                                 <td className="p-4">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600 cursor-pointer">Ações</div>
+                                                            <div className="text-black-600 cursor-pointer">
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </div>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>

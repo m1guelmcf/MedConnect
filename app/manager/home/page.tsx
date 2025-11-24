@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -308,7 +308,9 @@ export default function DoctorsPage() {
                                                 {/* ===== INÍCIO DA ALTERAÇÃO ===== */}
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                                        <div className="text-black-600 cursor-pointer inline-block">
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </div>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
