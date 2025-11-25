@@ -1,18 +1,21 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react"
-import Link from "next/link"
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input" // <--- 1. Importação adicionada
-import { Edit, Trash2, Eye, Calendar, Filter, Loader2, Search } from "lucide-react" // <--- Adicionado ícone Search
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit, Trash2, Eye, Calendar, Loader2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-import { doctorsService } from "services/doctorsApi.mjs";
+// Imports dos Serviços
+import { doctorsService } from "@/services/doctorsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
+// --- NOVOS IMPORTS (Certifique-se que criou os arquivos no passo anterior) ---
+import { FilterBar } from "@/components/ui/filter-bar";
+import { normalizeSpecialty, getUniqueSpecialties } from "@/lib/normalization";
 
 interface Doctor {
     id: number;
@@ -48,34 +51,41 @@ interface DoctorDetails {
 export default function DoctorsPage() {
     const router = useRouter();
 
+    // --- Estados de Dados ---
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // --- Estados de Modais ---
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [doctorDetails, setDoctorDetails] = useState<DoctorDetails | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [doctorToDeleteId, setDoctorToDeleteId] = useState<number | null>(null);
 
-    // --- Estados para Filtros ---
-    const [searchTerm, setSearchTerm] = useState(""); // <--- 2. Novo estado para a busca
-    const [specialtyFilter, setSpecialtyFilter] = useState("all");
-    const [statusFilter, setStatusFilter] = useState("all");
+    // --- Estados de Filtro e Busca ---
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filters, setFilters] = useState({
+        specialty: "all",
+        status: "all"
+    });
 
-    // --- Estados para Paginação ---
+    // --- Estados de Paginação ---
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
 
+    // 1. Buscar Médicos na API
     const fetchDoctors = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const data: Doctor[] = await doctorsService.list();
+            // Mockando status para visualização (conforme original)
             const dataWithStatus = data.map((doc, index) => ({
                 ...doc,
                 status: index % 3 === 0 ? "Inativo" : index % 2 === 0 ? "Férias" : "Ativo",
             }));
             setDoctors(dataWithStatus || []);
-            setCurrentPage(1);
+            // Não resetamos a página aqui para manter a navegação fluida se apenas recarregar dados
         } catch (e: any) {
             console.error("Erro ao carregar lista de médicos:", e);
             setError("Não foi possível carregar a lista de médicos. Verifique a conexão com a API.");
@@ -89,78 +99,63 @@ export default function DoctorsPage() {
         fetchDoctors();
     }, [fetchDoctors]);
 
-    const openDetailsDialog = async (doctor: Doctor) => {
-        setDetailsDialogOpen(true);
-        setDoctorDetails({
-            nome: doctor.full_name,
-            crm: doctor.crm,
-            especialidade: doctor.specialty,
-            contato: { celular: doctor.phone_mobile ?? undefined },
-            endereco: { cidade: doctor.city ?? undefined, estado: doctor.state ?? undefined },
-            status: doctor.status || "Ativo",
-            convenio: "Particular",
-            vip: false,
-            ultimo_atendimento: "N/A",
-            proximo_atendimento: "N/A",
-        });
-    };
-
-    const handleDelete = async () => {
-        if (doctorToDeleteId === null) return;
-        setLoading(true);
-        try {
-            await doctorsService.delete(doctorToDeleteId);
-            setDeleteDialogOpen(false);
-            setDoctorToDeleteId(null);
-            await fetchDoctors();
-        } catch (e) {
-            console.error("Erro ao excluir:", e);
-            alert("Erro ao excluir médico.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const openDeleteDialog = (doctorId: number) => {
-        setDoctorToDeleteId(doctorId);
-        setDeleteDialogOpen(true);
-    };
-
+    // 2. Gerar lista única de especialidades (Normalizada)
     const uniqueSpecialties = useMemo(() => {
-        const specialties = doctors.map((doctor) => doctor.specialty).filter(Boolean);
-        return [...new Set(specialties)];
+        return getUniqueSpecialties(doctors);
     }, [doctors]);
 
-    // --- 3. Atualização da Lógica de Filtragem ---
-    const filteredDoctors = doctors.filter((doctor) => {
-        const specialtyMatch = specialtyFilter === "all" || doctor.specialty === specialtyFilter;
-        const statusMatch = statusFilter === "all" || doctor.status === statusFilter;
-        
-        // Lógica da barra de pesquisa
-        const searchLower = searchTerm.toLowerCase();
-        const nameMatch = doctor.full_name?.toLowerCase().includes(searchLower);
-        const phoneMatch = doctor.phone_mobile?.includes(searchLower);
-        // Opcional: buscar também por CRM se desejar
-        const crmMatch = doctor.crm?.toLowerCase().includes(searchLower);
+    // 3. Lógica de Filtragem Centralizada
+    const filteredDoctors = useMemo(() => {
+        return doctors.filter((doctor) => {
+            // Normaliza a especialidade do médico atual para comparar
+            const normalizedDocSpecialty = normalizeSpecialty(doctor.specialty);
+            
+            // Filtros exatos
+            const specialtyMatch = filters.specialty === "all" || normalizedDocSpecialty === filters.specialty;
+            const statusMatch = filters.status === "all" || doctor.status === filters.status;
+            
+            // Busca textual (Nome, Telefone, CRM)
+            const searchLower = searchTerm.toLowerCase();
+            const nameMatch = doctor.full_name?.toLowerCase().includes(searchLower);
+            const phoneMatch = doctor.phone_mobile?.includes(searchLower);
+            const crmMatch = doctor.crm?.toLowerCase().includes(searchLower);
 
-        const searchMatch = searchTerm === "" || nameMatch || phoneMatch || crmMatch;
+            return specialtyMatch && statusMatch && (searchTerm === "" || nameMatch || phoneMatch || crmMatch);
+        });
+    }, [doctors, filters, searchTerm]);
 
-        return specialtyMatch && statusMatch && searchMatch;
-    });
+    // --- Handlers de Controle (Com Reset de Paginação) ---
 
+    const handleSearch = (term: string) => {
+        setSearchTerm(term);
+        setCurrentPage(1); // Correção: Reseta para página 1 ao buscar
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        setCurrentPage(1); // Correção: Reseta para página 1 ao filtrar
+    };
+
+    const handleClearFilters = () => {
+        setSearchTerm("");
+        setFilters({ specialty: "all", status: "all" });
+        setCurrentPage(1); // Correção: Reseta para página 1 ao limpar
+    };
+
+    const handleItemsPerPageChange = (value: string) => {
+        setItemsPerPage(Number(value));
+        setCurrentPage(1);
+    };
+
+    // --- Lógica de Paginação ---
     const totalPages = Math.ceil(filteredDoctors.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredDoctors.slice(indexOfFirstItem, indexOfLastItem);
+
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-    const goToPrevPage = () => {
-        setCurrentPage((prev) => Math.max(1, prev - 1));
-    };
-
-    const goToNextPage = () => {
-        setCurrentPage((prev) => Math.min(totalPages, prev + 1));
-    };
+    const goToPrevPage = () => setCurrentPage((prev) => Math.max(1, prev - 1));
+    const goToNextPage = () => setCurrentPage((prev) => Math.min(totalPages, prev + 1));
 
     const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
         const pages: number[] = [];
@@ -186,9 +181,42 @@ export default function DoctorsPage() {
 
     const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
 
-    const handleItemsPerPageChange = (value: string) => {
-        setItemsPerPage(Number(value));
-        setCurrentPage(1);
+    // --- Handlers de Ações (Detalhes e Delete) ---
+    const openDetailsDialog = (doctor: Doctor) => {
+        setDetailsDialogOpen(true);
+        setDoctorDetails({
+            nome: doctor.full_name,
+            crm: doctor.crm,
+            especialidade: normalizeSpecialty(doctor.specialty), // Exibe normalizado
+            contato: { celular: doctor.phone_mobile ?? undefined },
+            endereco: { cidade: doctor.city ?? undefined, estado: doctor.state ?? undefined },
+            status: doctor.status || "Ativo",
+            convenio: "Particular",
+            vip: false,
+            ultimo_atendimento: "N/A",
+            proximo_atendimento: "N/A",
+        });
+    };
+
+    const openDeleteDialog = (doctorId: number) => {
+        setDoctorToDeleteId(doctorId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDelete = async () => {
+        if (doctorToDeleteId === null) return;
+        setLoading(true);
+        try {
+            await doctorsService.delete(doctorToDeleteId);
+            setDeleteDialogOpen(false);
+            setDoctorToDeleteId(null);
+            await fetchDoctors();
+        } catch (e) {
+            console.error("Erro ao excluir:", e);
+            alert("Erro ao excluir médico.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -202,67 +230,43 @@ export default function DoctorsPage() {
                     </div>
                 </div>
 
-                {/* --- Filtros e Barra de Pesquisa Atualizada --- */}
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
-                    
-                    {/* Barra de Pesquisa (Estilo similar à foto) */}
-                    <div className="relative w-full md:flex-1">
-                        <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input 
-                            placeholder="Buscar por nome ou telefone..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 w-full bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                        />
+                {/* --- NOVO COMPONENTE DE FILTRO --- */}
+                <FilterBar
+                    searchTerm={searchTerm}
+                    onSearch={handleSearch}
+                    activeFilters={filters}
+                    onFilterChange={handleFilterChange}
+                    onClearFilters={handleClearFilters}
+                    searchPlaceholder="Buscar por nome, CRM ou telefone..."
+                    filters={[
+                        { 
+                            key: "specialty", 
+                            label: "Especialidade", 
+                            options: uniqueSpecialties 
+                        },
+                        { 
+                            key: "status", 
+                            label: "Status", 
+                            options: ["Ativo", "Férias", "Inativo"] 
+                        }
+                    ]}
+                >
+                    {/* Seletor de Itens por Página (Filho do FilterBar) */}
+                    <div className="hidden lg:block">
+                        <Select onValueChange={handleItemsPerPageChange} defaultValue={String(itemsPerPage)}>
+                            <SelectTrigger className="w-[70px]">
+                                <SelectValue placeholder="10" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
+                </FilterBar>
 
-                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
-                                <SelectTrigger className="w-full sm:w-[180px]">
-                                    <SelectValue placeholder="Especialidade" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todas Especialidades</SelectItem>
-                                    {uniqueSpecialties.map((specialty) => (
-                                        <SelectItem key={specialty} value={specialty}>
-                                            {specialty}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-full sm:w-[150px]">
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Status: Todos</SelectItem>
-                                    <SelectItem value="Ativo">Ativo</SelectItem>
-                                    <SelectItem value="Férias">Férias</SelectItem>
-                                    <SelectItem value="Inativo">Inativo</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="hidden lg:block">
-                             <Select onValueChange={handleItemsPerPageChange} defaultValue={String(itemsPerPage)}>
-                                <SelectTrigger className="w-[70px]">
-                                    <SelectValue placeholder="10" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="5">5</SelectItem>
-                                    <SelectItem value="10">10</SelectItem>
-                                    <SelectItem value="20">20</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tabela de Médicos (Visível em Telas Médias e Maiores) */}
+                {/* Tabela de Médicos */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-hidden hidden md:block">
                     {loading ? (
                         <div className="p-8 text-center text-gray-500">
@@ -296,10 +300,12 @@ export default function DoctorsPage() {
                                         <tr key={doctor.id} className="hover:bg-gray-50 transition">
                                             <td className="px-4 py-3 font-medium text-gray-900">
                                                 {doctor.full_name}
-                                                <div className="text-xs text-gray-400 md:hidden">{doctor.phone_mobile}</div>
                                             </td>
                                             <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{doctor.crm}</td>
-                                            <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{doctor.specialty}</td>
+                                            <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
+                                                {/* Exibe Especialidade Normalizada */}
+                                                {normalizeSpecialty(doctor.specialty)}
+                                            </td>
                                             <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">
                                                 <span className={`px-2 py-1 rounded-full text-xs ${
                                                     doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
@@ -348,7 +354,7 @@ export default function DoctorsPage() {
                     )}
                 </div>
 
-                {/* Cards de Médicos (Visível Apenas em Telas Pequenas) */}
+                {/* Cards de Médicos (Mobile) */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden">
                     {loading ? (
                         <div className="p-8 text-center text-gray-500">
@@ -371,7 +377,7 @@ export default function DoctorsPage() {
                                     <div>
                                         <div className="font-semibold text-gray-900">{doctor.full_name}</div>
                                         <div className="text-xs text-gray-500 mb-1">{doctor.phone_mobile}</div>
-                                        <div className="text-sm text-gray-600">{doctor.specialty}</div>
+                                        <div className="text-sm text-gray-600">{normalizeSpecialty(doctor.specialty)}</div>
                                         <div className="text-xs mt-1">
                                             <span className={`px-2 py-0.5 rounded-full text-xs ${
                                                     doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
@@ -446,7 +452,7 @@ export default function DoctorsPage() {
                     </div>
                 )}
 
-                {/* Dialogs (Exclusão e Detalhes) mantidos igual ao original... */}
+                {/* Dialogs (Exclusão e Detalhes) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
