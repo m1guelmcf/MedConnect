@@ -174,7 +174,6 @@ export default function Sidebar({ children }: SidebarProps) {
 
         const managerItems: MenuItem[] = [
             { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-            { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
             { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
             { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
             { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
