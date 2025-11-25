@@ -197,14 +197,6 @@ export default function PacientesPage() {
                 <SelectItem value="20">20 por página</SelectItem>
               </SelectContent>
             </Select>
-            <Link href="/doctor/pacientes/novo" className="w-full sm:w-auto">
-              <Button
-                variant="default"
-                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
-              >
-                Novo Paciente
-              </Button>
-            </Link>
           </div>
         </div>
 
