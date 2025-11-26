@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Plus, X, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import DoctorLayout from "@/components/doctor-layout";
+import Sidebar from "@/components/Sidebar";
 
 export default function NovoMedicoPage() {
     const [anexosOpen, setAnexosOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function NovoMedicoPage() {
     };
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
@@ -466,6 +466,6 @@ export default function NovoMedicoPage() {
                     </div>
                 </form>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

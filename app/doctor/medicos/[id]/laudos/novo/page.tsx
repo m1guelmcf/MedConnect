@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import TiptapEditor from "@/components/ui/tiptap-editor";
 
 import { reportsApi } from "@/services/reportsApi.mjs";
-import DoctorLayout from "@/components/doctor-layout";
+import Sidebar from "@/components/Sidebar";
 
 
 
@@ -96,7 +96,7 @@ export default function NovoLaudoPage() {
     };
 
     return (
-        <DoctorLayout>
+        <Sidebar>
             <div className="container mx-auto p-4">
                 <Card>
                     <CardHeader>
@@ -184,6 +184,6 @@ export default function NovoLaudoPage() {
                     </CardContent>
                 </Card>
             </div>
-        </DoctorLayout>
+        </Sidebar>
     );
 }

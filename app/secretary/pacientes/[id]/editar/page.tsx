@@ -13,9 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Trash2, Paperclip, Upload } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import SecretaryLayout from "@/components/secretary-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
-import { json } from "stream/consumers";
+import Sidebar from "@/components/Sidebar";
 
 export default function EditarPacientePage() {
     const router = useRouter();
@@ -81,6 +80,12 @@ export default function EditarPacientePage() {
         heightM?: string;
         bmi?: string;
         bloodType?: string;
+        // Adicionei os campos do convênio para o tipo FormData
+        convenio?: string;
+        plano?: string;
+        numeroMatricula?: string;
+        validadeCarteira?: string;
+        alergias?: string;
     };
 
 
@@ -133,6 +138,11 @@ export default function EditarPacientePage() {
         heightM: "",
         bmi: "",
         bloodType: "",
+        convenio: "",
+        plano: "",
+        numeroMatricula: "",
+        validadeCarteira: "",
+        alergias: "",
     });
 
     const [isGuiaConvenio, setIsGuiaConvenio] = useState(false);
@@ -141,7 +151,7 @@ export default function EditarPacientePage() {
     useEffect(() => {
         async function fetchPatient() {
             try {
-                const res = await patientsService.getById(patientId); 
+                const res = await patientsService.getById(patientId);
                 // Map API snake_case/nested to local camelCase form
                 setFormData({
                     id: res[0]?.id ?? "",
@@ -192,6 +202,12 @@ export default function EditarPacientePage() {
                     heightM: res[0]?.height_m ? String(res[0].height_m) : "",
                     bmi: res[0]?.bmi ? String(res[0].bmi) : "",
                     bloodType: res[0]?.blood_type ?? "",
+                    // Os campos de convênio e alergias não vêm da API, então os deixamos vazios ou com valores padrão
+                    convenio: "",
+                    plano: "",
+                    numeroMatricula: "",
+                    validadeCarteira: "",
+                    alergias: "",
                 });
 
             } catch (e: any) {
@@ -238,8 +254,8 @@ export default function EditarPacientePage() {
             router.push("/secretary/pacientes");
         } catch (err: any) {
             console.error("Erro ao atualizar paciente:", err);
-            toast({ 
-                title: "Erro", 
+            toast({
+                title: "Erro",
                 description: err?.message || "Não foi possível atualizar o paciente",
                 variant: "destructive"
             });
@@ -247,67 +263,46 @@ export default function EditarPacientePage() {
     };
 
     return (
-        <SecretaryLayout>
-            <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <Link href="/secretary/pacientes">
-                        <Button variant="ghost" size="sm">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Voltar
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Editar Paciente</h1>
-                        <p className="text-gray-600">Atualize as informações do paciente</p>
+        <Sidebar>
+            {/* O espaçamento foi reduzido aqui: de `p-4 sm:p-6 lg:p-8` para `p-2 sm:p-4 lg:p-6` */}
+            <div className="space-y-6 p-2 sm:p-4 lg:p-6 max-w-10xl mx-auto"> {/* Alterado padding responsivo */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <Link href="/secretary/pacientes">
+                            <Button variant="ghost" size="sm">
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Voltar
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">Editar Paciente</h1>
+                            <p className="text-gray-600">Atualize as informações do paciente</p>
+                        </div>
                     </div>
 
-                    {/* Anexos Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Anexos</h2>
-                        <div className="flex items-center gap-3 mb-4">
-                            <input ref={anexoInputRef} type="file" className="hidden" />
-                            <Button type="button" variant="outline" disabled={isUploadingAnexo}>
-                                <Paperclip className="w-4 h-4 mr-2" /> {isUploadingAnexo ? "Enviando..." : "Adicionar anexo"}
-                            </Button>
-                        </div>
-                        {anexos.length === 0 ? (
-                            <p className="text-sm text-gray-500">Nenhum anexo encontrado.</p>
-                        ) : (
-                            <ul className="divide-y">
-                                {anexos.map((a) => (
-                                    <li key={a.id} className="flex items-center justify-between py-2">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <Paperclip className="w-4 h-4 text-gray-500 shrink-0" />
-                                            <span className="text-sm text-gray-800 truncate">{a.nome || a.filename || `Anexo ${a.id}`}</span>
-                                        </div>
-                                        <Button type="button" variant="ghost" className="text-red-600">
-                                            <Trash2 className="w-4 h-4 mr-1" /> Remover
-                                        </Button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                    {/* Anexos Section - Movido para fora do cabeçalho para melhor organização e responsividade */}
+                    
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Dados Pessoais Section */}
                     <div className="bg-white rounded-lg border border-gray-200 p-6">
                         <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Photo upload */}
-                            <div className="space-y-2">
+                            <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
                                 <Label>Foto do paciente</Label>
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-col sm:flex-row items-center gap-4">
                                     <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
                                         {photoUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={photoUrl} alt="Foto do paciente" className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-gray-400 text-sm">Sem foto</span>
+                                            <span className="text-gray-400 text-sm text-center">Sem foto</span>
                                         )}
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" />
                                         <Button type="button" variant="outline" disabled={isUploadingPhoto}>
                                             {isUploadingPhoto ? "Enviando..." : "Enviar foto"}
@@ -337,7 +332,7 @@ export default function EditarPacientePage() {
 
                             <div className="space-y-2">
                                 <Label>Sexo *</Label>
-                                <div className="flex gap-4">
+                                <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center space-x-2">
                                         <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
                                         <Label htmlFor="Masculino">Masculino</Label>
@@ -404,7 +399,7 @@ export default function EditarPacientePage() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="profissao">Profissão</Label>
-                                <Input id="profissao" value={formData.profession} onChange={(e) => handleInputChange("profession", e.target.value)} />
+                                <Input id="profissao" value={formData.profession} onChange={(e) => handleInputChange("profissao", e.target.value)} />
                             </div>
 
                             <div className="space-y-2">
@@ -478,12 +473,12 @@ export default function EditarPacientePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="email">E-mail *</Label>
-                                <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} required/>
+                                <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} required />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="celular">Celular *</Label>
-                                <Input id="celular" value={formData.phoneMobile} onChange={(e) => handleInputChange("phoneMobile", e.target.value)} placeholder="(00) 00000-0000" required/>
+                                <Input id="celular" value={formData.phoneMobile} onChange={(e) => handleInputChange("phoneMobile", e.target.value)} placeholder="(00) 00000-0000" required />
                             </div>
 
                             <div className="space-y-2">
@@ -615,7 +610,7 @@ export default function EditarPacientePage() {
 
                         <div className="mt-6">
                             <Label htmlFor="alergias">Alergias</Label>
-                            <Textarea id="alergias" onChange={(e) => handleInputChange("alergias", e.target.value)} placeholder="Ex: AAS, Dipirona, etc." className="mt-2" />
+                            <Textarea id="alergias" value={formData.alergias} onChange={(e) => handleInputChange("alergias", e.target.value)} placeholder="Ex: AAS, Dipirona, etc." className="mt-2" />
                         </div>
                     </div>
 
@@ -626,7 +621,7 @@ export default function EditarPacientePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="convenio">Convênio</Label>
-                                <Select  onValueChange={(value) => handleInputChange("convenio", value)}>
+                                <Select value={formData.convenio} onValueChange={(value) => handleInputChange("convenio", value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Selecione" />
                                     </SelectTrigger>
@@ -642,17 +637,17 @@ export default function EditarPacientePage() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="plano">Plano</Label>
-                                <Input id="plano"  onChange={(e) => handleInputChange("plano", e.target.value)} />
+                                <Input id="plano" value={formData.plano} onChange={(e) => handleInputChange("plano", e.target.value)} />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="numeroMatricula">Nº de matrícula</Label>
-                                <Input id="numeroMatricula"  onChange={(e) => handleInputChange("numeroMatricula", e.target.value)} />
+                                <Input id="numeroMatricula" value={formData.numeroMatricula} onChange={(e) => handleInputChange("numeroMatricula", e.target.value)} />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="validadeCarteira">Validade da Carteira</Label>
-                                <Input id="validadeCarteira" type="date" onChange={(e) => handleInputChange("validadeCarteira", e.target.value)} disabled={validadeIndeterminada} />
+                                <Input id="validadeCarteira" type="date" value={formData.validadeCarteira} onChange={(e) => handleInputChange("validadeCarteira", e.target.value)} disabled={validadeIndeterminada} />
                             </div>
                         </div>
 
@@ -664,19 +659,19 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-4">
+                    <div className="flex flex-col sm:flex-row justify-end gap-4">
                         <Link href="/secretary/pacientes">
-                            <Button type="button" variant="outline">
+                            <Button type="button" variant="outline" className="w-full sm:w-auto">
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                             <Save className="w-4 h-4 mr-2" />
                             Salvar Alterações
                         </Button>
                     </div>
                 </form>
             </div>
-        </SecretaryLayout>
+        </Sidebar>
     );
 }
