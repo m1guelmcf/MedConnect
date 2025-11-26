@@ -227,31 +227,24 @@ export default function PacientesPage() {
             </Select>
           </div>
 
-          {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
-          <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">
-              VIP
-            </span>
-            <Select value={vipFilter} onValueChange={setVipFilter}>
-              <SelectTrigger className="w-full sm:w-32">
-                {" "}
-                {/* w-full para mobile, w-32 para sm+ */}
-                <SelectValue placeholder="VIP" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="vip">VIP</SelectItem>
-                <SelectItem value="regular">Regular</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Aniversariantes - Ocupa 100% no mobile, e se alinha à direita no md+ */}
-          <Button variant="outline" className="w-full md:w-auto md:ml-auto">
-            <Calendar className="w-4 h-4 mr-2" />
-            Aniversariantes
-          </Button>
-        </div>
+                    {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">VIP</span>
+                        <Select value={vipFilter} onValueChange={setVipFilter}>
+                            <SelectTrigger className="w-full sm:w-32"> {/* w-full para mobile, w-32 para sm+ */}
+                                <SelectValue placeholder="VIP" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos</SelectItem>
+                                <SelectItem value="vip">VIP</SelectItem>
+                                <SelectItem value="regular">Regular</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    
+                
+                    
+                </div>
 
         {/* --- SEÇÃO DE TABELA (VISÍVEL EM TELAS MAIORES OU IGUAIS A MD) --- */}
         {/* Garantir que a tabela se esconda em telas menores e apareça em MD+ */}

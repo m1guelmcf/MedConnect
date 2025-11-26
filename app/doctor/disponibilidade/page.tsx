@@ -218,36 +218,36 @@ export default function AvailabilityPage() {
     }
   };
 
-  // Mapa de tradução
-  const weekdaysPT: Record<string, string> = {
-    sunday: "Domingo",
-    monday: "Segunda",
-    tuesday: "Terça",
-    wednesday: "Quarta",
-    thursday: "Quinta",
-    friday: "Sexta",
-    saturday: "Sábado",
-  };
-  const fetchData = async () => {
-    try {
-      const loggedUser = await usersService.getMe();
-      const doctorList = await doctorsService.list();
-      setUserData(loggedUser);
-      const doctor = findDoctorById(loggedUser.user.id, doctorList);
-      setDoctorId(doctor?.id);
-      console.log(doctor);
-      // Busca disponibilidade
-      const availabilityList = await AvailabilityService.list();
-
-      // Filtra já com a variável local
-      const filteredAvail = availabilityList.filter(
-        (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
-      );
-      setAvailability(filteredAvail);
-    } catch (e: any) {
-      alert(`${e?.error} ${e?.message}`);
-    }
-  };
+        // Mapa de tradução
+    const weekdaysPT: Record<string, string> = {
+        sunday: "Domingo",
+        monday: "Segunda",
+        tuesday: "Terça",
+        wednesday: "Quarta",
+        thursday: "Quinta",
+        friday: "Sexta",
+        saturday: "Sábado",
+    };
+    const fetchData = async () => {
+        try {
+            const loggedUser = await usersService.getMe();
+            const doctorList = await doctorsService.list();
+            setUserData(loggedUser);
+            const doctor = findDoctorById(loggedUser.user.id, doctorList);
+            setDoctorId(doctor?.id);
+            console.log(doctor);
+            // Busca disponibilidade
+            const availabilityList = await AvailabilityService.list();
+        
+            // Filtra já com a variável local
+            const filteredAvail = availabilityList.filter(
+            (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
+            );
+            setAvailability(filteredAvail);
+        } catch (e: any) {
+            alert(`${e?.error} ${e?.message}`);
+        }
+    };
 
   useEffect(() => {
     fetchData();
@@ -320,20 +320,21 @@ export default function AvailabilityPage() {
         }
       } catch {}
 
-      toast({
-        title: "Sucesso",
-        description: message,
-      });
-      router.push("#"); // adicionar página para listar a disponibilidade
-    } catch (err: any) {
-      toast({
-        title: "Erro",
-        description: err?.message || "Não foi possível criar a disponibilidade",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+            toast({
+                title: "Sucesso",
+                description: message,
+            });
+            router.push("#"); // adicionar página para listar a disponibilidade
+        } catch (err: any) {
+            toast({
+                title: "Erro",
+                description: err?.message || "Não foi possível criar a disponibilidade",
+            });
+        } finally {
+            fetchData()
+            setIsLoading(false);
+        }
+    };
 
   const openDeleteDialog = (
     schedule: { start: string; end: string },
@@ -343,38 +344,35 @@ export default function AvailabilityPage() {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteAvailability = async (AvailabilityId: string) => {
-    try {
-      const res = await AvailabilityService.delete(AvailabilityId);
-
-      let message = "Disponibilidade deletada com sucesso";
-      try {
-        if (res) {
-          throw new Error(
-            `${res.error} ${res.message}` || "A API retornou erro"
-          );
-        } else {
-          console.log(message);
-        }
-      } catch {}
-
-      toast({
-        title: "Sucesso",
-        description: message,
-      });
-
-      setAvailability((prev: Availability[]) =>
-        prev.filter((p) => String(p.id) !== String(AvailabilityId))
-      );
-    } catch (e: any) {
-      toast({
-        title: "Erro",
-        description: e?.message || "Não foi possível deletar a disponibilidade",
-      });
-    }
-    setDeleteDialogOpen(false);
-    setSelectedAvailability(null);
-  };
+    const handleDeleteAvailability = async (AvailabilityId: string) => {
+            try {
+                const res = await AvailabilityService.delete(AvailabilityId);
+    
+                let message = "Disponibilidade deletada com sucesso";
+                try {
+                    if (res) {
+                        throw new Error(`${res.error} ${res.message}` || "A API retornou erro");
+                    } else {
+                        console.log(message);
+                    }
+                } catch {}
+    
+                toast({
+                    title: "Sucesso",
+                    description: message,
+                });
+    
+                setAvailability((prev: Availability[]) => prev.filter((p) => String(p.id) !== String(AvailabilityId)));
+            } catch (e: any) {
+                toast({
+                    title: "Erro",
+                    description: e?.message || "Não foi possível deletar a disponibilidade",
+                });
+            }
+            fetchData()
+            setDeleteDialogOpen(false);
+            setSelectedAvailability(null);
+        };
 
   return (
     <Sidebar>
@@ -542,142 +540,99 @@ export default function AvailabilityPage() {
             </div>
           </div>
 
-          {/* **AJUSTE DE RESPONSIVIDADE: BOTÕES DE AÇÃO** */}
-          {/* Alinha à direita em telas maiores e empilha (com o botão primário no final) em telas menores */}
-          {/* Alteração aqui: Adicionado w-full aos Links e Buttons para ocuparem a largura total em telas pequenas */}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
-            <Link
-              href="/doctor/disponibilidade/excecoes"
-              className="w-full sm:w-auto"
-            >
-              <Button
-                variant="default"
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-              >
-                Adicionar Exceção
-              </Button>
-            </Link>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              {" "}
-              {/* Ajustado para empilhar os botões Cancelar e Salvar em telas pequenas */}
-              <Link href="/doctor/dashboard" className="w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto cursor-pointer"
-                >
-                  Cancelar
-                </Button>
-              </Link>
-              <Button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto cursor-pointer"
-              >
-                Salvar Disponibilidade
-              </Button>
-            </div>
-          </div>
-        </form>
-
-        {/* **AJUSTE DE RESPONSIVIDADE: CARD DE HORÁRIO SEMANAL** */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Horário Semanal</CardTitle>
-              <CardDescription>
-                Confira ou altere a sua disponibilidade da semana
-              </CardDescription>
-            </CardHeader>
-            {/* Define um grid responsivo para os dias da semana (1 coluna em móvel, 2 em pequeno, 3 em médio e 7 em telas grandes) */}
-            <CardContent className="space-y-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
-              {[
-                "sunday",
-                "monday",
-                "tuesday",
-                "wednesday",
-                "thursday",
-                "friday",
-                "saturday",
-              ].map((day) => {
-                const times = schedule[day] || [];
-                return (
-                  <div key={day} className="space-y-4">
-                    <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg h-full">
-                      <p className="font-medium capitalize text-center mb-2">
-                        {weekdaysPT[day]}
-                      </p>
-                      <div className="text-center w-full">
-                        {times.length > 0 ? (
-                          times.map((t, i) => (
-                            <div key={i}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <p className="text-sm text-gray-600 cursor-pointer p-1 rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
-                                    {formatTime(t.start)} - {formatTime(t.end)}
-                                  </p>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleOpenModal(t, day)}
-                                  >
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => openDeleteDialog(t, day)}
-                                    className="text-red-600 focus:bg-red-50 focus:text-red-600"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Excluir
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-400 italic">
-                            Sem horário
-                          </p>
-                        )}
-                      </div>
+                    {/* **AJUSTE DE RESPONSIVIDADE: BOTÕES DE AÇÃO** */}
+                    {/* Alinha à direita em telas maiores e empilha (com o botão primário no final) em telas menores */}
+                    {/* Alteração aqui: Adicionado w-full aos Links e Buttons para ocuparem a largura total em telas pequenas */}
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
+                        <Link href="/doctor/disponibilidade/excecoes" className="w-full sm:w-auto">
+                            <Button variant="default" className="w-full sm:w-auto">Adicionar Exceção</Button>
+                        </Link>
+                        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"> {/* Ajustado para empilhar os botões Cancelar e Salvar em telas pequenas */}
+                            <Link href="/doctor/dashboard" className="w-full sm:w-auto">
+                                <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
+                            </Link>
+                            <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+                                Salvar Disponibilidade
+                            </Button>
+                        </div>
                     </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* AlertDialog e Modal de Edição (não precisam de grandes ajustes de layout, apenas garantindo que os componentes sejam responsivos internamente) */}
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem certeza que deseja excluir esta disponibilidade? Esta ação
-                não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() =>
-                  selectedAvailability &&
-                  handleDeleteAvailability(selectedAvailability.id)
-                }
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-      <AvailabilityEditModal
-        availability={selectedAvailability}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleEdit}
-      />
-    </Sidebar>
-  );
+                </form>
+                
+                {/* **AJUSTE DE RESPONSIVIDADE: CARD DE HORÁRIO SEMANAL** */}
+                <div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Horário Semanal</CardTitle>
+                            <CardDescription>Confira ou altere a sua disponibilidade da semana</CardDescription>
+                        </CardHeader>
+                        {/* Define um grid responsivo para os dias da semana (1 coluna em móvel, 2 em pequeno, 3 em médio e 7 em telas grandes) */}
+                        <CardContent className="space-y-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                            {["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => {
+                                const times = schedule[day] || [];
+                                return (
+                                    <div key={day} className="space-y-4">
+                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg h-full">
+                                            <p className="font-medium capitalize text-center mb-2">{weekdaysPT[day]}</p>
+                                            <div className="text-center w-full">
+                                                {times.length > 0 ? (
+                                                    times.map((t, i) => (
+                                                        <div key={i}>
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <p  className="text-sm text-gray-600 cursor-pointer rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
+                                                                        {formatTime(t.start)} - {formatTime(t.end)}
+                                                                    </p>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem onClick={() => handleOpenModal(t, day)}>
+                                                                    <Edit className="w-4 h-4 mr-2" />
+                                                                    Editar
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem
+                                                                    onClick={() => openDeleteDialog(t, day)}
+                                                                    className="text-red-600 focus:bg-red-50 focus:text-red-600">
+                                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                                    Excluir
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-sm text-gray-400 italic">Sem horário</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                {/* AlertDialog e Modal de Edição (não precisam de grandes ajustes de layout, apenas garantindo que os componentes sejam responsivos internamente) */}
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>Tem certeza que deseja excluir esta disponibilidade? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => selectedAvailability && handleDeleteAvailability(selectedAvailability.id)} className="bg-red-600 hover:bg-red-700">
+                                    Excluir
+                                </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+            <AvailabilityEditModal
+                availability={selectedAvailability}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleEdit}
+            />
+            
+        </Sidebar>
+    );
 }

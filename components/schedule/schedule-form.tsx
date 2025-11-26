@@ -19,9 +19,25 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { format, addDays } from "date-fns";
-import { User, StickyNote, Calendar } from "lucide-react";
-import { smsService } from "@/services/Sms.mjs";
+import { User, StickyNote, Check, ChevronsUpDown } from "lucide-react";
+import {  smsService } from "@/services/Sms.mjs";;
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+// Componentes do Combobox (Barra de Pesquisa)
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function ScheduleForm() {
   // Estado do usuário e role
@@ -31,8 +47,12 @@ export default function ScheduleForm() {
   // Listas e seleções
   const [patients, setPatients] = useState<any[]>([]);
   const [selectedPatient, setSelectedPatient] = useState("");
+  const [openPatientCombobox, setOpenPatientCombobox] = useState(false);
+
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [openDoctorCombobox, setOpenDoctorCombobox] = useState(false); // Novo estado para médico
+
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [notes, setNotes] = useState("");
@@ -249,10 +269,7 @@ export default function ScheduleForm() {
   }, [selectedDoctor, selectedDate, fetchAvailableSlots]);
 
   // 🔹 Submeter agendamento
-  // 🔹 Submeter agendamento
-  // 🔹 Submeter agendamento
-  // 🔹 Submeter agendamento
-  // 🔹 Submeter agendamento
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -260,10 +277,7 @@ export default function ScheduleForm() {
     const patientId = isSecretaryLike ? selectedPatient : userId;
 
     if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Preencha todos os campos.",
-      });
+      toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
       return;
     }
 
@@ -277,7 +291,6 @@ export default function ScheduleForm() {
         appointment_type: tipoConsulta,
       };
 
-      // ✅ mantém o fluxo original de criação (funcional)
       await appointmentsService.create(body);
 
       const dateFormatted = selectedDate.split("-").reverse().join("/");
@@ -289,31 +302,20 @@ export default function ScheduleForm() {
         }.`,
       });
 
-      let phoneNumber = "+5511999999999"; // fallback
+      let phoneNumber = "+5511999999999"; 
 
       try {
         if (isSecretaryLike) {
-          // Secretária/admin → telefone do paciente selecionado
           const patient = patients.find((p: any) => p.id === patientId);
-
-          // Pacientes criados no sistema podem ter phone ou phone_mobile
           const rawPhone = patient?.phone || patient?.phone_mobile || null;
-
           if (rawPhone) phoneNumber = rawPhone;
         } else {
-          // Paciente → telefone vem do perfil do próprio usuário logado
           const me = await usersService.getMe();
-
           const rawPhone =
             me?.profile?.phone ||
-            (typeof me?.profile === "object" && "phone_mobile" in me.profile
-              ? (me.profile as any).phone_mobile
-              : null) ||
-            (typeof me === "object" && "user_metadata" in me
-              ? (me as any).user_metadata?.phone
-              : null) ||
+            (typeof me?.profile === "object" && "phone_mobile" in me.profile ? (me.profile as any).phone_mobile : null) ||
+            (typeof me === "object" && "user_metadata" in me ? (me as any).user_metadata?.phone : null) ||
             null;
-
           if (rawPhone) phoneNumber = rawPhone;
         }
 
@@ -397,63 +399,114 @@ export default function ScheduleForm() {
           <CardTitle>Dados da Consulta</CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-          >
-            <div className="space-y-3">
-              {/* Se secretária/gestor/admin → mostrar campo Paciente */}
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4"> {/* Ajuste: maior espaçamento vertical geral */}
+              
+              {/* Se secretária/gestor/admin → COMBOBOX de Paciente */}
               {["secretaria", "gestor", "admin"].includes(role) && (
-                <div>
+                <div className="flex flex-col gap-2"> {/* Ajuste: gap entre Label e Input */}
                   <Label>Paciente</Label>
-                  <Select
-                    value={selectedPatient}
-                    onValueChange={setSelectedPatient}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o paciente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {patients.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openPatientCombobox} onOpenChange={setOpenPatientCombobox}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openPatientCombobox}
+                        className="w-full justify-between"
+                      >
+                        {selectedPatient
+                          ? patients.find((p) => p.id === selectedPatient)?.full_name
+                          : "Selecione o paciente..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[350px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Buscar paciente..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {patients.map((patient) => (
+                              <CommandItem
+                                key={patient.id}
+                                value={patient.full_name}
+                                onSelect={() => {
+                                  setSelectedPatient(patient.id === selectedPatient ? "" : patient.id);
+                                  setOpenPatientCombobox(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedPatient === patient.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {patient.full_name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
-              <div>
+              {/* COMBOBOX de Médico (Nova funcionalidade) */}
+              <div className="flex flex-col gap-2"> {/* Ajuste: gap entre Label e Input */}
                 <Label>Médico</Label>
-                <Select
-                  value={selectedDoctor}
-                  onValueChange={setSelectedDoctor}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o médico" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingDoctors ? (
-                      <SelectItem value="loading" disabled>
-                        Carregando...
-                      </SelectItem>
-                    ) : (
-                      [...doctors]
-                        .sort((a, b) =>
-                          String(a.full_name).localeCompare(String(b.full_name))
-                        )
-                        .map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            {d.full_name} — {d.specialty}
-                          </SelectItem>
-                        ))
-                    )}
-                  </SelectContent>
-                </Select>
+                <Popover open={openDoctorCombobox} onOpenChange={setOpenDoctorCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openDoctorCombobox}
+                      className="w-full justify-between"
+                      disabled={loadingDoctors}
+                    >
+                      {loadingDoctors
+                        ? "Carregando médicos..."
+                        : selectedDoctor
+                        ? doctors.find((d) => d.id === selectedDoctor)?.full_name
+                        : "Selecione o médico..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[350px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Buscar médico..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum médico encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {doctors.map((doctor) => (
+                            <CommandItem
+                              key={doctor.id}
+                              value={doctor.full_name}
+                              onSelect={() => {
+                                setSelectedDoctor(doctor.id === selectedDoctor ? "" : doctor.id);
+                                setOpenDoctorCombobox(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedDoctor === doctor.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span>{doctor.full_name}</span>
+                                <span className="text-xs text-muted-foreground">{doctor.specialty}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label>Data</Label>
                 <div ref={calendarRef} className="rounded-lg border p-2">
                   <CalendarShadcn
@@ -476,18 +529,18 @@ export default function ScheduleForm() {
                 </div>
               </div>
 
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label>Observações</Label>
                 <Textarea
                   placeholder="Instruções para o médico..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="mt-2"
+                  className="mt-1"
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4"> {/* Ajuste: Espaçamento no lado direito também */}
               <Card className="shadow-md rounded-xl bg-blue-50 border border-blue-200">
                 <CardHeader>
                   <CardTitle className="text-blue-700">Resumo</CardTitle>

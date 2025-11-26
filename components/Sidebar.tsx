@@ -188,18 +188,14 @@ export default function Sidebar({ children }: SidebarProps) {
       },
     ];
 
-    const managerItems: MenuItem[] = [
-      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-      { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
-      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
-      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
-      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-      {
-        href: "/secretary/appointments",
-        icon: CalendarCheck2,
-        label: "Consultas",
-      },
-    ];
+        const managerItems: MenuItem[] = [
+            { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+            { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+            { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+            { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+            { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
+        ];
 
     switch (role) {
       case "gestor":
