@@ -31,7 +31,7 @@ interface EnrichedAppointment {
 }
 
 export default function DoctorAppointmentsPage() {
-  const { user, isLoading: isAuthLoading } = useAuthLayout({ requiredRole: 'medico' });
+  const { user, isLoading: isAuthLoading } = useAuthLayout({ requiredRole: "medico" });
   
   const [allAppointments, setAllAppointments] = useState<EnrichedAppointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -111,13 +111,22 @@ export default function DoctorAppointmentsPage() {
     return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
   };
 
+  const statusPT: Record<string, string> = {
+      confirmed: "Confirmada",
+      completed: "Concluída",
+      cancelled: "Cancelada",
+      requested: "Solicitada",
+      no_show: "oculta",
+      checked_in: "Aguardando",
+  };
+
   const getStatusVariant = (status: EnrichedAppointment['status']) => {
     switch (status) {
-      case "confirmed": case "checked_in": return "default";
-      case "completed": return "secondary";
-      case "cancelled": case "no_show": return "destructive";
-      case "requested": return "outline";
-      default: return "outline";
+      case "confirmed": case "checked_in": return "text-foreground bg-blue-100 hover:bg-blue-150";
+      case "completed": return "text-foreground bg-green-100 hover:bg-green-150";
+      case "cancelled": case "no_show": return "text-foreground bg-red-200 hover:bg-red-250";
+      case "requested": return "text-foreground bg-yellow-100 hover:bg-yellow-150";
+      default: return "border-gray bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90";
     }
   };
 
@@ -191,7 +200,7 @@ export default function DoctorAppointmentsPage() {
                             
                             {/* Coluna 2: Status e Telefone */}
                             <div className="col-span-1 flex flex-col items-center gap-2">
-                               <Badge variant={getStatusVariant(appointment.status)} className="capitalize text-xs">{appointment.status.replace('_', ' ')}</Badge>
+                               <Badge variant="outline" className={getStatusVariant(appointment.status)}>{statusPT[appointment.status].replace('_', ' ')}</Badge>
                                <div className="flex items-center text-sm text-muted-foreground">
                                 <Phone className="mr-2 h-4 w-4" />
                                 {appointment.patientPhone}
