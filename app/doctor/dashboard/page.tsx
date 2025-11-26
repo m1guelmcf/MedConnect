@@ -29,6 +29,7 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
 import Sidebar from "@/components/Sidebar";
+import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
 type Availability = {
   id: string;
@@ -165,20 +166,17 @@ export default function PatientDashboard() {
         );
         setAvailability(filteredAvail);
 
-        // Busca exceções
-        const exceptionsList = await exceptionsService.list();
-        const filteredExc = exceptionsList.filter(
-          (exc: { doctor_id: string }) => exc.doctor_id === doctor?.id
-        );
-        console.log(exceptionsList);
-        setExceptions(filteredExc);
-      } catch (e: any) {
-        alert(`${e?.error} ${e?.message}`);
-      }
-    };
+                // Busca exceções
+                const exceptionsList = await exceptionsService.list();
+                const filteredExc = exceptionsList.filter((exc: { doctor_id: string }) => exc.doctor_id === doctor?.id);
+                setExceptions(filteredExc);
+            } catch (e: any) {
+                alert(`${e?.error} ${e?.message}`);
+            }
+        };
 
-    fetchData();
-  }, []);
+          fetchData();
+      }, []);
 
   // Função auxiliar para filtrar o id do doctor correspondente ao user logado
   function findDoctorById(id: string, doctors: Doctor[]) {
@@ -320,82 +318,42 @@ export default function PatientDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Próximas Consultas</CardTitle>
-              <CardDescription>Suas consultas agendadas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">Dr. João Santos</p>
-                    <p className="text-sm text-gray-600">Cardiologia</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">02 out</p>
-                    <p className="text-sm text-gray-600">14:30</p>
-                  </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Próximas Consultas</CardTitle>
+                            <CardDescription>Suas consultas agendadas</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                    <div>
+                                        <p className="font-medium">Dr. João Santos</p>
+                                        <p className="text-sm text-gray-600">Cardiologia</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-medium">02 out</p>
+                                        <p className="text-sm text-gray-600">14:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid md:grid-cols-1 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Horário Semanal</CardTitle>
-              <CardDescription>
-                Confira rapidamente a sua disponibilidade da semana
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
-              {[
-                "sunday",
-                "monday",
-                "tuesday",
-                "wednesday",
-                "thursday",
-                "friday",
-                "saturday",
-              ].map((day) => {
-                const times = schedule[day] || [];
-                return (
-                  <div key={day} className="space-y-4">
-                    <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <div>
-                        <p className="font-medium capitalize">
-                          {weekdaysPT[day]}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        {times.length > 0 ? (
-                          times.map((t, i) => (
-                            <p key={i} className="text-sm text-gray-600">
-                              {formatTime(t.start)} <br /> {formatTime(t.end)}
-                            </p>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-400 italic">
-                            Sem horário
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid md:grid-cols-1 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Exceções</CardTitle>
-              <CardDescription>
-                Bloqueios e liberações eventuais de agenda
-              </CardDescription>
-            </CardHeader>
+                <div className="grid md:grid-cols-1 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Horário Semanal</CardTitle>
+                            <CardDescription>Confira rapidamente a sua disponibilidade da semana</CardDescription>
+                        </CardHeader>
+                        <CardContent>{loggedDoctor && <WeeklyScheduleCard doctorId={loggedDoctor.id} />}</CardContent>
+                    </Card>
+                </div>
+                <div className="grid md:grid-cols-1 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Exceções</CardTitle>
+                            <CardDescription>Bloqueios e liberações eventuais de agenda</CardDescription>
+                        </CardHeader>
 
             <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
               {exceptions && exceptions.length > 0 ? (
@@ -411,75 +369,47 @@ export default function PatientDashboard() {
                   const startTime = formatTime(ex.start_time);
                   const endTime = formatTime(ex.end_time);
 
-                  return (
-                    <div key={ex.id} className="space-y-4">
-                      <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
-                        <div className="text-center">
-                          <p className="font-semibold capitalize">{date}</p>
-                          <p className="text-sm text-gray-600">
-                            {startTime && endTime
-                              ? `${startTime} - ${endTime}`
-                              : "Dia todo"}
-                          </p>
-                        </div>
-                        <div className="text-center mt-2">
-                          <p
-                            className={`text-sm font-medium ${
-                              ex.kind === "bloqueio"
-                                ? "text-red-600"
-                                : "text-green-600"
-                            }`}
-                          >
-                            {ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}
-                          </p>
-                          <p className="text-xs text-gray-500 italic">
-                            {ex.reason || "Sem motivo especificado"}
-                          </p>
-                        </div>
-                        <div>
-                          <Button
-                            className="text-red-600"
-                            variant="outline"
-                            onClick={() => openDeleteDialog(String(ex.id))}
-                          >
-                            <Trash2></Trash2>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-sm text-gray-400 italic col-span-7 text-center">
-                  Nenhuma exceção registrada.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem certeza que deseja excluir esta exceção? Esta ação não pode
-                ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() =>
-                  exceptionToDelete && handleDeleteException(exceptionToDelete)
-                }
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    </Sidebar>
-  );
+                                    return (
+                                        <div key={ex.id} className="space-y-4">
+                                            <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
+                                                <div className="text-center">
+                                                    <p className="font-semibold capitalize">{date}</p>
+                                                    <p className="text-sm text-gray-600">{startTime && endTime ? `${startTime} - ${endTime}` : "Dia todo"}</p>
+                                                </div>
+                                                <div className="text-center mt-2">
+                                                    <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-red-600" : "text-green-600"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
+                                                    <p className="text-xs text-gray-500 italic">{ex.reason || "Sem motivo especificado"}</p>
+                                                </div>
+                                                <div>
+                                                    <Button className="text-red-600" variant="outline" onClick={() => openDeleteDialog(String(ex.id))}>
+                                                        <Trash2></Trash2>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-sm text-gray-400 italic col-span-7 text-center">Nenhuma exceção registrada.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>Tem certeza que deseja excluir esta exceção? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-red-600 hover:bg-red-700">
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+        </Sidebar>
+    );
 }
