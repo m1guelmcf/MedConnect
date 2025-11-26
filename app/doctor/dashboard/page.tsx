@@ -14,6 +14,7 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
 import Sidebar from "@/components/Sidebar";
+import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
 type Availability = {
     id: string;
@@ -35,33 +36,33 @@ type Schedule = {
 };
 
 type Doctor = {
-  id: string;
-  user_id: string | null;
-  crm: string;
-  crm_uf: string;
-  specialty: string;
-  full_name: string;
-  cpf: string;
-  email: string;
-  phone_mobile: string | null;
-  phone2: string | null;
-  cep: string | null;
-  street: string | null;
-  number: string | null;
-  complement: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  state: string | null;
-  birth_date: string | null;
-  rg: string | null;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  updated_by: string | null;
-  max_days_in_advance: number;
-  rating: number | null;
-}
+    id: string;
+    user_id: string | null;
+    crm: string;
+    crm_uf: string;
+    specialty: string;
+    full_name: string;
+    cpf: string;
+    email: string;
+    phone_mobile: string | null;
+    phone2: string | null;
+    cep: string | null;
+    street: string | null;
+    number: string | null;
+    complement: string | null;
+    neighborhood: string | null;
+    city: string | null;
+    state: string | null;
+    birth_date: string | null;
+    rg: string | null;
+    active: boolean;
+    created_at: string;
+    updated_at: string;
+    created_by: string;
+    updated_by: string | null;
+    max_days_in_advance: number;
+    rating: number | null;
+};
 
 interface UserPermissions {
     isAdmin: boolean;
@@ -94,15 +95,15 @@ interface UserData {
 }
 
 interface Exception {
-  id: string; // id da exceção
-  doctor_id: string;
-  date: string; // formato YYYY-MM-DD
-  start_time: string | null; // null = dia inteiro
-  end_time: string | null;   // null = dia inteiro
-  kind: "bloqueio" | "disponibilidade"; // tipos conhecidos
-  reason: string | null; // pode ser null
-  created_at: string; // timestamp ISO
-  created_by: string;
+    id: string; // id da exceção
+    doctor_id: string;
+    date: string; // formato YYYY-MM-DD
+    start_time: string | null; // null = dia inteiro
+    end_time: string | null; // null = dia inteiro
+    kind: "bloqueio" | "disponibilidade"; // tipos conhecidos
+    reason: string | null; // pode ser null
+    created_at: string; // timestamp ISO
+    created_by: string;
 }
 
 export default function PatientDashboard() {
@@ -128,44 +129,38 @@ export default function PatientDashboard() {
     };
 
     useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const doctorsList: Doctor[] = await doctorsService.list();
-      const doctor = doctorsList[0];
+        const fetchData = async () => {
+            try {
+                const doctorsList: Doctor[] = await doctorsService.list();
+                const doctor = doctorsList[0];
 
-      // Salva no estado
-      setLoggedDoctor(doctor);
+                // Salva no estado
+                setLoggedDoctor(doctor);
 
-      // Busca disponibilidade
-      const availabilityList = await AvailabilityService.list();
-      
-      // Filtra já com a variável local
-      const filteredAvail = availabilityList.filter(
-        (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
-      );
-      setAvailability(filteredAvail);
+                // Busca disponibilidade
+                const availabilityList = await AvailabilityService.list();
 
-      // Busca exceções
-      const exceptionsList = await exceptionsService.list();
-      const filteredExc = exceptionsList.filter(
-        (exc: { doctor_id: string }) => exc.doctor_id === doctor?.id
-      );
-      console.log(exceptionsList)
-      setExceptions(filteredExc);
+                // Filtra já com a variável local
+                const filteredAvail = availabilityList.filter((disp: { doctor_id: string }) => disp.doctor_id === doctor?.id);
+                setAvailability(filteredAvail);
 
-    } catch (e: any) {
-      alert(`${e?.error} ${e?.message}`);
-    }
-  };
+                // Busca exceções
+                const exceptionsList = await exceptionsService.list();
+                const filteredExc = exceptionsList.filter((exc: { doctor_id: string }) => exc.doctor_id === doctor?.id);
+                setExceptions(filteredExc);
+            } catch (e: any) {
+                alert(`${e?.error} ${e?.message}`);
+            }
+        };
 
-  fetchData();
-}, []);
+        fetchData();
+    }, []);
 
     // Função auxiliar para filtrar o id do doctor correspondente ao user logado
     function findDoctorById(id: string, doctors: Doctor[]) {
         return doctors.find((doctor) => doctor.user_id === id);
     }
-    
+
     const openDeleteDialog = (exceptionId: string) => {
         setExceptionToDelete(exceptionId);
         setDeleteDialogOpen(true);
@@ -173,7 +168,7 @@ export default function PatientDashboard() {
 
     const handleDeleteException = async (ExceptionId: string) => {
         try {
-            alert(ExceptionId)
+            alert(ExceptionId);
             const res = await exceptionsService.delete(ExceptionId);
 
             let message = "Exceção deletada com sucesso";
@@ -316,31 +311,7 @@ export default function PatientDashboard() {
                             <CardTitle>Horário Semanal</CardTitle>
                             <CardDescription>Confira rapidamente a sua disponibilidade da semana</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
-                            {["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => {
-                                const times = schedule[day] || [];
-                                return (
-                                    <div key={day} className="space-y-4">
-                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                            <div>
-                                                <p className="font-medium capitalize">{weekdaysPT[day]}</p>
-                                            </div>
-                                            <div className="text-center">
-                                                {times.length > 0 ? (
-                                                    times.map((t, i) => (
-                                                        <p key={i} className="text-sm text-gray-600">
-                                                            {formatTime(t.start)} <br /> {formatTime(t.end)}
-                                                        </p>
-                                                    ))
-                                                ) : (
-                                                    <p className="text-sm text-gray-400 italic">Sem horário</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </CardContent>
+                        <CardContent>{loggedDoctor && <WeeklyScheduleCard doctorId={loggedDoctor.id} />}</CardContent>
                     </Card>
                 </div>
                 <div className="grid md:grid-cols-1 gap-6">
@@ -358,7 +329,7 @@ export default function PatientDashboard() {
                                         weekday: "long",
                                         day: "2-digit",
                                         month: "long",
-                                        timeZone: "UTC"
+                                        timeZone: "UTC",
                                     });
 
                                     const startTime = formatTime(ex.start_time);
@@ -369,11 +340,7 @@ export default function PatientDashboard() {
                                             <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
-                                                   <p className="text-sm text-gray-600">
-                                                        {startTime && endTime
-                                                        ? `${startTime} - ${endTime}`
-                                                        : "Dia todo"}
-                                                    </p>
+                                                    <p className="text-sm text-gray-600">{startTime && endTime ? `${startTime} - ${endTime}` : "Dia todo"}</p>
                                                 </div>
                                                 <div className="text-center mt-2">
                                                     <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-red-600" : "text-green-600"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
