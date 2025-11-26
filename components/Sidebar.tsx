@@ -178,7 +178,8 @@ export default function Sidebar({ children }: SidebarProps) {
             { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
             { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
             { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
+            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+            { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
         ];
 
         let menuItems: MenuItem[];
