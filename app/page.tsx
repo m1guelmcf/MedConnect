@@ -100,7 +100,7 @@ export default function InicialPage() {
           <Link href="/login">
             <Button
               variant="outline"
-              className="rounded-full px-6 py-2 border-2 border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white transition"
+              className="rounded-full px-6 py-2 border-2 border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white transition cursor-pointer"
             >
               Login
             </Button>

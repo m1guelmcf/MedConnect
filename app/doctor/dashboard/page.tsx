@@ -1,9 +1,24 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,21 +38,96 @@ import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
 import Sidebar from "@/components/Sidebar";
+import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
-// (As interfaces permanecem as mesmas)
-type Availability = { id: string; doctor_id: string; weekday: string; start_time: string; end_time: string; slot_minutes: number; appointment_type: string; active: boolean; created_at: string; updated_at: string; created_by: string; updated_by: string | null; };
-type Schedule = { weekday: object; };
-type Doctor = { id: string; user_id: string | null; crm: string; crm_uf: string; specialty: string; full_name: string; cpf: string; email: string; phone_mobile: string | null; phone2: string | null; cep: string | null; street: string | null; number: string | null; complement: string | null; neighborhood: string | null; city: string | null; state: string | null; birth_date: string | null; rg: string | null; active: boolean; created_at: string; updated_at: string; created_by: string; updated_by: string | null; max_days_in_advance: number; rating: number | null; }
-interface UserPermissions { isAdmin: boolean; isManager: boolean; isDoctor: boolean; isSecretary: boolean; isAdminOrManager: boolean; }
-interface UserData { user: { id: string; email: string; email_confirmed_at: string | null; created_at: string | null; last_sign_in_at: string | null; }; profile: { id: string; full_name: string; email: string; phone: string; avatar_url: string | null; disabled: boolean; created_at: string | null; updated_at: string | null; }; roles: string[]; permissions: UserPermissions; }
-interface Exception { id: string; doctor_id: string; date: string; start_time: string | null; end_time: string | null; kind: "bloqueio" | "disponibilidade"; reason: string | null; created_at: string; created_by: string; }
+type Availability = {
+  id: string;
+  doctor_id: string;
+  weekday: string;
+  start_time: string;
+  end_time: string;
+  slot_minutes: number;
+  appointment_type: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string | null;
+};
 
-// --- NOVA INTERFACE PARA A CONSULTA COM NOME DO PACIENTE ---
-interface EnrichedAppointment {
+type Schedule = {
+  weekday: object;
+};
+
+type Doctor = {
+  id: string;
+  user_id: string | null;
+  crm: string;
+  crm_uf: string;
+  specialty: string;
+  full_name: string;
+  cpf: string;
+  email: string;
+  phone_mobile: string | null;
+  phone2: string | null;
+  cep: string | null;
+  street: string | null;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  state: string | null;
+  birth_date: string | null;
+  rg: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string | null;
+  max_days_in_advance: number;
+  rating: number | null;
+};
+
+interface UserPermissions {
+  isAdmin: boolean;
+  isManager: boolean;
+  isDoctor: boolean;
+  isSecretary: boolean;
+  isAdminOrManager: boolean;
+}
+
+interface UserData {
+  user: {
     id: string;
-    patientName: string;
-    scheduled_at: string;
-    [key: string]: any;
+    email: string;
+    email_confirmed_at: string | null;
+    created_at: string | null;
+    last_sign_in_at: string | null;
+  };
+  profile: {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    avatar_url: string | null;
+    disabled: boolean;
+    created_at: string | null;
+    updated_at: string | null;
+  };
+  roles: string[];
+  permissions: UserPermissions;
+}
+
+interface Exception {
+  id: string; // id da exceção
+  doctor_id: string;
+  date: string; // formato YYYY-MM-DD
+  start_time: string | null; // null = dia inteiro
+  end_time: string | null; // null = dia inteiro
+  kind: "bloqueio" | "disponibilidade"; // tipos conhecidos
+  reason: string | null; // pode ser null
+  created_at: string; // timestamp ISO
+  created_by: string;
 }
 
 export default function PatientDashboard() {
@@ -156,20 +246,22 @@ export default function PatientDashboard() {
         return schedule;
     }
 
-    useEffect(() => {
-        if (availability) {
-            const formatted = formatAvailability(availability);
-            setSchedule(formatted);
-        }
-    }, [availability]);
+  useEffect(() => {
+    if (availability) {
+      const formatted = formatAvailability(availability);
+      setSchedule(formatted);
+    }
+  }, [availability]);
 
-    return (
-        <Sidebar>
-            <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                    <p className="text-gray-600">Bem-vindo ao seu portal de consultas médicas</p>
-                </div>
+  return (
+    <Sidebar>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">
+            Bem-vindo ao seu portal de consultas médicas
+          </p>
+        </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* ▼▼▼ CARD "PRÓXIMA CONSULTA" CORRIGIDO PARA MOSTRAR NOME DO PACIENTE ▼▼▼ */}
@@ -211,17 +303,17 @@ export default function PatientDashboard() {
                     </Card>
                     {/* ▲▲▲ FIM DO CARD ATUALIZADO ▲▲▲ */}
 
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Perfil</CardTitle>
-                            <User className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">100%</div>
-                            <p className="text-xs text-muted-foreground">Dados completos</p>
-                        </CardContent>
-                    </Card>
-                </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Perfil</CardTitle>
+              <User className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">100%</div>
+              <p className="text-xs text-muted-foreground">Dados completos</p>
+            </CardContent>
+          </Card>
+        </div>
 
                 {/* O restante do código permanece o mesmo */}
                 <div className="grid md:grid-cols-2 gap-6">
@@ -267,31 +359,7 @@ export default function PatientDashboard() {
                             <CardTitle>Horário Semanal</CardTitle>
                             <CardDescription>Confira rapidamente a sua disponibilidade da semana</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
-                            {["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => {
-                                const times = schedule[day] || [];
-                                return (
-                                    <div key={day} className="space-y-4">
-                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                            <div>
-                                                <p className="font-medium capitalize">{weekdaysPT[day]}</p>
-                                            </div>
-                                            <div className="text-center">
-                                                {times.length > 0 ? (
-                                                    times.map((t, i) => (
-                                                        <p key={i} className="text-sm text-gray-600">
-                                                            {formatTime(t.start)} <br /> {formatTime(t.end)}
-                                                        </p>
-                                                    ))
-                                                ) : (
-                                                    <p className="text-sm text-gray-400 italic">Sem horário</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </CardContent>
+                        <CardContent>{loggedDoctor && <WeeklyScheduleCard doctorId={loggedDoctor.id} />}</CardContent>
                     </Card>
                 </div>
                 <div className="grid md:grid-cols-1 gap-6">
@@ -311,8 +379,8 @@ export default function PatientDashboard() {
                                         timeZone: "UTC"
                                     });
 
-                                    const startTime = formatTime(ex.start_time);
-                                    const endTime = formatTime(ex.end_time);
+                  const startTime = formatTime(ex.start_time);
+                  const endTime = formatTime(ex.end_time);
 
                                     return (
                                         <div key={ex.id} className="space-y-4">

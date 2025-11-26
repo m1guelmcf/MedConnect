@@ -3,10 +3,30 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
@@ -68,16 +88,14 @@ export default function PacientesPage() {
                     status: p.status ?? undefined,
                 }));
 
-                setAllPatients(mapped);
-            } catch (e: any) {
-                console.error(e);
-                setError(e?.message || "Erro ao buscar pacientes");
-            } finally {
-                setLoading(false);
-            }
-        },
-        []
-    );
+      setAllPatients(mapped);
+    } catch (e: any) {
+      console.error(e);
+      setError(e?.message || "Erro ao buscar pacientes");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
     // 2. Efeito para aplicar filtros e calcular a lista filtrada (chama-se quando allPatients ou filtros mudam)
     useEffect(() => {
@@ -106,12 +124,11 @@ export default function PacientesPage() {
         setPage(1);
     }, [allPatients, searchTerm, convenioFilter, vipFilter]);
 
-    // 3. Efeito inicial para buscar os pacientes
-    useEffect(() => {
-        fetchAllPacientes();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
+  // 3. Efeito inicial para buscar os pacientes
+  useEffect(() => {
+    fetchAllPacientes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
     // --- LÓGICA DE AÇÕES (DELETAR / VER DETALHES) ---
 
@@ -126,33 +143,39 @@ export default function PacientesPage() {
         }
     };
 
-    const handleDeletePatient = async (patientId: string) => {
-        try {
-            await patientsService.delete(patientId);
-            // Atualiza a lista completa para refletir a exclusão
-            setAllPatients((prev) => prev.filter((p) => String(p.id) !== String(patientId)));
-        } catch (e: any) {
-            alert(`Erro ao deletar paciente: ${e?.message || 'Erro desconhecido'}`);
-        }
-        setDeleteDialogOpen(false);
-        setPatientToDelete(null);
-    };
+  const handleDeletePatient = async (patientId: string) => {
+    try {
+      await patientsService.delete(patientId);
+      // Atualiza a lista completa para refletir a exclusão
+      setAllPatients((prev) =>
+        prev.filter((p) => String(p.id) !== String(patientId))
+      );
+    } catch (e: any) {
+      alert(`Erro ao deletar paciente: ${e?.message || "Erro desconhecido"}`);
+    }
+    setDeleteDialogOpen(false);
+    setPatientToDelete(null);
+  };
 
-    const openDeleteDialog = (patientId: string) => {
-        setPatientToDelete(patientId);
-        setDeleteDialogOpen(true);
-    };
+  const openDeleteDialog = (patientId: string) => {
+    setPatientToDelete(patientId);
+    setDeleteDialogOpen(true);
+  };
 
-    return (
-        <Sidebar>
-            <div className="space-y-6 px-2 sm:px-4 md:px-8">
-                {/* Header (Responsividade OK) */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <h1 className="text-xl md:text-2xl font-bold text-foreground">Pacientes</h1>
-                        <p className="text-muted-foreground text-sm md:text-base">Gerencie as informações de seus pacientes</p>
-                    </div>
-                </div>
+  return (
+    <Sidebar>
+      <div className="space-y-6 px-2 sm:px-4 md:px-8">
+        {/* Header (Responsividade OK) */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
+              Pacientes
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base">
+              Gerencie as informações de seus pacientes
+            </p>
+          </div>
+        </div>
 
                 {/* Bloco de Filtros (Responsividade APLICADA) */}
                 {/* Adicionado flex-wrap para permitir que os itens quebrem para a linha de baixo */}
@@ -169,22 +192,26 @@ export default function PacientesPage() {
                         className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm"
                     />
 
-                    {/* Convênio - Ocupa a largura total em telas pequenas, depois se ajusta */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[200px]">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">Convênio</span>
-                        <Select value={convenioFilter} onValueChange={setConvenioFilter}>
-                            <SelectTrigger className="w-full sm:w-40"> {/* w-full para mobile, w-40 para sm+ */}
-                                <SelectValue placeholder="Convênio" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem value="Particular">Particular</SelectItem>
-                                <SelectItem value="SUS">SUS</SelectItem>
-                                <SelectItem value="Unimed">Unimed</SelectItem>
-                                {/* Adicione outros convênios conforme necessário */}
-                            </SelectContent>
-                        </Select>
-                    </div>
+          {/* Convênio - Ocupa a largura total em telas pequenas, depois se ajusta */}
+          <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[200px]">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">
+              Convênio
+            </span>
+            <Select value={convenioFilter} onValueChange={setConvenioFilter}>
+              <SelectTrigger className="w-full sm:w-40">
+                {" "}
+                {/* w-full para mobile, w-40 para sm+ */}
+                <SelectValue placeholder="Convênio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="Particular">Particular</SelectItem>
+                <SelectItem value="SUS">SUS</SelectItem>
+                <SelectItem value="Unimed">Unimed</SelectItem>
+                {/* Adicione outros convênios conforme necessário */}
+              </SelectContent>
+            </Select>
+          </div>
 
                     {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
                     <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
@@ -272,32 +299,40 @@ export default function PacientesPage() {
                                                                 Ver detalhes
                                                             </DropdownMenuItem>
 
-                                                            <DropdownMenuItem asChild>
-                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
-                                                                    <Edit className="w-4 h-4 mr-2" />
-                                                                    Editar
-                                                                </Link>
-                                                            </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/secretary/pacientes/${patient.id}/editar`}
+                                  className="flex items-center w-full"
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Editar
+                                </Link>
+                              </DropdownMenuItem>
 
-                                                            <DropdownMenuItem>
-                                                                <Calendar className="w-4 h-4 mr-2" />
-                                                                Marcar consulta
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                                Excluir
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
-                </div>
+                              <DropdownMenuItem>
+                                <Calendar className="w-4 h-4 mr-2" />
+                                Marcar consulta
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() =>
+                                  openDeleteDialog(String(patient.id))
+                                }
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
 
                 {/* --- SEÇÃO DE CARDS (VISÍVEL APENAS EM TELAS MENORES QUE MD) --- */}
                 {/* Garantir que os cards apareçam em telas menores e se escondam em MD+ */}
