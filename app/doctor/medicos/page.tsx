@@ -50,7 +50,7 @@ export default function PacientesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --- Lógica de Paginação INÍCIO ---
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(pacientes.length / itemsPerPage);
