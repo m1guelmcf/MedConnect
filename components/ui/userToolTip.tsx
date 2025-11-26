@@ -126,7 +126,7 @@ export default function SidebarUserSection({
         className={
           sidebarCollapsed
             ? "w-full bg-white text-black flex justify-center items-center p-2 hover:bg-gray-200"
-            : "w-full bg-white text-black hover:bg-gray-200"
+            : "w-full bg-white text-black hover:bg-gray-200 cursor-pointer"
         }
         onClick={handleLogout}
       >
