@@ -280,28 +280,30 @@ export default function PacientesPage() {
                                                                 <Eye className="w-4 h-4 mr-2" />
                                                                 Ver detalhes
                                                             </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
+                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                                    <Edit className="w-4 h-4 mr-2" />
+                                                                    Editar
+                                                                </Link>
+                                                            </DropdownMenuItem>
 
-                                            <DropdownMenuItem asChild>
-                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
-                                                    <Edit className="w-4 h-4 mr-2" />
-                                                    Editar
-                                                </Link>
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                <Calendar className="w-4 h-4 mr-2" />
-                                                Marcar consulta
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                Excluir
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                                            <DropdownMenuItem>
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                Marcar consulta
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                                Excluir
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </td>
+                                                </tr>
+                                        )))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
 
                 {/* Paginação */}
