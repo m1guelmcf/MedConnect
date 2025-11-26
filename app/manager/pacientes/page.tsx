@@ -3,30 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
@@ -291,107 +271,39 @@ export default function PacientesPage() {
                                                 <td className="p-4">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600 cursor-pointer">Ações</div>
+                                                            <div className="text-black-600 cursor-pointer">
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </div>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
                                                                 <Eye className="w-4 h-4 mr-2" />
                                                                 Ver detalhes
                                                             </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
+                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                                    <Edit className="w-4 h-4 mr-2" />
+                                                                    Editar
+                                                                </Link>
+                                                            </DropdownMenuItem>
 
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href={`/secretary/pacientes/${patient.id}/editar`}
-                                  className="flex items-center w-full"
-                                >
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Editar
-                                </Link>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem>
-                                <Calendar className="w-4 h-4 mr-2" />
-                                Marcar consulta
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-red-600"
-                                onClick={() =>
-                                  openDeleteDialog(String(patient.id))
-                                }
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-
-                {/* --- SEÇÃO DE CARDS (VISÍVEL APENAS EM TELAS MENORES QUE MD) --- */}
-                {/* Garantir que os cards apareçam em telas menores e se escondam em MD+ */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden">
-                    {error ? (
-                        <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
-                    ) : loading ? (
-                        <div className="p-6 text-center text-gray-500 flex items-center justify-center">
-                            <Loader2 className="w-6 h-6 mr-2 animate-spin text-green-600" /> Carregando pacientes...
-                        </div>
-                    ) : filteredPatients.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
-                            {allPatients.length === 0 ? "Nenhum paciente cadastrado" : "Nenhum paciente encontrado com os filtros aplicados"}
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {currentPatients.map((patient) => (
-                                <div key={patient.id} className="bg-gray-50 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center border border-gray-200">
-                                    <div className="flex-grow mb-2 sm:mb-0">
-                                        <div className="font-semibold text-lg text-gray-900 flex items-center">
-                                            {patient.nome}
-                                            {patient.vip && (
-                                                <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">VIP</span>
-                                            )}
-                                        </div>
-                                        <div className="text-sm text-gray-600">Telefone: {patient.telefone}</div>
-                                        <div className="text-sm text-gray-600">Convênio: {patient.convenio}</div>
-                                    </div>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <div className="w-full"><Button variant="outline" className="w-full">Ações</Button></div>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
-                                                <Eye className="w-4 h-4 mr-2" />
-                                                Ver detalhes
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem asChild>
-                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
-                                                    <Edit className="w-4 h-4 mr-2" />
-                                                    Editar
-                                                </Link>
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                <Calendar className="w-4 h-4 mr-2" />
-                                                Marcar consulta
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                Excluir
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                                            <DropdownMenuItem>
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                Marcar consulta
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                                Excluir
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </td>
+                                                </tr>
+                                        )))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
 
                 {/* Paginação */}

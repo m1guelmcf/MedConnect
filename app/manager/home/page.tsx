@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Eye, Calendar, Loader2 } from "lucide-react";
+import { Edit, Trash2, Eye, Calendar, Loader2, MoreVertical } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Imports dos Serviços
@@ -326,7 +326,9 @@ export default function DoctorsPage() {
                                             <td className="px-4 py-3 text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="text-blue-600 cursor-pointer inline-block hover:underline">Ações</div>
+                                                        <div className="text-black-600 cursor-pointer inline-block">
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </div>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>

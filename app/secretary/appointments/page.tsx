@@ -283,33 +283,24 @@ export default function SecretaryAppointments() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(appointment)}
-                    >
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
-                      onClick={() => handleDelete(appointment)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Deletar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p>Nenhuma consulta encontrada.</p>
-          )}
-        </div>
-      </div>
+                                    <div className="flex gap-2 mt-4 pt-4 border-t">
+                                        <Button variant="outline" size="sm" onClick={() => handleEdit(appointment)}>
+                                            <Pencil className="mr-2 h-4 w-4" />
+                                            Editar
+                                        </Button>
+                                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent" onClick={() => handleDelete(appointment)}>
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Cancelar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <p>Nenhuma consulta encontrada.</p>
+                    )}
+                </div>
+            </div>
 
       {/* MODAL DE EDIÇÃO */}
       <Dialog open={editModal} onOpenChange={setEditModal}>
