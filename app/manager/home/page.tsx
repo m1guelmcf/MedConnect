@@ -18,38 +18,38 @@ import { FilterBar } from "@/components/ui/filter-bar";
 import { normalizeSpecialty, getUniqueSpecialties } from "@/lib/normalization";
 
 interface Doctor {
-    id: number;
-    full_name: string;
-    specialty: string;
-    crm: string;
-    phone_mobile: string | null;
-    city: string | null;
-    state: string | null;
-    status?: string;
+  id: number;
+  full_name: string;
+  specialty: string;
+  crm: string;
+  phone_mobile: string | null;
+  city: string | null;
+  state: string | null;
+  status?: string;
 }
 
 interface DoctorDetails {
-    nome: string;
-    crm: string;
-    especialidade: string;
-    contato: {
-        celular?: string;
-        telefone1?: string;
-    };
-    endereco: {
-        cidade?: string;
-        estado?: string;
-    };
-    convenio?: string;
-    vip?: boolean;
-    status?: string;
-    ultimo_atendimento?: string;
-    proximo_atendimento?: string;
-    error?: string;
+  nome: string;
+  crm: string;
+  especialidade: string;
+  contato: {
+    celular?: string;
+    telefone1?: string;
+  };
+  endereco: {
+    cidade?: string;
+    estado?: string;
+  };
+  convenio?: string;
+  vip?: boolean;
+  status?: string;
+  ultimo_atendimento?: string;
+  proximo_atendimento?: string;
+  error?: string;
 }
 
 export default function DoctorsPage() {
-    const router = useRouter();
+  const router = useRouter();
 
     // --- Estados de Dados ---
     const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -95,9 +95,9 @@ export default function DoctorsPage() {
         }
     }, []);
 
-    useEffect(() => {
-        fetchDoctors();
-    }, [fetchDoctors]);
+  useEffect(() => {
+    fetchDoctors();
+  }, [fetchDoctors]);
 
     // 2. Gerar lista única de especialidades (Normalizada)
     const uniqueSpecialties = useMemo(() => {
@@ -157,29 +157,29 @@ export default function DoctorsPage() {
     const goToPrevPage = () => setCurrentPage((prev) => Math.max(1, prev - 1));
     const goToNextPage = () => setCurrentPage((prev) => Math.min(totalPages, prev + 1));
 
-    const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
-        const pages: number[] = [];
-        const maxVisiblePages = 5;
-        const halfRange = Math.floor(maxVisiblePages / 2);
-        let startPage = Math.max(1, currentPage - halfRange);
-        let endPage = Math.min(totalPages, currentPage + halfRange);
+  const getVisiblePageNumbers = (totalPages: number, currentPage: number) => {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    const halfRange = Math.floor(maxVisiblePages / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, currentPage + halfRange);
 
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            if (endPage === totalPages) {
-                startPage = Math.max(1, totalPages - maxVisiblePages + 1);
-            }
-            if (startPage === 1) {
-                endPage = Math.min(totalPages, maxVisiblePages);
-            }
-        }
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      if (endPage === totalPages) {
+        startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+      }
+      if (startPage === 1) {
+        endPage = Math.min(totalPages, maxVisiblePages);
+      }
+    }
 
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    };
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
-    const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
+  const visiblePageNumbers = getVisiblePageNumbers(totalPages, currentPage);
 
     // --- Handlers de Ações (Detalhes e Delete) ---
     const openDetailsDialog = (doctor: Doctor) => {
@@ -219,16 +219,20 @@ export default function DoctorsPage() {
         }
     };
 
-    return (
-        <Sidebar>
-            <div className="space-y-6 px-2 sm:px-4 md:px-6">
-                {/* Cabeçalho */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Médicos Cadastrados</h1>
-                        <p className="text-sm text-gray-500">Gerencie todos os profissionais de saúde.</p>
-                    </div>
-                </div>
+  return (
+    <Sidebar>
+      <div className="space-y-6 px-2 sm:px-4 md:px-6">
+        {/* Cabeçalho */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Médicos Cadastrados
+            </h1>
+            <p className="text-sm text-gray-500">
+              Gerencie todos os profissionais de saúde.
+            </p>
+          </div>
+        </div>
 
                 {/* --- NOVO COMPONENTE DE FILTRO --- */}
                 <FilterBar
@@ -417,40 +421,40 @@ export default function DoctorsPage() {
                     )}
                 </div>
 
-                {/* Paginação */}
-                {totalPages > 1 && (
-                    <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 bg-white rounded-lg border border-gray-200 shadow-md">
-                        <button
-                            onClick={goToPrevPage}
-                            disabled={currentPage === 1}
-                            className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
-                        >
-                            {"< Anterior"}
-                        </button>
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 bg-white rounded-lg border border-gray-200 shadow-md">
+            <button
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+            >
+              {"< Anterior"}
+            </button>
 
-                        {visiblePageNumbers.map((number) => (
-                            <button
-                                key={number}
-                                onClick={() => paginate(number)}
-                                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
-                                    currentPage === number
-                                        ? "bg-green-600 text-white shadow-md border-green-600"
-                                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                }`}
-                            >
-                                {number}
-                            </button>
-                        ))}
+            {visiblePageNumbers.map((number) => (
+              <button
+                key={number}
+                onClick={() => paginate(number)}
+                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
+                  currentPage === number
+                    ? "bg-blue-600 text-white shadow-md border-blue-600"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {number}
+              </button>
+            ))}
 
-                        <button
-                            onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
-                            className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
-                        >
-                            {"Próximo >"}
-                        </button>
-                    </div>
-                )}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+            >
+              {"Próximo >"}
+            </button>
+          </div>
+        )}
 
                 {/* Dialogs (Exclusão e Detalhes) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -469,58 +473,78 @@ export default function DoctorsPage() {
                     </AlertDialogContent>
                 </AlertDialog>
 
-                <AlertDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-                    <AlertDialogContent className="max-w-[95%] sm:max-w-lg">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle className="text-2xl">{doctorDetails?.nome}</AlertDialogTitle>
-                            <AlertDialogDescription className="text-left text-gray-700">
-                                {doctorDetails && (
-                                    <div className="space-y-3 text-left">
-                                        <h3 className="font-semibold mt-2">Informações Principais</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
-                                            <div>
-                                                <strong>CRM:</strong> {doctorDetails.crm}
-                                            </div>
-                                            <div>
-                                                <strong>Especialidade:</strong> {doctorDetails.especialidade}
-                                            </div>
-                                            <div>
-                                                <strong>Celular:</strong> {doctorDetails.contato.celular || "N/A"}
-                                            </div>
-                                            <div>
-                                                <strong>Localização:</strong> {`${doctorDetails.endereco.cidade || "N/A"}/${doctorDetails.endereco.estado || "N/A"}`}
-                                            </div>
-                                        </div>
+        <AlertDialog
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+        >
+          <AlertDialogContent className="max-w-[95%] sm:max-w-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl">
+                {doctorDetails?.nome}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-left text-gray-700">
+                {doctorDetails && (
+                  <div className="space-y-3 text-left">
+                    <h3 className="font-semibold mt-2">
+                      Informações Principais
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                      <div>
+                        <strong>CRM:</strong> {doctorDetails.crm}
+                      </div>
+                      <div>
+                        <strong>Especialidade:</strong>{" "}
+                        {doctorDetails.especialidade}
+                      </div>
+                      <div>
+                        <strong>Celular:</strong>{" "}
+                        {doctorDetails.contato.celular || "N/A"}
+                      </div>
+                      <div>
+                        <strong>Localização:</strong>{" "}
+                        {`${doctorDetails.endereco.cidade || "N/A"}/${
+                          doctorDetails.endereco.estado || "N/A"
+                        }`}
+                      </div>
+                    </div>
 
-                                        <h3 className="font-semibold mt-4">Atendimento e Convênio</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
-                                            <div>
-                                                <strong>Convênio:</strong> {doctorDetails.convenio || "N/A"}
-                                            </div>
-                                            <div>
-                                                <strong>VIP:</strong> {doctorDetails.vip ? "Sim" : "Não"}
-                                            </div>
-                                            <div>
-                                                <strong>Status:</strong> {doctorDetails.status || "N/A"}
-                                            </div>
-                                            <div>
-                                                <strong>Último atendimento:</strong> {doctorDetails.ultimo_atendimento || "N/A"}
-                                            </div>
-                                            <div>
-                                                <strong>Próximo atendimento:</strong> {doctorDetails.proximo_atendimento || "N/A"}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                                {doctorDetails === null && !loading && <div className="text-red-600">Detalhes não disponíveis.</div>}
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Fechar</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </Sidebar>
-    );
+                    <h3 className="font-semibold mt-4">
+                      Atendimento e Convênio
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                      <div>
+                        <strong>Convênio:</strong>{" "}
+                        {doctorDetails.convenio || "N/A"}
+                      </div>
+                      <div>
+                        <strong>VIP:</strong>{" "}
+                        {doctorDetails.vip ? "Sim" : "Não"}
+                      </div>
+                      <div>
+                        <strong>Status:</strong> {doctorDetails.status || "N/A"}
+                      </div>
+                      <div>
+                        <strong>Último atendimento:</strong>{" "}
+                        {doctorDetails.ultimo_atendimento || "N/A"}
+                      </div>
+                      <div>
+                        <strong>Próximo atendimento:</strong>{" "}
+                        {doctorDetails.proximo_atendimento || "N/A"}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {doctorDetails === null && !loading && (
+                  <div className="text-red-600">Detalhes não disponíveis.</div>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Fechar</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </Sidebar>
+  );
 }
