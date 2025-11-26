@@ -8,12 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Plus, User } from "lucide-react";
+import { Clock, Plus, User } from "lucide-react"; // Removi 'Calendar' que não estava sendo usado
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { usersService } from "services/usersApi.mjs";
 import { doctorsService } from "services/doctorsApi.mjs";
 import Sidebar from "@/components/Sidebar";
+import { api } from "services/api.mjs"; // <-- ADICIONEI ESTE IMPORT
 
 export default function ManagerDashboard() {
   // 🔹 Estados para usuários
@@ -24,20 +25,48 @@ export default function ManagerDashboard() {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loadingDoctors, setLoadingDoctors] = useState(true);
 
-  // 🔹 Buscar primeiro usuário
-  useEffect(() => {
-    async function fetchFirstUser() {
-      try {
-        const data = await usersService.list_roles();
-        if (Array.isArray(data) && data.length > 0) {
-          setFirstUser(data[0]);
+    // 🔹 Buscar primeiro usuário (LÓGICA ATUALIZADA)
+    useEffect(() => {
+        async function fetchFirstUser() {
+            setLoadingUser(true); // Garante que o estado de loading inicie como true
+            try {
+                // 1. Busca a lista de usuários com seus cargos (roles)
+                const rolesData = await usersService.list_roles();
+
+                // 2. Verifica se a lista não está vazia
+                if (Array.isArray(rolesData) && rolesData.length > 0) {
+                    const firstUserRole = rolesData[0];
+                    const firstUserId = firstUserRole.user_id;
+
+                    if (!firstUserId) {
+                        throw new Error("O primeiro usuário da lista não possui um ID válido.");
+                    }
+
+                    // 3. Usa o ID para buscar o perfil (com nome e email) do usuário
+                    const profileData = await api.get(
+                        `/rest/v1/profiles?select=full_name,email&id=eq.${firstUserId}`
+                    );
+
+                    // 4. Verifica se o perfil foi encontrado
+                    if (Array.isArray(profileData) && profileData.length > 0) {
+                        const userProfile = profileData[0];
+                        // 5. Combina os dados do cargo e do perfil e atualiza o estado
+                        setFirstUser({
+                            ...firstUserRole,
+                            ...userProfile
+                        });
+                    } else {
+                        // Se não encontrar o perfil, exibe os dados que temos
+                        setFirstUser(firstUserRole);
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar usuário:", error);
+                setFirstUser(null); // Limpa o usuário em caso de erro
+            } finally {
+                setLoadingUser(false);
+            }
         }
-      } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
-      } finally {
-        setLoadingUser(false);
-      }
-    }
 
     fetchFirstUser();
   }, []);
@@ -71,23 +100,9 @@ export default function ManagerDashboard() {
           </p>
         </div>
 
-        {/* Cards principais */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Relatórios gerenciais
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Relatórios disponíveis
-              </p>
-            </CardContent>
-          </Card>
+                {/* Cards principais */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
 
           {/* Card 2 — Gestão de usuários */}
           <Card>

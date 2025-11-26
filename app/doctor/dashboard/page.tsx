@@ -24,6 +24,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
+// --- IMPORTS ADICIONADOS PARA A CORREÇÃO ---
+import { useAuthLayout } from "@/hooks/useAuthLayout";
+import { patientsService } from "@/services/patientsApi.mjs";
+// --- FIM DOS IMPORTS ADICIONADOS ---
+
+import { appointmentsService } from "@/services/appointmentsApi.mjs";
+import { format, parseISO, isAfter, isSameMonth, startOfToday } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
 import { AvailabilityService } from "@/services/availabilityApi.mjs";
 import { exceptionsService } from "@/services/exceptionApi.mjs";
 import { doctorsService } from "@/services/doctorsApi.mjs";
@@ -122,127 +131,120 @@ interface Exception {
 }
 
 export default function PatientDashboard() {
-  const [loggedDoctor, setLoggedDoctor] = useState<Doctor>();
-  const [userData, setUserData] = useState<UserData>();
-  const [availability, setAvailability] = useState<any | null>(null);
-  const [exceptions, setExceptions] = useState<Exception[]>([]);
-  const [schedule, setSchedule] = useState<
-    Record<string, { start: string; end: string }[]>
-  >({});
-  const formatTime = (time?: string | null) =>
-    time?.split(":")?.slice(0, 2).join(":") ?? "";
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [exceptionToDelete, setExceptionToDelete] = useState<string | null>(
-    null
-  );
-  const [error, setError] = useState<string | null>(null);
+    // --- USA O HOOK DE AUTENTICAÇÃO PARA PEGAR O USUÁRIO LOGADO ---
+    const { user } = useAuthLayout({ requiredRole: ['medico'] });
 
-  // Mapa de tradução
-  const weekdaysPT: Record<string, string> = {
-    sunday: "Domingo",
-    monday: "Segunda",
-    tuesday: "Terça",
-    wednesday: "Quarta",
-    thursday: "Quinta",
-    friday: "Sexta",
-    saturday: "Sábado",
-  };
+    const [loggedDoctor, setLoggedDoctor] = useState<Doctor | null>(null);
+    const [userData, setUserData] = useState<UserData>();
+    const [availability, setAvailability] = useState<any | null>(null);
+    const [exceptions, setExceptions] = useState<Exception[]>([]);
+    const [schedule, setSchedule] = useState<Record<string, { start: string; end: string }[]>>({});
+    const formatTime = (time?: string | null) => time?.split(":")?.slice(0, 2).join(":") ?? "";
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [exceptionToDelete, setExceptionToDelete] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const doctorsList: Doctor[] = await doctorsService.list();
-        const doctor = doctorsList[0];
+    // --- ESTADOS PARA OS CARDS ATUALIZADOS ---
+    const [nextAppointment, setNextAppointment] = useState<EnrichedAppointment | null>(null);
+    const [monthlyCount, setMonthlyCount] = useState<number>(0);
 
-        // Salva no estado
-        setLoggedDoctor(doctor);
+    const weekdaysPT: Record<string, string> = { sunday: "Domingo", monday: "Segunda", tuesday: "Terça", wednesday: "Quarta", thursday: "Quinta", friday: "Sexta", saturday: "Sábado" };
 
-        // Busca disponibilidade
-        const availabilityList = await AvailabilityService.list();
+    // ▼▼▼ LÓGICA DE BUSCA CORRIGIDA E ATUALIZADA ▼▼▼
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!user?.id) return; // Aguarda o usuário ser carregado
 
-        // Filtra já com a variável local
-        const filteredAvail = availabilityList.filter(
-          (disp: { doctor_id: string }) => disp.doctor_id === doctor?.id
-        );
-        setAvailability(filteredAvail);
+            try {
+                // Encontra o perfil de médico correspondente ao usuário logado
+                const doctorsList: Doctor[] = await doctorsService.list();
+                const currentDoctor = doctorsList.find(doc => doc.user_id === user.id);
 
-                // Busca exceções
-                const exceptionsList = await exceptionsService.list();
-                const filteredExc = exceptionsList.filter((exc: { doctor_id: string }) => exc.doctor_id === doctor?.id);
-                setExceptions(filteredExc);
+                if (!currentDoctor) {
+                    setError("Perfil de médico não encontrado para este usuário.");
+                    return;
+                }
+                setLoggedDoctor(currentDoctor);
+
+                // Busca todos os dados necessários em paralelo
+                const [appointmentsList, patientsList, availabilityList, exceptionsList] = await Promise.all([
+                    appointmentsService.list(),
+                    patientsService.list(),
+                    AvailabilityService.list(),
+                    exceptionsService.list()
+                ]);
+
+                // Mapeia pacientes por ID para consulta rápida
+                const patientsMap = new Map(patientsList.map((p: any) => [p.id, p.full_name]));
+
+                // Filtra e enriquece as consultas APENAS do médico logado
+                const doctorAppointments = appointmentsList
+                    .filter((apt: any) => apt.doctor_id === currentDoctor.id)
+                    .map((apt: any): EnrichedAppointment => ({
+                        ...apt,
+                        patientName: patientsMap.get(apt.patient_id) || "Paciente Desconhecido",
+                    }));
+
+                // 1. Lógica para "Próxima Consulta"
+                const today = startOfToday();
+                const upcomingAppointments = doctorAppointments
+                    .filter(apt => isAfter(parseISO(apt.scheduled_at), today))
+                    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
+                setNextAppointment(upcomingAppointments[0] || null);
+
+                // 2. Lógica para "Consultas Este Mês" (apenas ativas)
+                const activeStatuses = ['confirmed', 'requested', 'checked_in'];
+                const currentMonthAppointments = doctorAppointments.filter(apt =>
+                    isSameMonth(parseISO(apt.scheduled_at), new Date()) && activeStatuses.includes(apt.status)
+                );
+                setMonthlyCount(currentMonthAppointments.length);
+
+                // Busca e filtra o restante dos dados
+                setAvailability(availabilityList.filter((d: any) => d.doctor_id === currentDoctor.id));
+                setExceptions(exceptionsList.filter((e: any) => e.doctor_id === currentDoctor.id));
+
             } catch (e: any) {
-                alert(`${e?.error} ${e?.message}`);
+                setError(e?.message || "Erro ao buscar dados do dashboard");
+                console.error("Erro no dashboard:", e);
             }
         };
 
-          fetchData();
-      }, []);
+        fetchData();
+    }, [user]); // A busca de dados agora depende do usuário logado
+    // ▲▲▲ FIM DA LÓGICA DE BUSCA ATUALIZADA ▲▲▲
 
-  // Função auxiliar para filtrar o id do doctor correspondente ao user logado
-  function findDoctorById(id: string, doctors: Doctor[]) {
-    return doctors.find((doctor) => doctor.user_id === id);
-  }
-
-  const openDeleteDialog = (exceptionId: string) => {
-    setExceptionToDelete(exceptionId);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteException = async (ExceptionId: string) => {
-    try {
-      alert(ExceptionId);
-      const res = await exceptionsService.delete(ExceptionId);
-
-      let message = "Exceção deletada com sucesso";
-      try {
-        if (res) {
-          throw new Error(
-            `${res.error} ${res.message}` || "A API retornou erro"
-          );
-        } else {
-          console.log(message);
-        }
-      } catch {}
-
-      toast({
-        title: "Sucesso",
-        description: message,
-      });
-
-      setExceptions((prev: Exception[]) =>
-        prev.filter((p) => String(p.id) !== String(ExceptionId))
-      );
-    } catch (e: any) {
-      toast({
-        title: "Erro",
-        description: e?.message || "Não foi possível deletar a exceção",
-      });
+    function findDoctorById(id: string, doctors: Doctor[]) {
+        return doctors.find((doctor) => doctor.user_id === id);
     }
-    setDeleteDialogOpen(false);
-    setExceptionToDelete(null);
-  };
 
-  function formatAvailability(data: Availability[]) {
-    // Agrupar os horários por dia da semana
-    const schedule = data.reduce((acc: any, item) => {
-      const { weekday, start_time, end_time } = item;
+    const openDeleteDialog = (exceptionId: string) => {
+        setExceptionToDelete(exceptionId);
+        setDeleteDialogOpen(true);
+    };
 
-      // Se o dia ainda não existe, cria o array
-      if (!acc[weekday]) {
-        acc[weekday] = [];
-      }
+    const handleDeleteException = async (ExceptionId: string) => {
+        try {
+            const res = await exceptionsService.delete(ExceptionId);
+            if (res && res.error) { throw new Error(res.message || "A API retornou um erro"); }
+            toast({ title: "Sucesso", description: "Exceção deletada com sucesso" });
+            setExceptions((prev: Exception[]) => prev.filter((p) => String(p.id) !== String(ExceptionId)));
+        } catch (e: any) {
+            toast({ title: "Erro", description: e?.message || "Não foi possível deletar a exceção" });
+        }
+        setDeleteDialogOpen(false);
+        setExceptionToDelete(null);
+    };
 
-      // Adiciona o horário do dia
-      acc[weekday].push({
-        start: start_time,
-        end: end_time,
-      });
-
-      return acc;
-    }, {} as Record<string, { start: string; end: string }[]>);
-
-    return schedule;
-  }
+    function formatAvailability(data: Availability[]) {
+        if (!data) return {};
+        const schedule = data.reduce((acc: any, item) => {
+            const { weekday, start_time, end_time } = item;
+            if (!acc[weekday]) acc[weekday] = [];
+            acc[weekday].push({ start: start_time, end: end_time });
+            return acc;
+        }, {} as Record<string, { start: string; end: string }[]>);
+        return schedule;
+    }
 
   useEffect(() => {
     if (availability) {
@@ -261,32 +263,45 @@ export default function PatientDashboard() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Próxima Consulta
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">02 out</div>
-              <p className="text-xs text-muted-foreground">Dr. Silva - 14:30</p>
-            </CardContent>
-          </Card>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* ▼▼▼ CARD "PRÓXIMA CONSULTA" CORRIGIDO PARA MOSTRAR NOME DO PACIENTE ▼▼▼ */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Próxima Consulta</CardTitle>
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            {nextAppointment ? (
+                                <>
+                                    <div className="text-2xl font-bold capitalize">
+                                        {format(parseISO(nextAppointment.scheduled_at), "dd MMM", { locale: ptBR })}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {nextAppointment.patientName} - {format(parseISO(nextAppointment.scheduled_at), "HH:mm")}
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="text-2xl font-bold">Nenhuma</div>
+                                    <p className="text-xs text-muted-foreground">Sem próximas consultas</p>
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+                    {/* ▲▲▲ FIM DO CARD ATUALIZADO ▲▲▲ */}
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Consultas Este Mês
-              </CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4</div>
-              <p className="text-xs text-muted-foreground">4 agendadas</p>
-            </CardContent>
-          </Card>
+                    {/* ▼▼▼ CARD "CONSULTAS ESTE MÊS" CORRIGIDO PARA CONTAGEM CORRETA ▼▼▼ */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Consultas Este Mês</CardTitle>
+                            <Clock className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{monthlyCount}</div>
+                            <p className="text-xs text-muted-foreground">{monthlyCount === 1 ? '1 agendada' : `${monthlyCount} agendadas`}</p>
+                        </CardContent>
+                    </Card>
+                    {/* ▲▲▲ FIM DO CARD ATUALIZADO ▲▲▲ */}
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -300,23 +315,22 @@ export default function PatientDashboard() {
           </Card>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ações Rápidas</CardTitle>
-              <CardDescription>
-                Acesse rapidamente as principais funcionalidades
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Link href="/doctor/medicos/consultas">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
-                  <Calendar className="mr-2 h-4 w-4 text-white" />
-                  Ver Minhas Consultas
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+                {/* O restante do código permanece o mesmo */}
+                <div className="grid md:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ações Rápidas</CardTitle>
+                            <CardDescription>Acesse rapidamente as principais funcionalidades</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Link href="/doctor/medicos/consultas">
+                                <Button className="w-full justify-start">
+                                    <Calendar className="mr-2 h-4 w-4" />
+                                    Ver Minhas Consultas
+                                </Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
 
                     <Card>
                         <CardHeader>
@@ -355,16 +369,15 @@ export default function PatientDashboard() {
                             <CardDescription>Bloqueios e liberações eventuais de agenda</CardDescription>
                         </CardHeader>
 
-            <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
-              {exceptions && exceptions.length > 0 ? (
-                exceptions.map((ex: Exception) => {
-                  // Formata data e hora
-                  const date = new Date(ex.date).toLocaleDateString("pt-BR", {
-                    weekday: "long",
-                    day: "2-digit",
-                    month: "long",
-                    timeZone: "UTC",
-                  });
+                        <CardContent className="space-y-4 grid md:grid-cols-7 gap-2">
+                            {exceptions && exceptions.length > 0 ? (
+                                exceptions.map((ex: Exception) => {
+                                    const date = new Date(ex.date).toLocaleDateString("pt-BR", {
+                                        weekday: "long",
+                                        day: "2-digit",
+                                        month: "long",
+                                        timeZone: "UTC"
+                                    });
 
                   const startTime = formatTime(ex.start_time);
                   const endTime = formatTime(ex.end_time);
@@ -374,7 +387,11 @@ export default function PatientDashboard() {
                                             <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
-                                                    <p className="text-sm text-gray-600">{startTime && endTime ? `${startTime} - ${endTime}` : "Dia todo"}</p>
+                                                    <p className="text-sm text-gray-600">
+                                                        {startTime && endTime
+                                                            ? `${startTime} - ${endTime}`
+                                                            : "Dia todo"}
+                                                    </p>
                                                 </div>
                                                 <div className="text-center mt-2">
                                                     <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-red-600" : "text-green-600"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
