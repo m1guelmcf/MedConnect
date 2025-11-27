@@ -551,7 +551,7 @@ export default function AvailabilityPage() {
                             <Link href="/doctor/dashboard" className="w-full sm:w-auto">
                                 <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
                             </Link>
-                            <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+                            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                                 Salvar Disponibilidade
                             </Button>
                         </div>

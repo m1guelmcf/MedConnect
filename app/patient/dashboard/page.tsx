@@ -80,7 +80,7 @@ export default function PatientDashboard() {
               <Link href="/patient/appointments">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-transparent"
+                  className="w-full justify-start bg-transparent bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   Ver Minhas Consultas
