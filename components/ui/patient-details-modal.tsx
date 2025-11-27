@@ -1,94 +1,145 @@
-'use client'
+"use client";
 
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
+interface Paciente {
+    id: string;
+    nome: string;
+    telefone: string;
+    cidade: string;
+    estado: string;
+    email?: string;
+    birth_date?: string;
+    cpf?: string;
+    blood_type?: string;
+    weight_kg?: number;
+    height_m?: number;
+    street?: string;
+    number?: string;
+    complement?: string;
+    neighborhood?: string;
+    cep?: string;
+    [key: string]: any; // Para permitir outras propriedades se necessário
+}
 
 interface PatientDetailsModalProps {
+  patient: Paciente | null;
   isOpen: boolean;
-  patient: any;
   onClose: () => void;
 }
 
-export function PatientDetailsModal({ patient, isOpen, onClose }: PatientDetailsModalProps) {
+export function PatientDetailsModal({
+  patient,
+  isOpen,
+  onClose,
+}: PatientDetailsModalProps) {
   if (!patient) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-[95%] sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Detalhes do Paciente</DialogTitle>
-          <DialogDescription>Informações detalhadas sobre o paciente.</DialogDescription>
+          <DialogTitle className="text-xl font-bold">Detalhes do Paciente</DialogTitle>
+          <DialogDescription>
+            Informações detalhadas sobre o paciente.
+          </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+
+        <div className="space-y-4 py-2">
+          {/* Grid Principal */}
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="font-semibold">Nome Completo</p>
-              <p>{patient.nome}</p>
+              <p className="font-semibold text-gray-900">Nome Completo</p>
+              <p className="text-gray-700">{patient.nome}</p>
             </div>
+            
+            {/* CORREÇÃO AQUI: Adicionado 'break-all' para quebrar o email */}
             <div>
-              <p className="font-semibold">Email</p>
-              <p>{patient.email}</p>
+              <p className="font-semibold text-gray-900">Email</p>
+              <p className="text-gray-700 break-all">{patient.email || "N/A"}</p>
             </div>
+
             <div>
-              <p className="font-semibold">Telefone</p>
-              <p>{patient.telefone}</p>
+              <p className="font-semibold text-gray-900">Telefone</p>
+              <p className="text-gray-700">{patient.telefone}</p>
             </div>
+
             <div>
-              <p className="font-semibold">Data de Nascimento</p>
-              <p>{patient.birth_date}</p>
+              <p className="font-semibold text-gray-900">Data de Nascimento</p>
+              <p className="text-gray-700">{patient.birth_date || "N/A"}</p>
             </div>
+
             <div>
-              <p className="font-semibold">CPF</p>
-              <p>{patient.cpf}</p>
+              <p className="font-semibold text-gray-900">CPF</p>
+              <p className="text-gray-700">{patient.cpf || "N/A"}</p>
             </div>
+
             <div>
-              <p className="font-semibold">Tipo Sanguíneo</p>
-              <p>{patient.blood_type}</p>
+              <p className="font-semibold text-gray-900">Tipo Sanguíneo</p>
+              <p className="text-gray-700">{patient.blood_type || "N/A"}</p>
             </div>
+
             <div>
-              <p className="font-semibold">Peso (kg)</p>
-              <p>{patient.weight_kg}</p>
+              <p className="font-semibold text-gray-900">Peso (kg)</p>
+              <p className="text-gray-700">{patient.weight_kg || "0"}</p>
             </div>
+
             <div>
-              <p className="font-semibold">Altura (m)</p>
-              <p>{patient.height_m}</p>
+              <p className="font-semibold text-gray-900">Altura (m)</p>
+              <p className="text-gray-700">{patient.height_m || "0"}</p>
             </div>
           </div>
-          <div className="border-t pt-4 mt-4">
-            <h3 className="font-semibold mb-2">Endereço</h3>
-            <div className="grid grid-cols-2 gap-4">
+
+          <hr className="border-gray-200" />
+
+          {/* Seção de Endereço */}
+          <div>
+            <h4 className="font-semibold mb-3 text-gray-900">Endereço</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="font-semibold">Rua</p>
-                <p>{`${patient.street}, ${patient.number}`}</p>
+                <p className="font-semibold text-gray-900">Rua</p>
+                <p className="text-gray-700">
+                  {patient.street && patient.street !== "N/A" 
+                    ? `${patient.street}, ${patient.number || ""}` 
+                    : "N/A"}
+                </p>
               </div>
               <div>
-                <p className="font-semibold">Complemento</p>
-                <p>{patient.complement}</p>
+                <p className="font-semibold text-gray-900">Complemento</p>
+                <p className="text-gray-700">{patient.complement || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold">Bairro</p>
-                <p>{patient.neighborhood}</p>
+                <p className="font-semibold text-gray-900">Bairro</p>
+                <p className="text-gray-700">{patient.neighborhood || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold">Cidade</p>
-                <p>{patient.cidade}</p>
+                <p className="font-semibold text-gray-900">Cidade</p>
+                <p className="text-gray-700">{patient.cidade || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold">Estado</p>
-                <p>{patient.estado}</p>
+                <p className="font-semibold text-gray-900">Estado</p>
+                <p className="text-gray-700">{patient.estado || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold">CEP</p>
-                <p>{patient.cep}</p>
+                <p className="font-semibold text-gray-900">CEP</p>
+                <p className="text-gray-700">{patient.cep || "N/A"}</p>
               </div>
             </div>
           </div>
         </div>
+
         <DialogFooter>
-          <DialogClose asChild>
-            <button type="button" className="px-4 py-2 bg-gray-200 rounded-md">Fechar</button>
-          </DialogClose>
+          <Button variant="secondary" onClick={onClose} className="w-full sm:w-auto">
+            Fechar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
