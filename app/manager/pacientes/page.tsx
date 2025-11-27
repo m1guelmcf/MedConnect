@@ -3,39 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  Calendar,
-  Filter,
-  Loader2,
-  MoreVertical,
-} from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
@@ -43,60 +14,59 @@ import Sidebar from "@/components/Sidebar";
 const PAGE_SIZE = 5;
 
 export default function PacientesPage() {
-  // --- ESTADOS DE DADOS E GERAL ---
-  const [searchTerm, setSearchTerm] = useState("");
-  const [convenioFilter, setConvenioFilter] = useState("all");
-  const [vipFilter, setVipFilter] = useState("all");
+    // --- ESTADOS DE DADOS E GERAL ---
+    const [searchTerm, setSearchTerm] = useState("");
+    const [convenioFilter, setConvenioFilter] = useState("all");
+    const [vipFilter, setVipFilter] = useState("all");
 
-  // Lista completa, carregada da API uma única vez
-  const [allPatients, setAllPatients] = useState<any[]>([]);
-  // Lista após a aplicação dos filtros (base para a paginação)
-  const [filteredPatients, setFilteredPatients] = useState<any[]>([]);
+    // Lista completa, carregada da API uma única vez
+    const [allPatients, setAllPatients] = useState<any[]>([]);
+    // Lista após a aplicação dos filtros (base para a paginação)
+    const [filteredPatients, setFilteredPatients] = useState<any[]>([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  // --- ESTADOS DE PAGINAÇÃO ---
-  const [page, setPage] = useState(1);
+    // --- ESTADOS DE PAGINAÇÃO ---
+    const [page, setPage] = useState(1);
 
-  // CÁLCULO DA PAGINAÇÃO
-  const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
-  // Pacientes a serem exibidos na tabela (aplicando a paginação)
-  const currentPatients = filteredPatients.slice(startIndex, endIndex);
+    // CÁLCULO DA PAGINAÇÃO
+    const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
+    const startIndex = (page - 1) * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    // Pacientes a serem exibidos na tabela (aplicando a paginação)
+    const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
-  // --- ESTADOS DE DIALOGS ---
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [patientDetails, setPatientDetails] = useState<any | null>(null);
+    // --- ESTADOS DE DIALOGS ---
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
+    const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+    const [patientDetails, setPatientDetails] = useState<any | null>(null);
 
-  // --- FUNÇÕES DE LÓGICA ---
+    // --- FUNÇÕES DE LÓGICA ---
 
-  // 1. Função para carregar TODOS os pacientes da API
-  const fetchAllPacientes = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Como o backend retorna um array, chamamos sem paginação
-      const res = await patientsService.list();
+    // 1. Função para carregar TODOS os pacientes da API
+    const fetchAllPacientes = useCallback(
+        async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // Como o backend retorna um array, chamamos sem paginação
+                const res = await patientsService.list();
 
-      const mapped = res.map((p: any) => ({
-        id: String(p.id ?? ""),
-        nome: p.full_name ?? "—",
-        telefone: p.phone_mobile ?? p.phone1 ?? "—",
-        cidade: p.city ?? "—",
-        estado: p.state ?? "—",
-        // Formate as datas se necessário, aqui usamos como string
-        ultimoAtendimento: p.last_visit_at?.split("T")[0] ?? "—",
-        proximoAtendimento: p.next_appointment_at
-          ? p.next_appointment_at.split("T")[0].split("-").reverse().join("-")
-          : "—",
-        vip: Boolean(p.vip ?? false),
-        convenio: p.convenio ?? "Particular", // Define um valor padrão
-        status: p.status ?? undefined,
-      }));
+                const mapped = res.map((p: any) => ({
+                    id: String(p.id ?? ""),
+                    nome: p.full_name ?? "—",
+                    telefone: p.phone_mobile ?? p.phone1 ?? "—",
+                    cidade: p.city ?? "—",
+                    estado: p.state ?? "—",
+                    // Formate as datas se necessário, aqui usamos como string
+                    ultimoAtendimento: p.last_visit_at?.split('T')[0] ?? "—",
+                    proximoAtendimento: p.next_appointment_at?.split('T')[0] ?? "—",
+                    vip: Boolean(p.vip ?? false),
+                    convenio: p.convenio ?? "Particular", // Define um valor padrão
+                    status: p.status ?? undefined,
+                }));
 
       setAllPatients(mapped);
     } catch (e: any) {
@@ -107,31 +77,32 @@ export default function PacientesPage() {
     }
   }, []);
 
-  // 2. Efeito para aplicar filtros e calcular a lista filtrada (chama-se quando allPatients ou filtros mudam)
-  useEffect(() => {
-    const filtered = allPatients.filter((patient) => {
-      // Filtro por termo de busca (Nome ou Telefone)
-      const matchesSearch =
-        patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.telefone?.includes(searchTerm);
+    // 2. Efeito para aplicar filtros e calcular a lista filtrada (chama-se quando allPatients ou filtros mudam)
+    useEffect(() => {
+        const filtered = allPatients.filter((patient) => {
+            // Filtro por termo de busca (Nome ou Telefone)
+            const matchesSearch =
+                patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                patient.telefone?.includes(searchTerm);
 
-      // Filtro por Convênio
-      const matchesConvenio =
-        convenioFilter === "all" || patient.convenio === convenioFilter;
+            // Filtro por Convênio
+            const matchesConvenio =
+                convenioFilter === "all" ||
+                patient.convenio === convenioFilter;
 
-      // Filtro por VIP
-      const matchesVip =
-        vipFilter === "all" ||
-        (vipFilter === "vip" && patient.vip) ||
-        (vipFilter === "regular" && !patient.vip);
+            // Filtro por VIP
+            const matchesVip =
+                vipFilter === "all" ||
+                (vipFilter === "vip" && patient.vip) ||
+                (vipFilter === "regular" && !patient.vip);
 
-      return matchesSearch && matchesConvenio && matchesVip;
-    });
+            return matchesSearch && matchesConvenio && matchesVip;
+        });
 
-    setFilteredPatients(filtered);
-    // Garante que a página atual seja válida após a filtragem
-    setPage(1);
-  }, [allPatients, searchTerm, convenioFilter, vipFilter]);
+        setFilteredPatients(filtered);
+        // Garante que a página atual seja válida após a filtragem
+        setPage(1);
+    }, [allPatients, searchTerm, convenioFilter, vipFilter]);
 
   // 3. Efeito inicial para buscar os pacientes
   useEffect(() => {
@@ -139,18 +110,18 @@ export default function PacientesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- LÓGICA DE AÇÕES (DELETAR / VER DETALHES) ---
+    // --- LÓGICA DE AÇÕES (DELETAR / VER DETALHES) ---
 
-  const openDetailsDialog = async (patientId: string) => {
-    setDetailsDialogOpen(true);
-    setPatientDetails(null);
-    try {
-      const res = await patientsService.getById(patientId);
-      setPatientDetails(Array.isArray(res) ? res[0] : res); // Supondo que retorne um array com um item
-    } catch (e: any) {
-      setPatientDetails({ error: e?.message || "Erro ao buscar detalhes" });
-    }
-  };
+    const openDetailsDialog = async (patientId: string) => {
+        setDetailsDialogOpen(true);
+        setPatientDetails(null);
+        try {
+            const res = await patientsService.getById(patientId);
+            setPatientDetails(Array.isArray(res) ? res[0] : res); // Supondo que retorne um array com um item
+        } catch (e: any) {
+            setPatientDetails({ error: e?.message || "Erro ao buscar detalhes" });
+        }
+    };
 
   const handleDeletePatient = async (patientId: string) => {
     try {
@@ -186,20 +157,20 @@ export default function PacientesPage() {
           </div>
         </div>
 
-        {/* Bloco de Filtros (Responsividade APLICADA) */}
-        {/* Adicionado flex-wrap para permitir que os itens quebrem para a linha de baixo */}
-        <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
-          <Filter className="w-5 h-5 text-gray-400" />
+                {/* Bloco de Filtros (Responsividade APLICADA) */}
+                {/* Adicionado flex-wrap para permitir que os itens quebrem para a linha de baixo */}
+                <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
+                    <Filter className="w-5 h-5 text-gray-400" />
 
-          {/* Busca - Ocupa 100% no mobile, depois cresce */}
-          <input
-            type="text"
-            placeholder="Buscar por nome ou telefone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            // w-full no mobile, depois flex-grow para ocupar o espaço disponível
-            className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm"
-          />
+                    {/* Busca - Ocupa 100% no mobile, depois cresce */}
+                    <input
+                        type="text"
+                        placeholder="Buscar por nome ou telefone..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        // w-full no mobile, depois flex-grow para ocupar o espaço disponível
+                        className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm"
+                    />
 
           {/* Convênio - Ocupa a largura total em telas pequenas, depois se ajusta */}
           <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[200px]">
@@ -222,31 +193,22 @@ export default function PacientesPage() {
             </Select>
           </div>
 
-          {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
-          <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">
-              VIP
-            </span>
-            <Select value={vipFilter} onValueChange={setVipFilter}>
-              <SelectTrigger className="w-full sm:w-32">
-                {" "}
-                {/* w-full para mobile, w-32 para sm+ */}
-                <SelectValue placeholder="VIP" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="vip">VIP</SelectItem>
-                <SelectItem value="regular">Regular</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                    {/* VIP - Ocupa a largura total em telas pequenas, depois se ajusta */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">VIP</span>
+                        <Select value={vipFilter} onValueChange={setVipFilter}>
+                            <SelectTrigger className="w-full sm:w-32"> {/* w-full para mobile, w-32 para sm+ */}
+                                <SelectValue placeholder="VIP" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos</SelectItem>
+                                <SelectItem value="vip">VIP</SelectItem>
+                                <SelectItem value="regular">Regular</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-          {/* Aniversariantes - Ocupa 100% no mobile, e se alinha à direita no md+ */}
-          <Button variant="outline" className="w-full md:w-auto md:ml-auto">
-            <Calendar className="w-4 h-4 mr-2" />
-            Aniversariantes
-          </Button>
-        </div>
+                </div>
 
         {/* --- SEÇÃO DE TABELA (VISÍVEL EM TELAS MAIORES OU IGUAIS A MD) --- */}
         {/* Garantir que a tabela se esconda em telas menores e apareça em MD+ */}

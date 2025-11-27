@@ -8,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import SecretaryLayout from "@/components/secretary-layout";
 import { patientsService } from "@/services/patientsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
@@ -417,103 +416,83 @@ export default function PacientesPage() {
                         Ver detalhes
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/secretary/pacientes/${patient.id}/editar`}
-                          className="flex items-center w-full"
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </Link>
-                      </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                    <Edit className="w-4 h-4 mr-2" />
+                                                    Editar
+                                                </Link>
+                                            </DropdownMenuItem>
 
-                      <DropdownMenuItem>
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Marcar consulta
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => openDeleteDialog(String(patient.id))}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                                            <DropdownMenuItem>
+                                                <Calendar className="w-4 h-4 mr-2" />
+                                                Marcar consulta
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                Excluir
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Paginação */}
-        {totalPages > 1 && !loading && (
-          <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
-            <div className="flex space-x-2 flex-wrap justify-center">
-              {" "}
-              {/* Adicionado flex-wrap e justify-center para botões da paginação */}
-              <Button
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                disabled={page === 1}
-                variant="outline"
-                size="lg"
-              >
-                &lt; Anterior
-              </Button>
-              {Array.from({ length: totalPages }, (_, index) => index + 1)
-                .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
-                .map((pageNumber) => (
-                  <Button
-                    key={pageNumber}
-                    onClick={() => setPage(pageNumber)}
-                    variant={pageNumber === page ? "default" : "outline"}
-                    size="lg"
-                    className={
-                      pageNumber === page
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "text-gray-700"
-                    }
-                  >
-                    {pageNumber}
-                  </Button>
-                ))}
-              <Button
-                onClick={() =>
-                  setPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={page === totalPages}
-                variant="outline"
-                size="lg"
-              >
-                Próximo &gt;
-              </Button>
-            </div>
-          </div>
-        )}
+                {/* Paginação */}
+                {totalPages > 1 && !loading && (
+                    <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
+                        <div className="flex space-x-2 flex-wrap justify-center"> {/* Adicionado flex-wrap e justify-center para botões da paginação */}
+                            <Button
+                                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                                disabled={page === 1}
+                                variant="outline"
+                                size="lg"
+                            >
+                                &lt; Anterior
+                            </Button>
 
-        {/* AlertDialogs (Permanecem os mesmos) */}
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem certeza que deseja excluir este paciente? Esta ação não pode
-                ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() =>
-                  patientToDelete && handleDeletePatient(patientToDelete)
-                }
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                            {Array.from({ length: totalPages }, (_, index) => index + 1)
+                                .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
+                                .map((pageNumber) => (
+                                    <Button
+                                        key={pageNumber}
+                                        onClick={() => setPage(pageNumber)}
+                                        variant={pageNumber === page ? "default" : "outline"}
+                                        size="lg"
+                                        className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
+                                    >
+                                        {pageNumber}
+                                    </Button>
+                                ))}
+
+                            <Button
+                                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                                disabled={page === totalPages}
+                                variant="outline"
+                                size="lg"
+                            >
+                                Próximo &gt;
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* AlertDialogs (Permanecem os mesmos) */}
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => patientToDelete && handleDeletePatient(patientToDelete)} className="bg-red-600 hover:bg-red-700">
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
 
         <AlertDialog
           open={detailsDialogOpen}

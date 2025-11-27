@@ -2,12 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Eye, Edit, Calendar, Trash2, Loader2, MoreVertical } from "lucide-react";
 import { api } from "@/services/api.mjs";
 import { PatientDetailsModal } from "@/components/ui/patient-details-modal";
@@ -200,210 +195,181 @@ export default function PacientesPage() {
           </div>
         </div>
 
-        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-md">
-          {/* Tabela para Telas Médias e Grandes */}
-          <div className="overflow-x-auto hidden md:block">
-            {" "}
-            {/* Esconde em telas pequenas */}
-            <table className="min-w-[600px] w-full">
-              <thead className="bg-muted border-b border-border">
-                <tr>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground">
-                    Nome
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground">
-                    Telefone
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden lg:table-cell">
-                    Cidade
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden lg:table-cell">
-                    Estado
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden xl:table-cell">
-                    Último atendimento
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden xl:table-cell">
-                    Próximo atendimento
-                  </th>
-                  <th className="text-left p-3 sm:p-4 font-medium text-foreground">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="p-6 text-muted-foreground text-center"
-                    >
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
-                      Carregando pacientes...
-                    </td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="p-6 text-red-600 text-center"
-                    >{`Erro: ${error}`}</td>
-                  </tr>
-                ) : pacientes.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="p-8 text-center text-muted-foreground"
-                    >
-                      Nenhum paciente encontrado
-                    </td>
-                  </tr>
-                ) : (
-                  currentItems.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="border-b border-border hover:bg-accent/40 transition-colors"
-                    >
-                      <td className="p-3 sm:p-4">{p.nome}</td>
-                      <td className="p-3 sm:p-4 text-muted-foreground">
-                        {p.telefone}
-                      </td>
-                      <td className="p-3 sm:p-4 text-muted-foreground hidden lg:table-cell">
-                        {p.cidade}
-                      </td>
-                      <td className="p-3 sm:p-4 text-muted-foreground hidden lg:table-cell">
-                        {p.estado}
-                      </td>
-                      <td className="p-3 sm:p-4 text-muted-foreground hidden xl:table-cell">
-                        {p.ultimoAtendimento}
-                      </td>
-                      <td className="p-3 sm:p-4 text-muted-foreground hidden xl:table-cell">
-                        {p.proximoAtendimento}
-                      </td>
-                      <td className="p-3 sm:p-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Abrir menu</span>
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenModal(p)}
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              Ver detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/doctor/medicos/${p.id}/laudos`}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Laudos
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const newPacientes = pacientes.filter(
-                                  (pac) => pac.id !== p.id
-                                );
-                                setPacientes(newPacientes);
-                                alert(`Paciente ID: ${p.id} excluído`);
-                              }}
-                              className="text-red-600 focus:bg-red-50 focus:text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                <div className="bg-card rounded-lg border border-border overflow-hidden shadow-md">
+                    {/* Tabela para Telas Médias e Grandes */}
+                    <div className="overflow-x-auto hidden md:block"> {/* Esconde em telas pequenas */}
+                        <table className="min-w-[600px] w-full">
+                            <thead className="bg-muted border-b border-border">
+                                <tr>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground">Nome</th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground">
+                                        Telefone
+                                    </th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden lg:table-cell">
+                                        Cidade
+                                    </th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden lg:table-cell">
+                                        Estado
+                                    </th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden xl:table-cell">
+                                        Último atendimento
+                                    </th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground hidden xl:table-cell">
+                                        Próximo atendimento
+                                    </th>
+                                    <th className="text-left p-3 sm:p-4 font-medium text-foreground">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={7} className="p-6 text-muted-foreground text-center">
+                                            <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+                                            Carregando pacientes...
+                                        </td>
+                                    </tr>
+                                ) : error ? (
+                                    <tr>
+                                        <td colSpan={7} className="p-6 text-red-600 text-center">{`Erro: ${error}`}</td>
+                                    </tr>
+                                ) : pacientes.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                            Nenhum paciente encontrado
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentItems.map((p) => (
+                                        <tr
+                                            key={p.id}
+                                            className="border-b border-border hover:bg-accent/40 transition-colors"
+                                        >
+                                            <td className="p-3 sm:p-4">{p.nome}</td>
+                                            <td className="p-3 sm:p-4 text-muted-foreground">
+                                                {p.telefone}
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-muted-foreground hidden lg:table-cell">
+                                                {p.cidade}
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-muted-foreground hidden lg:table-cell">
+                                                {p.estado}
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-muted-foreground hidden xl:table-cell">
+                                                {p.ultimoAtendimento}
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-muted-foreground hidden xl:table-cell">
+                                                {p.proximoAtendimento}
+                                            </td>
+                                            <td className="p-3 sm:p-4">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Abrir menu</span>
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => handleOpenModal(p)}>
+                                                            <Eye className="w-4 h-4 mr-2" />
+                                                            Ver detalhes
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
+                                                            <Link href={`/doctor/medicos/${p.id}/laudos`}>
+                                                                <Edit className="w-4 h-4 mr-2" />
+                                                                Laudos
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        {/* <DropdownMenuItem onClick={() => alert(`Agenda para paciente ID: ${p.id}`)}>
+                                                            <Calendar className="w-4 h-4 mr-2" />
+                                                            Ver agenda
+                                                        </DropdownMenuItem> */}
+                                                        {/* <DropdownMenuItem
+                                                            onClick={() => {
+                                                                const newPacientes = pacientes.filter((pac) => pac.id !== p.id);
+                                                                setPacientes(newPacientes);
+                                                                alert(`Paciente ID: ${p.id} excluído`);
+                                                            }}
+                                                            className="text-red-600 focus:bg-red-50 focus:text-red-600"
+                                                        >
+                                                            <Trash2 className="w-4 h-4 mr-2" />
+                                                            Excluir
+                                                        </DropdownMenuItem> */}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-          {/* Layout em Cards/Lista para Telas Pequenas */}
-          <div className="md:hidden divide-y divide-border">
-            {" "}
-            {/* Visível apenas em telas pequenas */}
-            {loading ? (
-              <div className="p-6 text-muted-foreground text-center">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
-                Carregando pacientes...
-              </div>
-            ) : error ? (
-              <div className="p-6 text-red-600 text-center">{`Erro: ${error}`}</div>
-            ) : pacientes.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                Nenhum paciente encontrado
-              </div>
-            ) : (
-              currentItems.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between p-4 hover:bg-accent/40 transition-colors"
-                >
-                  <div className="flex-1 min-w-0 pr-4">
-                    {" "}
-                    {/* Adicionado padding à direita */}
-                    <div className="text-base font-semibold text-foreground break-words">
-                      {" "}
-                      {/* Aumentado a fonte e break-words para evitar corte do nome */}
-                      {p.nome || "—"}
+                    {/* Layout em Cards/Lista para Telas Pequenas */}
+                    <div className="md:hidden divide-y divide-border"> {/* Visível apenas em telas pequenas */}
+                        {loading ? (
+                            <div className="p-6 text-muted-foreground text-center">
+                                <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+                                Carregando pacientes...
+                            </div>
+                        ) : error ? (
+                            <div className="p-6 text-red-600 text-center">{`Erro: ${error}`}</div>
+                        ) : pacientes.length === 0 ? (
+                            <div className="p-8 text-center text-muted-foreground">
+                                Nenhum paciente encontrado
+                            </div>
+                        ) : (
+                            currentItems.map((p) => (
+                                <div key={p.id} className="flex items-center justify-between p-4 hover:bg-accent/40 transition-colors">
+                                    <div className="flex-1 min-w-0 pr-4"> {/* Adicionado padding à direita */}
+                                        <div className="text-base font-semibold text-foreground break-words"> {/* Aumentado a fonte e break-words para evitar corte do nome */}
+                                            {p.nome || "—"}
+                                        </div>
+                                        {/* Removido o 'truncate' e adicionado 'break-words' no telefone */}
+                                        <div className="text-sm text-muted-foreground break-words">
+                                            Telefone: **{p.telefone || "N/A"}**
+                                        </div>
+                                    </div>
+                                    <div className="ml-4 flex-shrink-0">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline" size="icon">
+                                                    <Eye className="w-4 h-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => handleOpenModal(p)}>
+                                                    <Eye className="w-4 h-4 mr-2" />
+                                                    Ver detalhes
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/doctor/pacientes/${p.id}/laudos`}>
+                                                        <Edit className="w-4 h-4 mr-2" />
+                                                        Laudos
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => alert(`Agenda para paciente ID: ${p.id}`)}>
+                                                    <Calendar className="w-4 h-4 mr-2" />
+                                                    Ver agenda
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => {
+                                                        const newPacientes = pacientes.filter((pac) => pac.id !== p.id);
+                                                        setPacientes(newPacientes);
+                                                        alert(`Paciente ID: ${p.id} excluído`);
+                                                    }}
+                                                    className="text-red-600 focus:bg-red-50 focus:text-red-600"
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    Excluir
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
-                    {/* Removido o 'truncate' e adicionado 'break-words' no telefone */}
-                    <div className="text-sm text-muted-foreground break-words">
-                      Telefone: **{p.telefone || "N/A"}**
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-shrink-0">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleOpenModal(p)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Ver detalhes
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/doctor/pacientes/${p.id}/laudos`}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Laudos
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            alert(`Agenda para paciente ID: ${p.id}`)
-                          }
-                        >
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Ver agenda
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            const newPacientes = pacientes.filter(
-                              (pac) => pac.id !== p.id
-                            );
-                            setPacientes(newPacientes);
-                            alert(`Paciente ID: ${p.id} excluído`);
-                          }}
-                          className="text-red-600 focus:bg-red-50 focus:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+
 
           {/* Paginação */}
           {totalPages > 1 && (
@@ -445,11 +411,11 @@ export default function PacientesPage() {
         </div>
       </div>
 
-      <PatientDetailsModal
-        patient={selectedPatient}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
-    </Sidebar>
-  );
+            <PatientDetailsModal
+                patient={selectedPatient}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
+        </Sidebar>
+    );
 }

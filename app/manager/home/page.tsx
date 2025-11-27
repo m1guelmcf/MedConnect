@@ -3,14 +3,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Eye, Calendar, Loader2, MoreVertical } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
-// Imports dos Serviços
-import { doctorsService } from "@/services/doctorsApi.mjs";
+import { doctorsService } from "services/doctorsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
 // --- NOVOS IMPORTS (Certifique-se que criou os arquivos no passo anterior) ---
@@ -326,9 +325,10 @@ export default function DoctorsPage() {
                                             <td className="px-4 py-3 text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="text-black-600 cursor-pointer inline-block">
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Abrir menu</span>
                                                             <MoreVertical className="h-4 w-4" />
-                                                        </div>
+                                                        </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
