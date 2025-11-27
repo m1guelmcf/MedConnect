@@ -395,18 +395,22 @@ export default function ScheduleForm() {
                       <SelectValue placeholder="Selecione o médico" />
                     </SelectTrigger>
                     <SelectContent>
-                      {loadingDoctors ? (
-                        <SelectItem value="loading" disabled>
-                          Carregando...
-                        </SelectItem>
-                      ) : (
-                        doctors.map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            {d.full_name} — {d.specialty}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
+  {loadingDoctors ? (
+    <SelectItem value="loading" disabled>
+      Carregando...
+    </SelectItem>
+  ) : (
+    doctors
+      .slice() // evita mutar o state original
+      .sort((a, b) => a.full_name.localeCompare(b.full_name, "pt-BR"))
+      .map((d) => (
+        <SelectItem key={d.id} value={d.id}>
+          {d.full_name} — {d.specialty}
+        </SelectItem>
+      ))
+  )}
+</SelectContent>
+
                   </Select>
                 </div>
               </CardContent>
