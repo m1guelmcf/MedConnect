@@ -1,22 +1,43 @@
-"use client"
-import { useState, useEffect, useCallback, useRef } from "react"
-import type React from "react"
+"use client";
 
-import { usersService } from "@/services/usersApi.mjs"
-import { patientsService } from "@/services/patientsApi.mjs"
-import { doctorsService } from "@/services/doctorsApi.mjs"
-import { appointmentsService } from "@/services/appointmentsApi.mjs"
-import { AvailabilityService } from "@/services/availabilityApi.mjs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Calendar as CalendarShadcn } from "@/components/ui/calendar"
-import { format, addDays } from "date-fns"
-import { User, StickyNote } from "lucide-react"
-import { smsService } from "@/services/Sms.mjs"
-import { toast } from "@/hooks/use-toast"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { usersService } from "@/services/usersApi.mjs";
+import { patientsService } from "@/services/patientsApi.mjs";
+import { doctorsService } from "@/services/doctorsApi.mjs";
+import { appointmentsService } from "@/services/appointmentsApi.mjs";
+import { AvailabilityService } from "@/services/availabilityApi.mjs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
+import { format, addDays } from "date-fns";
+import { User, StickyNote, Check, ChevronsUpDown } from "lucide-react";
+import { smsService } from "@/services/Sms.mjs";
+import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+// Componentes do Combobox (Barra de Pesquisa)
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function ScheduleForm() {
   // Estado do usuário e role
@@ -24,16 +45,20 @@ export default function ScheduleForm() {
   const [userId, setUserId] = useState<string | null>(null)
 
   // Listas e seleções
-  const [patients, setPatients] = useState<any[]>([])
-  const [selectedPatient, setSelectedPatient] = useState("")
-  const [doctors, setDoctors] = useState<any[]>([])
-  const [selectedDoctor, setSelectedDoctor] = useState("")
-  const [selectedDate, setSelectedDate] = useState("")
-  const [selectedTime, setSelectedTime] = useState("")
-  const [notes, setNotes] = useState("")
-  const [availableTimes, setAvailableTimes] = useState<string[]>([])
-  const [loadingDoctors, setLoadingDoctors] = useState(true)
-  const [loadingSlots, setLoadingSlots] = useState(false)
+  const [patients, setPatients] = useState<any[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState("");
+  const [openPatientCombobox, setOpenPatientCombobox] = useState(false);
+
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [openDoctorCombobox, setOpenDoctorCombobox] = useState(false); // Novo estado para médico
+
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [notes, setNotes] = useState("");
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   // Outras configs
   const [tipoConsulta] = useState("presencial")
@@ -100,7 +125,10 @@ export default function ScheduleForm() {
     }
   }, [])
 
-  const computeAvailabilityCountsPreview = async (doctorId: string, dispList: any[]) => {
+  const computeAvailabilityCountsPreview = async (
+    doctorId: string,
+    dispList: any[]
+  ) => {
     try {
       const today = new Date()
       const start = format(today, "yyyy-MM-dd")
@@ -225,18 +253,18 @@ export default function ScheduleForm() {
         appointment_type: tipoConsulta,
       }
 
-      await appointmentsService.create(body)
+      await appointmentsService.create(body);
 
-      const dateFormatted = selectedDate.split("-").reverse().join("/")
+      const dateFormatted = selectedDate.split("-").reverse().join("/");
 
       toast({
         title: "Consulta agendada!",
         description: `Consulta marcada para ${dateFormatted} às ${selectedTime} com o(a) médico(a) ${
           doctors.find((d) => d.id === selectedDoctor)?.full_name || ""
         }.`,
-      })
+      });
 
-      let phoneNumber = "+5511999999999"
+      let phoneNumber = "+5511999999999";
 
       try {
         if (isSecretaryLike) {
@@ -274,24 +302,25 @@ export default function ScheduleForm() {
         })
 
         if (smsRes?.success) {
-          console.log("✅ SMS enviado com sucesso:", smsRes.message_sid)
+          console.log("✅ SMS enviado com sucesso:", smsRes.message_sid);
         } else {
-          console.warn("⚠️ Falha no envio do SMS:", smsRes)
+          console.warn("⚠️ Falha no envio do SMS:", smsRes);
         }
       } catch (smsErr) {
-        console.error("❌ Erro ao enviar SMS:", smsErr)
+        console.error("❌ Erro ao enviar SMS:", smsErr);
       }
 
-      setSelectedDoctor("")
-      setSelectedDate("")
-      setSelectedTime("")
-      setNotes("")
-      setSelectedPatient("")
+      // 🧹 limpa os campos
+      setSelectedDoctor("");
+      setSelectedDate("");
+      setSelectedTime("");
+      setNotes("");
+      setSelectedPatient("");
     } catch (err) {
-      console.error("❌ Erro ao agendar consulta:", err)
-      toast({ title: "Erro", description: "Falha ao agendar consulta." })
+      console.error("❌ Erro ao agendar consulta:", err);
+      toast({ title: "Erro", description: "Falha ao agendar consulta." });
     }
-  }
+  };
 
   // 🔹 Tooltip no calendário
   useEffect(() => {
@@ -392,7 +421,11 @@ export default function ScheduleForm() {
                   <CalendarShadcn
                     mode="single"
                     disabled={!selectedDoctor}
-                    selected={selectedDate ? new Date(selectedDate + "T12:00:00") : undefined}
+                    selected={
+                      selectedDate
+                        ? new Date(selectedDate + "T12:00:00")
+                        : undefined
+                    }
                     onSelect={(date) => {
                       if (!date) return
                       const formatted = format(new Date(date.getTime() + 12 * 60 * 60 * 1000), "yyyy-MM-dd")

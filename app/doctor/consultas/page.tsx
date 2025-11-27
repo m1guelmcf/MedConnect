@@ -56,7 +56,7 @@ export default function DoctorAppointmentsPage() {
       const patientsMap = new Map<string, { name: string; phone: string }>(
         patientsList.map((p: any) => [p.id, { name: p.full_name, phone: p.phone_mobile }])
       );
-      
+
       const enrichedAppointments = appointmentsList.map((apt: any) => ({
         id: apt.id,
         patientName: patientsMap.get(apt.patient_id)?.name || "Paciente Desconhecido",
@@ -85,10 +85,10 @@ export default function DoctorAppointmentsPage() {
     const appointmentsToDisplay = selectedDate
       ? allAppointments.filter(app => app.scheduled_at && app.scheduled_at.startsWith(format(selectedDate, "yyyy-MM-dd")))
       : allAppointments.filter(app => {
-          if (!app.scheduled_at) return false;
-          const dateObj = parseISO(app.scheduled_at);
-          return isValid(dateObj) && isFuture(dateObj);
-        });
+        if (!app.scheduled_at) return false;
+        const dateObj = parseISO(app.scheduled_at);
+        return isValid(dateObj) && isFuture(dateObj);
+      });
 
     return appointmentsToDisplay.reduce((acc, appointment) => {
       const dateKey = format(parseISO(appointment.scheduled_at), "yyyy-MM-dd");
@@ -162,7 +162,7 @@ export default function DoctorAppointmentsPage() {
             <Card>
               <CardHeader><CardTitle className="flex items-center"><CalendarIcon className="mr-2 h-5 w-5" />Filtrar por Data</CardTitle><CardDescription>Selecione um dia para ver os detalhes.</CardDescription></CardHeader>
               <CardContent className="flex justify-center p-2">
-                <CalendarShadcn mode="single" selected={selectedDate} onSelect={setSelectedDate} modifiers={{ booked: bookedDays }} modifiersClassNames={{ booked: "bg-primary/20" }} className="rounded-md border p-2" locale={ptBR}/>
+                <CalendarShadcn mode="single" selected={selectedDate} onSelect={setSelectedDate} modifiers={{ booked: bookedDays }} modifiersClassNames={{ booked: "bg-primary/20" }} className="rounded-md border p-2" locale={ptBR} />
               </CardContent>
             </Card>
           </div>
@@ -197,7 +197,7 @@ export default function DoctorAppointmentsPage() {
                                 {format(scheduledAtDate, "HH:mm")}
                               </div>
                             </div>
-                            
+
                             {/* Coluna 2: Status e Telefone */}
                             <div className="col-span-1 flex flex-col items-center gap-2">
                                <Badge variant="outline" className={getStatusVariant(appointment.status)}>{statusPT[appointment.status].replace('_', ' ')}</Badge>

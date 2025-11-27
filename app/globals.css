@@ -1,8 +1,6 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-
+@import "tailwindcss";
+@import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
-
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -75,33 +73,33 @@
 }
 
 .high-contrast {
-    --background: oklch(0 0 0);
-    --foreground: oklch(1 0.5 100);
-    --card: oklch(0 0 0);
-    --card-foreground: oklch(1 0.5 100);
-    --popover: oklch(0 0 0);
-    --popover-foreground: oklch(1 0.5 100);
-    --primary: oklch(1 0.5 100);
-    --primary-foreground: oklch(0 0 0);
-    --secondary: oklch(0 0 0);
-    --secondary-foreground: oklch(1 0.5 100);
-    --muted: oklch(0 0 0);
-    --muted-foreground: oklch(1 0.5 100);
-    --accent: oklch(0 0 0);
-    --accent-foreground: oklch(1 0.5 100);
-    --destructive: oklch(0.5 0.3 30);
-    --destructive-foreground: oklch(0 0 0);
-    --border: oklch(1 0.5 100);
-    --input: oklch(0 0 0);
-    --ring: oklch(1 0.5 100);
-    --sidebar: oklch(0 0 0);
-    --sidebar-foreground: oklch(1 0.5 100);
-    --sidebar-primary: oklch(1 0.5 100);
-    --sidebar-primary-foreground: oklch(0 0 0);
-    --sidebar-accent: oklch(0 0 0);
-    --sidebar-accent-foreground: oklch(1 0.5 100);
-    --sidebar-border: oklch(1 0.5 100);
-    --sidebar-ring: oklch(1 0.5 100);
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0.5 100);
+  --card: oklch(0 0 0);
+  --card-foreground: oklch(1 0.5 100);
+  --popover: oklch(0 0 0);
+  --popover-foreground: oklch(1 0.5 100);
+  --primary: oklch(1 0.5 100);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0 0 0);
+  --secondary-foreground: oklch(1 0.5 100);
+  --muted: oklch(0 0 0);
+  --muted-foreground: oklch(1 0.5 100);
+  --accent: oklch(0 0 0);
+  --accent-foreground: oklch(1 0.5 100);
+  --destructive: oklch(0.5 0.3 30);
+  --destructive-foreground: oklch(0 0 0);
+  --border: oklch(1 0.5 100);
+  --input: oklch(0 0 0);
+  --ring: oklch(1 0.5 100);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(1 0.5 100);
+  --sidebar-primary: oklch(1 0.5 100);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(0 0 0);
+  --sidebar-accent-foreground: oklch(1 0.5 100);
+  --sidebar-border: oklch(1 0.5 100);
+  --sidebar-ring: oklch(1 0.5 100);
 }
 
 @theme inline {

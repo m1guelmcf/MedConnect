@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Eye, Edit, Calendar, Trash2, Loader2 } from "lucide-react";
+import { Eye, Edit, Calendar, Trash2, Loader2, MoreVertical } from "lucide-react";
 import { api } from "@/services/api.mjs";
 import { PatientDetailsModal } from "@/components/ui/patient-details-modal";
 import {
@@ -50,7 +50,7 @@ export default function PacientesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --- Lógica de Paginação INÍCIO ---
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(pacientes.length / itemsPerPage);
@@ -197,14 +197,6 @@ export default function PacientesPage() {
                 <SelectItem value="20">20 por página</SelectItem>
               </SelectContent>
             </Select>
-            <Link href="/doctor/pacientes/novo" className="w-full sm:w-auto">
-              <Button
-                variant="default"
-                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
-              >
-                Novo Paciente
-              </Button>
-            </Link>
           </div>
         </div>
 
@@ -291,9 +283,10 @@ export default function PacientesPage() {
                       <td className="p-3 sm:p-4">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="text-primary hover:underline text-sm sm:text-base">
-                              Ações
-                            </button>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Abrir menu</span>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
@@ -303,18 +296,10 @@ export default function PacientesPage() {
                               Ver detalhes
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/doctor/pacientes/${p.id}/laudos`}>
+                              <Link href={`/doctor/medicos/${p.id}/laudos`}>
                                 <Edit className="w-4 h-4 mr-2" />
                                 Laudos
                               </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                alert(`Agenda para paciente ID: ${p.id}`)
-                              }
-                            >
-                              <Calendar className="w-4 h-4 mr-2" />
-                              Ver agenda
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
