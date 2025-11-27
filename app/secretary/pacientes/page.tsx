@@ -460,7 +460,7 @@ export default function PacientesPage() {
                                         onClick={() => setPage(pageNumber)}
                                         variant={pageNumber === page ? "default" : "outline"}
                                         size="lg"
-                                        className={pageNumber === page ? "bg-green-600 hover:bg-green-700 text-white" : "text-gray-700"}
+                                        className={pageNumber === page ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700"}
                                     >
                                         {pageNumber}
                                     </Button>
