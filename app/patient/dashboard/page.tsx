@@ -1,8 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock, User, Plus } from "lucide-react"
-import Link from "next/link"
-import Sidebar from "@/components/Sidebar"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, User, Plus } from "lucide-react";
+import Link from "next/link";
+import Sidebar from "@/components/Sidebar";
 
 export default function PatientDashboard() {
   return (
@@ -10,13 +16,17 @@ export default function PatientDashboard() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Bem-vindo ao seu portal de consultas médicas</p>
+          <p className="text-gray-600">
+            Bem-vindo ao seu portal de consultas médicas
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Próxima Consulta</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Próxima Consulta
+              </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -27,12 +37,16 @@ export default function PatientDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Consultas Este Mês</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Consultas Este Mês
+              </CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">2 realizadas, 1 agendada</p>
+              <p className="text-xs text-muted-foreground">
+                2 realizadas, 1 agendada
+              </p>
             </CardContent>
           </Card>
 
@@ -52,23 +66,31 @@ export default function PatientDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Ações Rápidas</CardTitle>
-              <CardDescription>Acesse rapidamente as principais funcionalidades</CardDescription>
+              <CardDescription>
+                Acesse rapidamente as principais funcionalidades
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Link href="/patient/schedule">
-                <Button className="w-full justify-start">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700">
+                  <User className="mr-2 h-4 w-4 text-white" />
                   Agendar Nova Consulta
                 </Button>
               </Link>
               <Link href="/patient/appointments">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                >
                   <Calendar className="mr-2 h-4 w-4" />
                   Ver Minhas Consultas
                 </Button>
               </Link>
               <Link href="/patient/profile">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                >
                   <User className="mr-2 h-4 w-4" />
                   Atualizar Dados
                 </Button>
@@ -109,5 +131,5 @@ export default function PatientDashboard() {
         </div>
       </div>
     </Sidebar>
-  )
+  );
 }
