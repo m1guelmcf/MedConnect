@@ -138,7 +138,7 @@ export default function LoginPage() {
                 Não tem uma conta de paciente?{" "}
               </span>
               <Link href="/patient/register">
-                <span className="font-semibold text-primary hover:underline cursor-pointer">
+                <span className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
                   Crie uma agora
                 </span>
               </Link>
@@ -232,18 +232,21 @@ export default function LoginPage() {
 
               {/* Botões */}
               <div className="flex gap-3 pt-2">
+                {/* Botão Cancelar – Azul contornado */}
                 <Button
                   variant="outline"
                   onClick={closeModal}
                   disabled={isLoading}
-                  className="flex-1"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Cancelar
                 </Button>
+
+                {/* Botão Resetar Senha – Azul sólido */}
                 <Button
                   onClick={handleResetPassword}
                   disabled={isLoading}
-                  className="flex-1"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isLoading ? "Enviando..." : "Resetar Senha"}
                 </Button>

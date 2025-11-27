@@ -5,13 +5,10 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import Cookies from "js-cookie"; // Mantido apenas para a limpeza de segurança no logout
+import Cookies from "js-cookie";
 import { api } from "@/services/api.mjs";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -20,18 +17,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import {
-  Search,
-  Bell,
-  Calendar,
-  User,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Home,
   CalendarCheck2,
   ClipboardPlus,
-  SquareUserRound,
   CalendarClock,
   Users,
   SquareUser,
@@ -39,6 +32,7 @@ import {
   Stethoscope,
   ClipboardMinus,
 } from "lucide-react";
+
 import SidebarUserSection from "@/components/ui/userToolTip";
 
 interface UserData {
@@ -83,7 +77,6 @@ export default function Sidebar({ children }: SidebarProps) {
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("user_info");
-    // --- ALTERAÇÃO 1: Buscando o token no localStorage ---
     const token = localStorage.getItem("token");
 
     if (userInfoString && token) {
@@ -113,7 +106,6 @@ export default function Sidebar({ children }: SidebarProps) {
       });
       setRole(userInfo.user_metadata?.role);
     } else {
-      // O redirecionamento para /login já estava correto. Ótimo!
       router.push("/login");
     }
   }, [router]);
@@ -133,21 +125,17 @@ export default function Sidebar({ children }: SidebarProps) {
 
   const handleLogout = () => setShowLogoutDialog(true);
 
-  // --- ALTERAÇÃO 2: A função de logout agora é MUITO mais simples ---
   const confirmLogout = async () => {
     try {
-      // Chama a função centralizada para fazer o logout no servidor
       await api.logout();
     } catch (error) {
-      // O erro já é logado dentro da função api.logout, não precisamos fazer nada aqui
     } finally {
-      // A responsabilidade do componente é apenas limpar o estado local e redirecionar
       localStorage.removeItem("user_info");
       localStorage.removeItem("token");
-      Cookies.remove("access_token"); // Limpeza de segurança
+      Cookies.remove("access_token");
 
       setShowLogoutDialog(false);
-      router.push("/"); // Redireciona para a home
+      router.push("/");
     }
   };
 
@@ -200,37 +188,27 @@ export default function Sidebar({ children }: SidebarProps) {
       },
     ];
 
-    const managerItems: MenuItem[] = [
-      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-      { href: "#", icon: ClipboardMinus, label: "Relatórios gerenciais" },
-      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
-      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
-      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-      { href: "/doctor/consultas", icon: CalendarCheck2, label: "Consultas" }, //adicionar botão de voltar pra pagina anterior
-    ];
+        const managerItems: MenuItem[] = [
+            { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+            { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+            { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+            { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+            { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
+        ];
 
-    let menuItems: MenuItem[];
     switch (role) {
       case "gestor":
-        menuItems = managerItems;
-        break;
       case "admin":
-        menuItems = managerItems;
-        break;
+        return managerItems;
       case "medico":
-        menuItems = doctorItems;
-        break;
+        return doctorItems;
       case "secretaria":
-        menuItems = secretaryItems;
-        break;
+        return secretaryItems;
       case "paciente":
-        menuItems = patientItems;
-        break;
       default:
-        menuItems = patientItems;
-        break;
+        return patientItems;
     }
-    return menuItems;
   };
 
   const menuItems = SetMenuItems(role);
@@ -246,48 +224,59 @@ export default function Sidebar({ children }: SidebarProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div
-        className={`bg-white border-r border-gray-200 transition-all duration-300 fixed top-0 h-screen flex flex-col z-30 ${
-          sidebarCollapsed ? "w-16" : "w-64"
-        }`}
+        className={`fixed top-0 h-screen flex flex-col z-30 transition-all duration-300
+                ${sidebarCollapsed ? "w-16" : "w-64"}
+                bg-[#123965] text-white`}
       >
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        {/* TOPO */}
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              {/* 🛑 SUBSTITUIÇÃO: Usando a tag <img> com o caminho da logo */}
-              <img
-                src="/Logo MedConnect.png" // Use o arquivo da logo (ou /android-chrome-512x512.png)
-                alt="Logo MediConnect"
-                className="w-12 h-12 object-contain" // Define o tamanho para w-8 h-8 (32px)
-              />
-              <span className="font-semibold text-gray-900">MedConnect</span>
+              <div className="bg-white p-1 rounded-lg">
+                <img
+                  src="/Logo MedConnect.png"
+                  alt="Logo MedConnect"
+                  className="w-12 h-12 object-contain"
+                />
+              </div>
+
+              <span className="font-semibold text-white text-lg">
+                MedConnect
+              </span>
             </div>
           )}
+
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1"
+            className="p-1 text-white hover:bg-white/10 cursor-pointer"
           >
             {sidebarCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5" />
             ) : (
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5" />
             )}
           </Button>
         </div>
 
-        <nav className="flex-1 p-2 overflow-y-auto">
+        {/* MENU */}
+        <nav className="flex-1 p-3 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+
             return (
               <Link key={item.label} href={item.href}>
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
-                      ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`
+                                        flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors
+                                        ${
+                                          isActive
+                                            ? "bg-white/20 text-white font-semibold"
+                                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                                        }
+                                    `}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -298,30 +287,31 @@ export default function Sidebar({ children }: SidebarProps) {
             );
           })}
         </nav>
-        <SidebarUserSection
-          userData={userData}
-          sidebarCollapsed={false}
-          handleLogout={handleLogout}
-          isActive={role === "paciente" ? false : true}
-        ></SidebarUserSection>
-      </div>
 
+        {/* PERFIL ORIGINAL + NOME BRANCO */}
+        <div className="mt-auto p-3 border-t border-white/10">
+          <SidebarUserSection
+            userData={userData}
+            sidebarCollapsed={sidebarCollapsed}
+            handleLogout={handleLogout}
+            isActive={role !== "paciente"}
+          />
+        </div>
+      </div>
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 w-full ${
+        className={`flex-1 flex flex-col transition-all duration-300 ${
           sidebarCollapsed ? "ml-16" : "ml-64"
         }`}
       >
-        <header className="bg-gray-50 px-4 md:px-6 py-4 flex items-center justify-between"></header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
-
       <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirmar Saída</DialogTitle>
             <DialogDescription>
               Deseja realmente sair do sistema? Você precisará fazer login
-              novamente para acessar sua conta.
+              novamente.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">
@@ -335,6 +325,7 @@ export default function Sidebar({ children }: SidebarProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+       
     </div>
   );
 }

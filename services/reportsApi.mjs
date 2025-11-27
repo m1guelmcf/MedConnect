@@ -9,7 +9,7 @@ export const reportsApi = {
       return data;
     } catch (error) {
       console.error("Failed to fetch reports:", error);
-      return [];
+      throw error;
     }
   },
   getReportById: async (reportId) => {
