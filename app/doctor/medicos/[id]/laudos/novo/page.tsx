@@ -107,10 +107,6 @@ export default function NovoLaudoPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="order_number">Nº do Pedido</Label>
-                                    <Input id="order_number" value={formData.order_number} onChange={handleInputChange} />
-                                </div>
-                                <div className="space-y-2">
                                     <Label htmlFor="exam">Exame</Label>
                                     <Input id="exam" value={formData.exam} onChange={handleInputChange} />
                                 </div>

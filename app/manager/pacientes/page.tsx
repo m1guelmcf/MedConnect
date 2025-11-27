@@ -5,44 +5,44 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react";
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { patientsService } from "@/services/patientsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
 // Defina o tamanho da página.
-const PAGE_SIZE = 5; 
+const PAGE_SIZE = 5;
 
 export default function PacientesPage() {
     // --- ESTADOS DE DADOS E GERAL ---
     const [searchTerm, setSearchTerm] = useState("");
     const [convenioFilter, setConvenioFilter] = useState("all");
     const [vipFilter, setVipFilter] = useState("all");
-    
-    // Lista completa, carregada da API uma única vez
-    const [allPatients, setAllPatients] = useState<any[]>([]); 
-    // Lista após a aplicação dos filtros (base para a paginação)
-    const [filteredPatients, setFilteredPatients] = useState<any[]>([]); 
 
-    const [loading, setLoading] = useState(true); 
+    // Lista completa, carregada da API uma única vez
+    const [allPatients, setAllPatients] = useState<any[]>([]);
+    // Lista após a aplicação dos filtros (base para a paginação)
+    const [filteredPatients, setFilteredPatients] = useState<any[]>([]);
+
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     // --- ESTADOS DE PAGINAÇÃO ---
     const [page, setPage] = useState(1);
-    
+
     // CÁLCULO DA PAGINAÇÃO
     const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
     const startIndex = (page - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
     // Pacientes a serem exibidos na tabela (aplicando a paginação)
-    const currentPatients = filteredPatients.slice(startIndex, endIndex); 
+    const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
     // --- ESTADOS DE DIALOGS ---
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [patientDetails, setPatientDetails] = useState<any | null>(null);
-    
+
     // --- FUNÇÕES DE LÓGICA ---
 
     // 1. Função para carregar TODOS os pacientes da API
@@ -53,7 +53,7 @@ export default function PacientesPage() {
             try {
                 // Como o backend retorna um array, chamamos sem paginação
                 const res = await patientsService.list();
-                
+
                 const mapped = res.map((p: any) => ({
                     id: String(p.id ?? ""),
                     nome: p.full_name ?? "—",
@@ -61,7 +61,7 @@ export default function PacientesPage() {
                     cidade: p.city ?? "—",
                     estado: p.state ?? "—",
                     // Formate as datas se necessário, aqui usamos como string
-                    ultimoAtendimento: p.last_visit_at?.split('T')[0] ?? "—", 
+                    ultimoAtendimento: p.last_visit_at?.split('T')[0] ?? "—",
                     proximoAtendimento: p.next_appointment_at?.split('T')[0] ?? "—",
                     vip: Boolean(p.vip ?? false),
                     convenio: p.convenio ?? "Particular", // Define um valor padrão
@@ -83,27 +83,27 @@ export default function PacientesPage() {
     useEffect(() => {
         const filtered = allPatients.filter((patient) => {
             // Filtro por termo de busca (Nome ou Telefone)
-            const matchesSearch = 
-                patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            const matchesSearch =
+                patient.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 patient.telefone?.includes(searchTerm);
-            
+
             // Filtro por Convênio
-            const matchesConvenio = 
-                convenioFilter === "all" || 
+            const matchesConvenio =
+                convenioFilter === "all" ||
                 patient.convenio === convenioFilter;
-            
+
             // Filtro por VIP
-            const matchesVip = 
-                vipFilter === "all" || 
-                (vipFilter === "vip" && patient.vip) || 
+            const matchesVip =
+                vipFilter === "all" ||
+                (vipFilter === "vip" && patient.vip) ||
                 (vipFilter === "regular" && !patient.vip);
 
             return matchesSearch && matchesConvenio && matchesVip;
         });
-        
+
         setFilteredPatients(filtered);
         // Garante que a página atual seja válida após a filtragem
-        setPage(1); 
+        setPage(1);
     }, [allPatients, searchTerm, convenioFilter, vipFilter]);
 
     // 3. Efeito inicial para buscar os pacientes
@@ -114,7 +114,7 @@ export default function PacientesPage() {
 
 
     // --- LÓGICA DE AÇÕES (DELETAR / VER DETALHES) ---
-    
+
     const openDetailsDialog = async (patientId: string) => {
         setDetailsDialogOpen(true);
         setPatientDetails(null);
@@ -158,7 +158,7 @@ export default function PacientesPage() {
                 {/* Adicionado flex-wrap para permitir que os itens quebrem para a linha de baixo */}
                 <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
                     <Filter className="w-5 h-5 text-gray-400" />
-                    
+
                     {/* Busca - Ocupa 100% no mobile, depois cresce */}
                     <input
                         type="text"
@@ -166,7 +166,7 @@ export default function PacientesPage() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         // w-full no mobile, depois flex-grow para ocupar o espaço disponível
-                        className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm" 
+                        className="w-full sm:flex-grow sm:max-w-[300px] p-2 border rounded-md text-sm"
                     />
 
                     {/* Convênio - Ocupa a largura total em telas pequenas, depois se ajusta */}
@@ -200,7 +200,7 @@ export default function PacientesPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    
+
                     {/* Aniversariantes - Ocupa 100% no mobile, e se alinha à direita no md+ */}
                     <Button variant="outline" className="w-full md:w-auto md:ml-auto">
                         <Calendar className="w-4 h-4 mr-2" />
@@ -210,7 +210,7 @@ export default function PacientesPage() {
 
                 {/* --- SEÇÃO DE TABELA (VISÍVEL EM TELAS MAIORES OU IGUAIS A MD) --- */}
                 {/* Garantir que a tabela se esconda em telas menores e apareça em MD+ */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md hidden md:block"> 
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md hidden md:block">
                     <div className="overflow-x-auto"> {/* Permite rolagem horizontal se a tabela for muito larga */}
                         {error ? (
                             <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
@@ -260,11 +260,14 @@ export default function PacientesPage() {
                                                 <td className="p-4 text-gray-600 hidden sm:table-cell">{patient.convenio}</td>
                                                 <td className="p-4 text-gray-600 hidden lg:table-cell">{patient.ultimoAtendimento}</td>
                                                 <td className="p-4 text-gray-600 hidden lg:table-cell">{patient.proximoAtendimento}</td>
-                                                
+
                                                 <td className="p-4">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <div className="text-blue-600 cursor-pointer">Ações</div>
+                                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                <span className="sr-only">Abrir menu</span>
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
@@ -301,7 +304,7 @@ export default function PacientesPage() {
 
                 {/* --- SEÇÃO DE CARDS (VISÍVEL APENAS EM TELAS MENORES QUE MD) --- */}
                 {/* Garantir que os cards apareçam em telas menores e se escondam em MD+ */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden"> 
+                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden">
                     {error ? (
                         <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
                     ) : loading ? (
@@ -321,44 +324,47 @@ export default function PacientesPage() {
                                             {patient.nome}
                                             {patient.vip && (
                                                 <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">VIP</span>
-                                                            )}
+                                            )}
                                         </div>
                                         <div className="text-sm text-gray-600">Telefone: {patient.telefone}</div>
                                         <div className="text-sm text-gray-600">Convênio: {patient.convenio}</div>
                                     </div>
-                                   <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div  className="w-full"><Button variant="outline" className="w-full">Ações</Button></div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
-                                                                <Eye className="w-4 h-4 mr-2" />
-                                                                Ver detalhes
-                                                            </DropdownMenuItem>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Abrir menu</span>
+                                                <MoreVertical className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem onClick={() => openDetailsDialog(String(patient.id))}>
+                                                <Eye className="w-4 h-4 mr-2" />
+                                                Ver detalhes
+                                            </DropdownMenuItem>
 
-                                                            <DropdownMenuItem asChild>
-                                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
-                                                                    <Edit className="w-4 h-4 mr-2" />
-                                                                    Editar
-                                                                </Link>
-                                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/secretary/pacientes/${patient.id}/editar`} className="flex items-center w-full">
+                                                    <Edit className="w-4 h-4 mr-2" />
+                                                    Editar
+                                                </Link>
+                                            </DropdownMenuItem>
 
-                                                            <DropdownMenuItem>
-                                                                <Calendar className="w-4 h-4 mr-2" />
-                                                                Marcar consulta
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
-                                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                                Excluir
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                            <DropdownMenuItem>
+                                                <Calendar className="w-4 h-4 mr-2" />
+                                                Marcar consulta
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                Excluir
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
-                
+
                 {/* Paginação */}
                 {totalPages > 1 && !loading && (
                     <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
@@ -397,7 +403,7 @@ export default function PacientesPage() {
                         </div>
                     </div>
                 )}
-                
+
                 {/* AlertDialogs (Permanecem os mesmos) */}
                 <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                     <AlertDialogContent>
@@ -430,65 +436,65 @@ export default function PacientesPage() {
                                     <div className="grid gap-4 py-4">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
-                                            <p className="font-semibold">Nome Completo</p>
-                                            <p>{patientDetails.full_name}</p>
+                                                <p className="font-semibold">Nome Completo</p>
+                                                <p>{patientDetails.full_name}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Email</p>
-                                            <p>{patientDetails.email}</p>
+                                                <p className="font-semibold">Email</p>
+                                                <p>{patientDetails.email}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Telefone</p>
-                                            <p>{patientDetails.phone_mobile}</p>
+                                                <p className="font-semibold">Telefone</p>
+                                                <p>{patientDetails.phone_mobile}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Data de Nascimento</p>
-                                            <p>{patientDetails.birth_date}</p>
+                                                <p className="font-semibold">Data de Nascimento</p>
+                                                <p>{patientDetails.birth_date}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">CPF</p>
-                                            <p>{patientDetails.cpf}</p>
+                                                <p className="font-semibold">CPF</p>
+                                                <p>{patientDetails.cpf}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Tipo Sanguíneo</p>
-                                            <p>{patientDetails.blood_type}</p>
+                                                <p className="font-semibold">Tipo Sanguíneo</p>
+                                                <p>{patientDetails.blood_type}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Peso (kg)</p>
-                                            <p>{patientDetails.weight_kg}</p>
+                                                <p className="font-semibold">Peso (kg)</p>
+                                                <p>{patientDetails.weight_kg}</p>
                                             </div>
                                             <div>
-                                            <p className="font-semibold">Altura (m)</p>
-                                            <p>{patientDetails.height_m}</p>
+                                                <p className="font-semibold">Altura (m)</p>
+                                                <p>{patientDetails.height_m}</p>
                                             </div>
                                         </div>
                                         <div className="border-t pt-4 mt-4">
                                             <h3 className="font-semibold mb-2">Endereço</h3>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div>
-                                                <p className="font-semibold">Rua</p>
-                                                <p>{`${patientDetails.street}, ${patientDetails.number}`}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold">Complemento</p>
-                                                <p>{patientDetails.complement}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold">Bairro</p>
-                                                <p>{patientDetails.neighborhood}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold">Cidade</p>
-                                                <p>{patientDetails.cidade}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold">Estado</p>
-                                                <p>{patientDetails.estado}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold">CEP</p>
-                                                <p>{patientDetails.cep}</p>
-                                            </div>
+                                                <div>
+                                                    <p className="font-semibold">Rua</p>
+                                                    <p>{`${patientDetails.street}, ${patientDetails.number}`}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold">Complemento</p>
+                                                    <p>{patientDetails.complement}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold">Bairro</p>
+                                                    <p>{patientDetails.neighborhood}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold">Cidade</p>
+                                                    <p>{patientDetails.cidade}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold">Estado</p>
+                                                    <p>{patientDetails.estado}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold">CEP</p>
+                                                    <p>{patientDetails.cep}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Eye, Edit, Calendar, Trash2, Loader2 } from "lucide-react";
+import { Eye, Edit, Calendar, Trash2, Loader2, MoreVertical } from "lucide-react";
 import { api } from "@/services/api.mjs";
 import { PatientDetailsModal } from "@/components/ui/patient-details-modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -185,7 +185,7 @@ export default function PacientesPage() {
                                 <SelectItem value="20">20 por página</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Link href="/doctor/pacientes/novo" className="w-full sm:w-auto">
+                        <Link href="/doctor/medicos/novo" className="w-full sm:w-auto">
                             <Button variant="default" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                                 Novo Paciente
                             </Button>
@@ -262,9 +262,10 @@ export default function PacientesPage() {
                                             <td className="p-3 sm:p-4">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <button className="text-primary hover:underline text-sm sm:text-base">
-                                                          Ações
-                                                        </button>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Abrir menu</span>
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => handleOpenModal(p)}>
@@ -272,16 +273,16 @@ export default function PacientesPage() {
                                                             Ver detalhes
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
-                                                            <Link href={`/doctor/pacientes/${p.id}/laudos`}>
+                                                            <Link href={`/doctor/medicos/${p.id}/laudos`}>
                                                                 <Edit className="w-4 h-4 mr-2" />
                                                                 Laudos
                                                             </Link>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => alert(`Agenda para paciente ID: ${p.id}`)}>
+                                                        {/* <DropdownMenuItem onClick={() => alert(`Agenda para paciente ID: ${p.id}`)}>
                                                             <Calendar className="w-4 h-4 mr-2" />
                                                             Ver agenda
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
+                                                        </DropdownMenuItem> */}
+                                                        {/* <DropdownMenuItem
                                                             onClick={() => {
                                                                 const newPacientes = pacientes.filter((pac) => pac.id !== p.id);
                                                                 setPacientes(newPacientes);
@@ -291,7 +292,7 @@ export default function PacientesPage() {
                                                         >
                                                             <Trash2 className="w-4 h-4 mr-2" />
                                                             Excluir
-                                                        </DropdownMenuItem>
+                                                        </DropdownMenuItem> */}
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </td>
@@ -323,7 +324,7 @@ export default function PacientesPage() {
                                             {p.nome || "—"}
                                         </div>
                                         {/* Removido o 'truncate' e adicionado 'break-words' no telefone */}
-                                        <div className="text-sm text-muted-foreground break-words"> 
+                                        <div className="text-sm text-muted-foreground break-words">
                                             Telefone: **{p.telefone || "N/A"}**
                                         </div>
                                     </div>
@@ -387,11 +388,10 @@ export default function PacientesPage() {
                                 <button
                                     key={number}
                                     onClick={() => paginate(number)}
-                                    className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-border ${
-                                        currentPage === number
+                                    className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-border ${currentPage === number
                                             ? "bg-green-600 text-primary-foreground shadow-md border-green-600"
                                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                                    }`}
+                                        }`}
                                 >
                                     {number}
                                 </button>
@@ -411,11 +411,11 @@ export default function PacientesPage() {
                 </div>
             </div>
 
-      <PatientDetailsModal
-        patient={selectedPatient}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
-    </Sidebar>
-  );
+            <PatientDetailsModal
+                patient={selectedPatient}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
+        </Sidebar>
+    );
 }

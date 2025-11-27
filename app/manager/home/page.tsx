@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Edit, Trash2, Eye, Calendar, Filter, Loader2 } from "lucide-react"
+import { Edit, Trash2, Eye, Calendar, Filter, Loader2, MoreVertical } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 import { doctorsService } from "services/doctorsApi.mjs";
@@ -284,7 +284,10 @@ export default function DoctorsPage() {
                                             <td className="px-4 py-3 text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Abrir menu</span>
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
@@ -342,7 +345,7 @@ export default function DoctorsPage() {
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div className="text-blue-600 cursor-pointer inline-block">Ações</div>
+                                            <div className="text-blue-600 cursor-pointer inline-block">A99ções</div>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => openDetailsDialog(doctor)}>
@@ -386,11 +389,10 @@ export default function DoctorsPage() {
                             <button
                                 key={number}
                                 onClick={() => paginate(number)}
-                                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
-                                    currentPage === number
+                                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${currentPage === number
                                         ? "bg-green-600 text-white shadow-md border-green-600"
                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                }`}
+                                    }`}
                             >
                                 {number}
                             </button>
