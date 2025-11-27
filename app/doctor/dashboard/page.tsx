@@ -1,34 +1,31 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, Trash2 } from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
-// --- IMPORTS ADICIONADOS PARA A CORREÇÃO ---
 import { useAuthLayout } from "@/hooks/useAuthLayout";
 import { patientsService } from "@/services/patientsApi.mjs";
-// --- FIM DOS IMPORTS ADICIONADOS ---
-
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { format, parseISO, isAfter, isSameMonth, startOfToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -40,98 +37,118 @@ import { usersService } from "@/services/usersApi.mjs";
 import Sidebar from "@/components/Sidebar";
 import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
+
+// --- TIPOS ADICIONADOS PARA CORREÇÃO ---
+type Appointment = {
+    id: string;
+    doctor_id: string;
+    patient_id: string;
+    scheduled_at: string;
+    status: string;
+};
+
+type EnrichedAppointment = Appointment & {
+    patientName: string;
+};
+// --- FIM DOS TIPOS ADICIONADOS ---
+
 type Availability = {
-  id: string;
-  doctor_id: string;
-  weekday: string;
-  start_time: string;
-  end_time: string;
-  slot_minutes: number;
-  appointment_type: string;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  updated_by: string | null;
+    id: string;
+    doctor_id: string;
+    weekday: string;
+    start_time: string;
+    end_time: string;
+    slot_minutes: number;
+    appointment_type: string;
+    active: boolean;
+    created_at: string;
+    updated_at: string;
+    created_by: string;
+    updated_by: string | null;
 };
 
 type Schedule = {
-  weekday: object;
+    weekday: object;
 };
 
 type Doctor = {
-  id: string;
-  user_id: string | null;
-  crm: string;
-  crm_uf: string;
-  specialty: string;
-  full_name: string;
-  cpf: string;
-  email: string;
-  phone_mobile: string | null;
-  phone2: string | null;
-  cep: string | null;
-  street: string | null;
-  number: string | null;
-  complement: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  state: string | null;
-  birth_date: string | null;
-  rg: string | null;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  updated_by: string | null;
-  max_days_in_advance: number;
-  rating: number | null;
+    id: string;
+    user_id: string | null;
+    crm: string;
+    crm_uf: string;
+    specialty: string;
+    full_name: string;
+    cpf: string;
+    email: string;
+    phone_mobile: string | null;
+    phone2: string | null;
+    cep: string | null;
+    street: string | null;
+    number: string | null;
+    complement: string | null;
+    neighborhood: string | null;
+    city: string | null;
+    state: string | null;
+    birth_date: string | null;
+    rg: string | null;
+    active: boolean;
+    created_at: string;
+    updated_at: string;
+    created_by: string;
+    updated_by: string | null;
+    max_days_in_advance: number;
+    rating: number | null;
 };
 
 interface UserPermissions {
-  isAdmin: boolean;
-  isManager: boolean;
-  isDoctor: boolean;
-  isSecretary: boolean;
-  isAdminOrManager: boolean;
+    isAdmin: boolean;
+    isManager: boolean;
+    isDoctor: boolean;
+    isSecretary: boolean;
+    isAdminOrManager: boolean;
 }
 
 interface UserData {
-  user: {
-    id: string;
-    email: string;
-    email_confirmed_at: string | null;
-    created_at: string | null;
-    last_sign_in_at: string | null;
-  };
-  profile: {
-    id: string;
-    full_name: string;
-    email: string;
-    phone: string;
-    avatar_url: string | null;
-    disabled: boolean;
-    created_at: string | null;
-    updated_at: string | null;
-  };
-  roles: string[];
-  permissions: UserPermissions;
+    user: {
+        id: string;
+        email: string;
+        email_confirmed_at: string | null;
+        created_at: string | null;
+        last_sign_in_at: string | null;
+    };
+    profile: {
+        id: string;
+        full_name: string;
+        email: string;
+        phone: string;
+        avatar_url: string | null;
+        disabled: boolean;
+        created_at: string | null;
+        updated_at: string | null;
+    };
+    roles: string[];
+    permissions: UserPermissions;
 }
 
 interface Exception {
-  id: string; // id da exceção
-  doctor_id: string;
-  date: string; // formato YYYY-MM-DD
-  start_time: string | null; // null = dia inteiro
-  end_time: string | null; // null = dia inteiro
-  kind: "bloqueio" | "disponibilidade"; // tipos conhecidos
-  reason: string | null; // pode ser null
-  created_at: string; // timestamp ISO
-  created_by: string;
+    id: string;
+    doctor_id: string;
+    date: string;
+    start_time: string | null;
+    end_time: string | null;
+    kind: "bloqueio" | "disponibilidade";
+    reason: string | null;
+    created_at: string;
+    created_by: string;
 }
 
+// Minimal type for Patient, adjust if more fields are needed
+type Patient = {
+    id: string;
+    full_name: string;
+};
+
 export default function PatientDashboard() {
-    // --- USA O HOOK DE AUTENTICAÇÃO PARA PEGAR O USUÁRIO LOGADO ---
     const { user } = useAuthLayout({ requiredRole: ['medico'] });
 
     const [loggedDoctor, setLoggedDoctor] = useState<Doctor | null>(null);
@@ -144,19 +161,16 @@ export default function PatientDashboard() {
     const [exceptionToDelete, setExceptionToDelete] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // --- ESTADOS PARA OS CARDS ATUALIZADOS ---
     const [nextAppointment, setNextAppointment] = useState<EnrichedAppointment | null>(null);
     const [monthlyCount, setMonthlyCount] = useState<number>(0);
 
     const weekdaysPT: Record<string, string> = { sunday: "Domingo", monday: "Segunda", tuesday: "Terça", wednesday: "Quarta", thursday: "Quinta", friday: "Sexta", saturday: "Sábado" };
 
-    // ▼▼▼ LÓGICA DE BUSCA CORRIGIDA E ATUALIZADA ▼▼▼
     useEffect(() => {
         const fetchData = async () => {
-            if (!user?.id) return; // Aguarda o usuário ser carregado
+            if (!user?.id) return;
 
             try {
-                // Encontra o perfil de médico correspondente ao usuário logado
                 const doctorsList: Doctor[] = await doctorsService.list();
                 const currentDoctor = doctorsList.find(doc => doc.user_id === user.id);
 
@@ -166,7 +180,6 @@ export default function PatientDashboard() {
                 }
                 setLoggedDoctor(currentDoctor);
 
-                // Busca todos os dados necessários em paralelo
                 const [appointmentsList, patientsList, availabilityList, exceptionsList] = await Promise.all([
                     appointmentsService.list(),
                     patientsService.list(),
@@ -174,32 +187,27 @@ export default function PatientDashboard() {
                     exceptionsService.list()
                 ]);
 
-                // Mapeia pacientes por ID para consulta rápida
-                const patientsMap = new Map(patientsList.map((p: any) => [p.id, p.full_name]));
+                const patientsMap = new Map(patientsList.map((p: Patient) => [p.id, p.full_name]));
 
-                // Filtra e enriquece as consultas APENAS do médico logado
                 const doctorAppointments = appointmentsList
-                    .filter((apt: any) => apt.doctor_id === currentDoctor.id)
-                    .map((apt: any): EnrichedAppointment => ({
+                    .filter((apt: Appointment) => apt.doctor_id === currentDoctor.id)
+                    .map((apt: Appointment): EnrichedAppointment => ({
                         ...apt,
-                        patientName: patientsMap.get(apt.patient_id) || "Paciente Desconhecido",
+                        patientName: String(patientsMap.get(apt.patient_id) || "Paciente Desconhecido"),
                     }));
 
-                // 1. Lógica para "Próxima Consulta"
                 const today = startOfToday();
                 const upcomingAppointments = doctorAppointments
                     .filter(apt => isAfter(parseISO(apt.scheduled_at), today))
                     .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
                 setNextAppointment(upcomingAppointments[0] || null);
 
-                // 2. Lógica para "Consultas Este Mês" (apenas ativas)
                 const activeStatuses = ['confirmed', 'requested', 'checked_in'];
                 const currentMonthAppointments = doctorAppointments.filter(apt =>
                     isSameMonth(parseISO(apt.scheduled_at), new Date()) && activeStatuses.includes(apt.status)
                 );
                 setMonthlyCount(currentMonthAppointments.length);
 
-                // Busca e filtra o restante dos dados
                 setAvailability(availabilityList.filter((d: any) => d.doctor_id === currentDoctor.id));
                 setExceptions(exceptionsList.filter((e: any) => e.doctor_id === currentDoctor.id));
 
@@ -210,8 +218,7 @@ export default function PatientDashboard() {
         };
 
         fetchData();
-    }, [user]); // A busca de dados agora depende do usuário logado
-    // ▲▲▲ FIM DA LÓGICA DE BUSCA ATUALIZADA ▲▲▲
+    }, [user]);
 
     function findDoctorById(id: string, doctors: Doctor[]) {
         return doctors.find((doctor) => doctor.user_id === id);
@@ -246,25 +253,24 @@ export default function PatientDashboard() {
         return schedule;
     }
 
-  useEffect(() => {
-    if (availability) {
-      const formatted = formatAvailability(availability);
-      setSchedule(formatted);
-    }
-  }, [availability]);
+    useEffect(() => {
+        if (availability) {
+            const formatted = formatAvailability(availability);
+            setSchedule(formatted);
+        }
+    }, [availability]);
 
-  return (
-    <Sidebar>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
-            Bem-vindo ao seu portal de consultas médicas
-          </p>
-        </div>
+    return (
+        <Sidebar>
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+                    <p className="text-gray-600">
+                        Bem-vindo ao seu portal de consultas médicas
+                    </p>
+                </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* ▼▼▼ CARD "PRÓXIMA CONSULTA" CORRIGIDO PARA MOSTRAR NOME DO PACIENTE ▼▼▼ */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Próxima Consulta</CardTitle>
@@ -273,12 +279,12 @@ export default function PatientDashboard() {
                         <CardContent>
                             {nextAppointment ? (
                                 <>
-                                    <div className="text-2xl font-bold capitalize">
-                                        {format(parseISO(nextAppointment.scheduled_at), "dd MMM", { locale: ptBR })}
-                                    </div>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-2xl font-bold capitalize">
                                         {nextAppointment.patientName} - {format(parseISO(nextAppointment.scheduled_at), "HH:mm")}
                                     </p>
+                                    <div className="text-x text-muted-foreground">
+                                        {format(parseISO(nextAppointment.scheduled_at), "dd MMM", { locale: ptBR })}
+                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -288,9 +294,7 @@ export default function PatientDashboard() {
                             )}
                         </CardContent>
                     </Card>
-                    {/* ▲▲▲ FIM DO CARD ATUALIZADO ▲▲▲ */}
 
-                    {/* ▼▼▼ CARD "CONSULTAS ESTE MÊS" CORRIGIDO PARA CONTAGEM CORRETA ▼▼▼ */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Consultas Este Mês</CardTitle>
@@ -301,21 +305,19 @@ export default function PatientDashboard() {
                             <p className="text-xs text-muted-foreground">{monthlyCount === 1 ? '1 agendada' : `${monthlyCount} agendadas`}</p>
                         </CardContent>
                     </Card>
-                    {/* ▲▲▲ FIM DO CARD ATUALIZADO ▲▲▲ */}
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Perfil</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">100%</div>
-              <p className="text-xs text-muted-foreground">Dados completos</p>
-            </CardContent>
-          </Card>
-        </div>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Perfil</CardTitle>
+                            <User className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">100%</div>
+                            <p className="text-xs text-muted-foreground">Dados completos</p>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                {/* O restante do código permanece o mesmo */}
                 <div className="grid md:grid-cols-2 gap-6">
                     <Card>
                         <CardHeader>
@@ -332,26 +334,7 @@ export default function PatientDashboard() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Próximas Consultas</CardTitle>
-                            <CardDescription>Suas consultas agendadas</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                    <div>
-                                        <p className="font-medium">Dr. João Santos</p>
-                                        <p className="text-sm text-gray-600">Cardiologia</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-medium">02 out</p>
-                                        <p className="text-sm text-gray-600">14:30</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+
                 </div>
                 <div className="grid md:grid-cols-1 gap-6">
                     <Card>
@@ -379,8 +362,8 @@ export default function PatientDashboard() {
                                         timeZone: "UTC"
                                     });
 
-                  const startTime = formatTime(ex.start_time);
-                  const endTime = formatTime(ex.end_time);
+                                    const startTime = formatTime(ex.start_time);
+                                    const endTime = formatTime(ex.end_time);
 
                                     return (
                                         <div key={ex.id} className="space-y-4">

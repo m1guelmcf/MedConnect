@@ -251,7 +251,7 @@ export default function EditarMedicoPage() {
                         </h2>
                         <div className="grid md:grid-cols-4 gap-4">
                             <div className="space-y-2 col-span-2">
-                                <Label htmlFor="nomeCompleto">Nome Completo (full_name)</Label>
+                                <Label htmlFor="nomeCompleto">Nome Completo</Label>
                                 <Input
                                     id="nomeCompleto"
                                     value={formData.nomeCompleto}
@@ -269,7 +269,7 @@ export default function EditarMedicoPage() {
                                 />
                             </div>
                             <div className="space-y-2 col-span-1">
-                                <Label htmlFor="crmEstado">UF do CRM (crm_uf)</Label>
+                                <Label htmlFor="crmEstado">UF do CRM</Label>
                                 <Select value={formData.crmEstado} onValueChange={(v) => handleInputChange("crmEstado", v)}>
                                     <SelectTrigger id="crmEstado">
                                         <SelectValue placeholder="UF" />
@@ -286,7 +286,7 @@ export default function EditarMedicoPage() {
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="especialidade">Especialidade (specialty)</Label>
+                                <Label htmlFor="especialidade">Especialidade</Label>
                                 <Input
                                     id="especialidade"
                                     value={formData.especialidade}
@@ -327,7 +327,7 @@ export default function EditarMedicoPage() {
                                 />
                             </div>
                             <div className="space-y-2 col-span-1">
-                                <Label htmlFor="dataNascimento">Data de Nascimento (birth_date)</Label>
+                                <Label htmlFor="dataNascimento">Data de Nascimento</Label>
                                 <Input
                                     id="dataNascimento"
                                     type="date"
@@ -342,7 +342,7 @@ export default function EditarMedicoPage() {
                                         checked={formData.ativo}
                                         onCheckedChange={(checked) => handleInputChange("ativo", checked === true)}
                                     />
-                                    <Label htmlFor="ativo">Médico Ativo (active)</Label>
+                                    <Label htmlFor="ativo">Médico Ativo</Label>
                                 </div>
                             </div>
                         </div>
@@ -355,7 +355,7 @@ export default function EditarMedicoPage() {
 
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="telefoneCelular">Telefone Celular (phone_mobile)</Label>
+                                <Label htmlFor="telefoneCelular">Telefone Celular</Label>
                                 <Input
                                     id="telefoneCelular"
                                     value={formData.telefoneCelular}
@@ -365,7 +365,7 @@ export default function EditarMedicoPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="telefone2">Telefone Adicional (phone2)</Label>
+                                <Label htmlFor="telefone2">Telefone Adicional</Label>
                                 <Input
                                     id="telefone2"
                                     value={formData.telefone2}
@@ -389,7 +389,7 @@ export default function EditarMedicoPage() {
                                 />
                             </div>
                             <div className="space-y-2 col-span-3">
-                                <Label htmlFor="endereco">Logradouro (street)</Label>
+                                <Label htmlFor="endereco">Logradouro</Label>
                                 <Input
                                     id="endereco"
                                     value={formData.endereco}
@@ -440,7 +440,7 @@ export default function EditarMedicoPage() {
                                 />
                             </div>
                             <div className="space-y-2 col-span-1">
-                                <Label htmlFor="estado">Estado (state)</Label>
+                                <Label htmlFor="estado">Estado</Label>
                                 <Input
                                     id="estado"
                                     value={formData.estado}
