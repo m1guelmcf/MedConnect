@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { format, addDays } from "date-fns";
 import { User, StickyNote, Check, ChevronsUpDown } from "lucide-react";
-import {  smsService } from "@/services/Sms.mjs";;
+import { smsService } from "@/services/Sms.mjs";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -277,7 +277,10 @@ export default function ScheduleForm() {
     const patientId = isSecretaryLike ? selectedPatient : userId;
 
     if (!patientId || !selectedDoctor || !selectedDate || !selectedTime) {
-      toast({ title: "Campos obrigatórios", description: "Preencha todos os campos." });
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos.",
+      });
       return;
     }
 
@@ -302,7 +305,7 @@ export default function ScheduleForm() {
         }.`,
       });
 
-      let phoneNumber = "+5511999999999"; 
+      let phoneNumber = "+5511999999999";
 
       try {
         if (isSecretaryLike) {
@@ -313,8 +316,12 @@ export default function ScheduleForm() {
           const me = await usersService.getMe();
           const rawPhone =
             me?.profile?.phone ||
-            (typeof me?.profile === "object" && "phone_mobile" in me.profile ? (me.profile as any).phone_mobile : null) ||
-            (typeof me === "object" && "user_metadata" in me ? (me as any).user_metadata?.phone : null) ||
+            (typeof me?.profile === "object" && "phone_mobile" in me.profile
+              ? (me.profile as any).phone_mobile
+              : null) ||
+            (typeof me === "object" && "user_metadata" in me
+              ? (me as any).user_metadata?.phone
+              : null) ||
             null;
           if (rawPhone) phoneNumber = rawPhone;
         }
@@ -399,14 +406,23 @@ export default function ScheduleForm() {
           <CardTitle>Dados da Consulta</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4"> {/* Ajuste: maior espaçamento vertical geral */}
-              
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            <div className="space-y-4">
+              {" "}
+              {/* Ajuste: maior espaçamento vertical geral */}
               {/* Se secretária/gestor/admin → COMBOBOX de Paciente */}
               {["secretaria", "gestor", "admin"].includes(role) && (
-                <div className="flex flex-col gap-2"> {/* Ajuste: gap entre Label e Input */}
+                <div className="flex flex-col gap-2">
+                  {" "}
+                  {/* Ajuste: gap entre Label e Input */}
                   <Label>Paciente</Label>
-                  <Popover open={openPatientCombobox} onOpenChange={setOpenPatientCombobox}>
+                  <Popover
+                    open={openPatientCombobox}
+                    onOpenChange={setOpenPatientCombobox}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -415,7 +431,8 @@ export default function ScheduleForm() {
                         className="w-full justify-between"
                       >
                         {selectedPatient
-                          ? patients.find((p) => p.id === selectedPatient)?.full_name
+                          ? patients.find((p) => p.id === selectedPatient)
+                              ?.full_name
                           : "Selecione o paciente..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -424,21 +441,29 @@ export default function ScheduleForm() {
                       <Command>
                         <CommandInput placeholder="Buscar paciente..." />
                         <CommandList>
-                          <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
+                          <CommandEmpty>
+                            Nenhum paciente encontrado.
+                          </CommandEmpty>
                           <CommandGroup>
                             {patients.map((patient) => (
                               <CommandItem
                                 key={patient.id}
                                 value={patient.full_name}
                                 onSelect={() => {
-                                  setSelectedPatient(patient.id === selectedPatient ? "" : patient.id);
+                                  setSelectedPatient(
+                                    patient.id === selectedPatient
+                                      ? ""
+                                      : patient.id
+                                  );
                                   setOpenPatientCombobox(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    selectedPatient === patient.id ? "opacity-100" : "opacity-0"
+                                    selectedPatient === patient.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
                                   )}
                                 />
                                 {patient.full_name}
@@ -451,11 +476,15 @@ export default function ScheduleForm() {
                   </Popover>
                 </div>
               )}
-
               {/* COMBOBOX de Médico (Nova funcionalidade) */}
-              <div className="flex flex-col gap-2"> {/* Ajuste: gap entre Label e Input */}
+              <div className="flex flex-col gap-2">
+                {" "}
+                {/* Ajuste: gap entre Label e Input */}
                 <Label>Médico</Label>
-                <Popover open={openDoctorCombobox} onOpenChange={setOpenDoctorCombobox}>
+                <Popover
+                  open={openDoctorCombobox}
+                  onOpenChange={setOpenDoctorCombobox}
+                >
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -467,7 +496,8 @@ export default function ScheduleForm() {
                       {loadingDoctors
                         ? "Carregando médicos..."
                         : selectedDoctor
-                        ? doctors.find((d) => d.id === selectedDoctor)?.full_name
+                        ? doctors.find((d) => d.id === selectedDoctor)
+                            ?.full_name
                         : "Selecione o médico..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -478,34 +508,47 @@ export default function ScheduleForm() {
                       <CommandList>
                         <CommandEmpty>Nenhum médico encontrado.</CommandEmpty>
                         <CommandGroup>
-                          {doctors.map((doctor) => (
-                            <CommandItem
-                              key={doctor.id}
-                              value={doctor.full_name}
-                              onSelect={() => {
-                                setSelectedDoctor(doctor.id === selectedDoctor ? "" : doctor.id);
-                                setOpenDoctorCombobox(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedDoctor === doctor.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span>{doctor.full_name}</span>
-                                <span className="text-xs text-muted-foreground">{doctor.specialty}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
+                          {[...doctors]
+                            .sort((a, b) =>
+                              String(a.full_name).localeCompare(
+                                String(b.full_name)
+                              )
+                            )
+                            .map((doctor) => (
+                              <CommandItem
+                                key={doctor.id}
+                                value={doctor.full_name}
+                                onSelect={() => {
+                                  setSelectedDoctor(
+                                    doctor.id === selectedDoctor
+                                      ? ""
+                                      : doctor.id
+                                  );
+                                  setOpenDoctorCombobox(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedDoctor === doctor.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                  <span>{doctor.full_name}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {doctor.specialty}
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
                         </CommandGroup>
                       </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
               </div>
-
               <div className="flex flex-col gap-2">
                 <Label>Data</Label>
                 <div ref={calendarRef} className="rounded-lg border p-2">
@@ -528,7 +571,6 @@ export default function ScheduleForm() {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col gap-2">
                 <Label>Observações</Label>
                 <Textarea
@@ -540,7 +582,9 @@ export default function ScheduleForm() {
               </div>
             </div>
 
-            <div className="space-y-4"> {/* Ajuste: Espaçamento no lado direito também */}
+            <div className="space-y-4">
+              {" "}
+              {/* Ajuste: Espaçamento no lado direito também */}
               <Card className="shadow-md rounded-xl bg-blue-50 border border-blue-200">
                 <CardHeader>
                   <CardTitle className="text-blue-700">Resumo</CardTitle>
@@ -596,7 +640,6 @@ export default function ScheduleForm() {
                   )}
                 </CardContent>
               </Card>
-
               <div className="flex gap-2">
                 <Button
                   type="submit"
