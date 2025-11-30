@@ -379,23 +379,23 @@ export default function AvailabilityPage() {
       <div className="space-y-6 flex-1 overflow-y-auto p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold">
               Definir Disponibilidade
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Defina sua disponibilidade para consultas{" "}
             </p>
           </div>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados </h2>
+          <div className="bg-card rounded-lg border p-6">
+            <h2 className="text-lg font-semibold mb-6">Dados </h2>
 
             <div className="space-y-6">
               {/* **AJUSTE DE RESPONSIVIDADE: DIAS DA SEMANA** */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium">
                   Dia Da Semana
                 </Label>
                 {/* O antigo 'flex gap-4 mt-2 flex-nowrap' foi substituído por um grid responsivo: */}
@@ -405,7 +405,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="monday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Segunda</span>
                   </label>
@@ -414,7 +414,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="tuesday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Terça</span>
                   </label>
@@ -423,7 +423,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="wednesday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Quarta</span>
                   </label>
@@ -432,7 +432,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="thursday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Quinta</span>
                   </label>
@@ -441,7 +441,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="friday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Sexta</span>
                   </label>
@@ -450,7 +450,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="saturday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Sábado</span>
                   </label>
@@ -459,7 +459,7 @@ export default function AvailabilityPage() {
                       type="radio"
                       name="weekday"
                       value="sunday"
-                      className="text-blue-600"
+                      className="text-primary"
                     />
                     <span className="whitespace-nowrap text-sm">Domingo</span>
                   </label>
@@ -472,7 +472,7 @@ export default function AvailabilityPage() {
                 <div>
                   <Label
                     htmlFor="horarioEntrada"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium"
                   >
                     Horario De Entrada
                   </Label>
@@ -487,7 +487,7 @@ export default function AvailabilityPage() {
                 <div>
                   <Label
                     htmlFor="horarioSaida"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium"
                   >
                     Horario De Saida
                   </Label>
@@ -502,7 +502,7 @@ export default function AvailabilityPage() {
                 <div>
                   <Label
                     htmlFor="duracaoConsulta"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium"
                   >
                     Duração Da Consulta (min)
                   </Label>
@@ -520,7 +520,7 @@ export default function AvailabilityPage() {
               <div>
                 <Label
                   htmlFor="modalidadeConsulta"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-medium"
                 >
                   Modalidade De Consulta
                 </Label>
@@ -551,7 +551,7 @@ export default function AvailabilityPage() {
                             <Link href="/doctor/dashboard" className="w-full sm:w-auto">
                                 <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button>
                             </Link>
-                            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
+                            <Button type="submit" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                                 Salvar Disponibilidade
                             </Button>
                         </div>
@@ -571,7 +571,7 @@ export default function AvailabilityPage() {
                                 const times = schedule[day] || [];
                                 return (
                                     <div key={day} className="space-y-4">
-                                        <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg h-full">
+                                        <div className="flex flex-col items-center justify-between p-3 bg-primary/10 rounded-lg h-full">
                                             <p className="font-medium capitalize text-center mb-2">{weekdaysPT[day]}</p>
                                             <div className="text-center w-full">
                                                 {times.length > 0 ? (
@@ -579,7 +579,7 @@ export default function AvailabilityPage() {
                                                         <div key={i}>
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <p  className="text-sm text-gray-600 cursor-pointer rounded hover:text-accent-foreground hover:bg-gray-200 transition-colors duration-150">
+                                                                    <p  className="text-sm text-muted-foreground cursor-pointer rounded hover:text-accent-foreground hover:bg-muted transition-colors duration-150">
                                                                         {formatTime(t.start)} - {formatTime(t.end)}
                                                                     </p>
                                                                 </DropdownMenuTrigger>
@@ -590,7 +590,7 @@ export default function AvailabilityPage() {
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                     onClick={() => openDeleteDialog(t, day)}
-                                                                    className="text-red-600 focus:bg-red-50 focus:text-red-600">
+                                                                    className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                                                                     <Trash2 className="w-4 h-4 mr-2" />
                                                                     Excluir
                                                                     </DropdownMenuItem>
@@ -599,7 +599,7 @@ export default function AvailabilityPage() {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <p className="text-sm text-gray-400 italic">Sem horário</p>
+                                                    <p className="text-sm text-muted-foreground italic">Sem horário</p>
                                                 )}
                                             </div>
                                         </div>
@@ -619,7 +619,7 @@ export default function AvailabilityPage() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => selectedAvailability && handleDeleteAvailability(selectedAvailability.id)} className="bg-red-600 hover:bg-red-700">
+                                <AlertDialogAction onClick={() => selectedAvailability && handleDeleteAvailability(selectedAvailability.id)} className="bg-destructive hover:bg-destructive/90">
                                     Excluir
                                 </AlertDialogAction>
                         </AlertDialogFooter>

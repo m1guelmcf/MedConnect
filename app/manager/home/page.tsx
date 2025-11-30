@@ -224,10 +224,10 @@ export default function DoctorsPage() {
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold">
               Médicos Cadastrados
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Gerencie todos os profissionais de saúde.
             </p>
           </div>
@@ -270,54 +270,54 @@ export default function DoctorsPage() {
                 </FilterBar>
 
                 {/* Tabela de Médicos */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-hidden hidden md:block">
+                <div className="bg-card rounded-lg border shadow-md overflow-hidden hidden md:block">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500">
-                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-green-600" />
+                        <div className="p-8 text-center text-muted-foreground">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-primary" />
                             Carregando médicos...
                         </div>
                     ) : error ? (
-                        <div className="p-8 text-center text-red-600">{error}</div>
+                        <div className="p-8 text-center text-destructive">{error}</div>
                     ) : filteredDoctors.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
+                        <div className="p-8 text-center text-muted-foreground">
                             {doctors.length === 0
-                                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-green-600 hover:underline">Adicione um novo</Link>.</>
+                                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-primary hover:underline">Adicione um novo</Link>.</>
                                 : "Nenhum médico encontrado com os filtros aplicados."
                             }
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[600px]">
-                                <thead className="bg-gray-50 border-b border-gray-200">
+                                <thead className="bg-muted border-b">
                                     <tr>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Nome</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">CRM</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700">Especialidade</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700 hidden lg:table-cell">Status</th>
-                                        <th className="text-left p-2 md:p-4 font-medium text-gray-700 hidden xl:table-cell">Cidade/Estado</th>
-                                        <th className="text-right p-4 font-medium text-gray-700">Ações</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-muted-foreground">Nome</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-muted-foreground">CRM</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-muted-foreground">Especialidade</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-muted-foreground hidden lg:table-cell">Status</th>
+                                        <th className="text-left p-2 md:p-4 font-medium text-muted-foreground hidden xl:table-cell">Cidade/Estado</th>
+                                        <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="bg-card divide-y">
                                     {currentItems.map((doctor) => (
-                                        <tr key={doctor.id} className="hover:bg-gray-50 transition">
-                                            <td className="px-4 py-3 font-medium text-gray-900">
+                                        <tr key={doctor.id} className="hover:bg-muted transition">
+                                            <td className="px-4 py-3 font-medium">
                                                 {doctor.full_name}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{doctor.crm}</td>
-                                            <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
+                                            <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{doctor.crm}</td>
+                                            <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
                                                 {/* Exibe Especialidade Normalizada */}
                                                 {normalizeSpecialty(doctor.specialty)}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">
+                                            <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                                                 <span className={`px-2 py-1 rounded-full text-xs ${
-                                                    doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
-                                                    doctor.status === 'Inativo' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                                                    doctor.status === 'Ativo' ? 'bg-primary/10 text-primary' : 
+                                                    doctor.status === 'Inativo' ? 'bg-destructive/10 text-destructive' : 'bg-yellow-400/10 text-yellow-400'
                                                 }`}>
                                                     {doctor.status || "N/A"}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-gray-500 hidden xl:table-cell">
+                                            <td className="px-4 py-3 text-muted-foreground hidden xl:table-cell">
                                                 {(doctor.city || doctor.state)
                                                     ? `${doctor.city || ""}${doctor.city && doctor.state ? '/' : ''}${doctor.state || ""}`
                                                     : "N/A"}
@@ -345,7 +345,7 @@ export default function DoctorsPage() {
                                                             <Calendar className="mr-2 h-4 w-4" />
                                                             Marcar consulta
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(doctor.id)}>
+                                                        <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(doctor.id)}>
                                                             <Trash2 className="mr-2 h-4 w-4" />
                                                             Excluir
                                                         </DropdownMenuItem>
@@ -361,33 +361,33 @@ export default function DoctorsPage() {
                 </div>
 
                 {/* Cards de Médicos (Mobile) */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md p-4 block md:hidden">
+                <div className="bg-card rounded-lg border shadow-md p-4 block md:hidden">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500">
-                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-green-600" />
+                        <div className="p-8 text-center text-muted-foreground">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-primary" />
                             Carregando médicos...
                         </div>
                     ) : error ? (
-                        <div className="p-8 text-center text-red-600">{error}</div>
+                        <div className="p-8 text-center text-destructive">{error}</div>
                     ) : filteredDoctors.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
+                        <div className="p-8 text-center text-muted-foreground">
                             {doctors.length === 0
-                                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-green-600 hover:underline">Adicione um novo</Link>.</>
+                                ? <>Nenhum médico cadastrado. <Link href="/manager/home/novo" className="text-primary hover:underline">Adicione um novo</Link>.</>
                                 : "Nenhum médico encontrado com os filtros aplicados."
                             }
                         </div>
                     ) : (
                         <div className="space-y-4">
                             {currentItems.map((doctor) => (
-                                <div key={doctor.id} className="bg-gray-50 rounded-lg p-4 flex justify-between items-center border border-gray-100">
+                                <div key={doctor.id} className="bg-muted rounded-lg p-4 flex justify-between items-center border">
                                     <div>
-                                        <div className="font-semibold text-gray-900">{doctor.full_name}</div>
-                                        <div className="text-xs text-gray-500 mb-1">{doctor.phone_mobile}</div>
-                                        <div className="text-sm text-gray-600">{normalizeSpecialty(doctor.specialty)}</div>
+                                        <div className="font-semibold">{doctor.full_name}</div>
+                                        <div className="text-xs text-muted-foreground mb-1">{doctor.phone_mobile}</div>
+                                        <div className="text-sm text-muted-foreground">{normalizeSpecialty(doctor.specialty)}</div>
                                         <div className="text-xs mt-1">
                                             <span className={`px-2 py-0.5 rounded-full text-xs ${
-                                                    doctor.status === 'Ativo' ? 'bg-green-100 text-green-800' : 
-                                                    doctor.status === 'Inativo' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                                                    doctor.status === 'Ativo' ? 'bg-primary/10 text-primary' : 
+                                                    doctor.status === 'Inativo' ? 'bg-destructive/10 text-destructive' : 'bg-yellow-400/10 text-yellow-400'
                                                 }`}>
                                                     {doctor.status || "N/A"}
                                             </span>
@@ -397,7 +397,7 @@ export default function DoctorsPage() {
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                                 <span className="sr-only">Abrir menu</span>
-                                                <div className="font-bold text-gray-500">...</div>
+                                                <div className="font-bold text-muted-foreground">...</div>
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
@@ -411,7 +411,7 @@ export default function DoctorsPage() {
                                                     Editar
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(doctor.id)}>
+                                            <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(doctor.id)}>
                                                 <Trash2 className="mr-2 h-4 w-4" />
                                                 Excluir
                                             </DropdownMenuItem>
@@ -425,11 +425,11 @@ export default function DoctorsPage() {
 
         {/* Paginação */}
         {totalPages > 1 && (
-          <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 bg-white rounded-lg border border-gray-200 shadow-md">
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 bg-card rounded-lg border shadow-md">
             <button
               onClick={goToPrevPage}
               disabled={currentPage === 1}
-              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-muted text-muted-foreground hover:bg-muted/90 disabled:opacity-50 disabled:cursor-not-allowed border"
             >
               {"< Anterior"}
             </button>
@@ -438,10 +438,10 @@ export default function DoctorsPage() {
               <button
                 key={number}
                 onClick={() => paginate(number)}
-                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
+                className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border ${
                   currentPage === number
-                    ? "bg-blue-600 text-white shadow-md border-blue-600"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-primary text-primary-foreground shadow-md border-primary"
+                    : "bg-muted text-muted-foreground hover:bg-muted/90"
                 }`}
               >
                 {number}
@@ -451,7 +451,7 @@ export default function DoctorsPage() {
             <button
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
-              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+              className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-muted text-muted-foreground hover:bg-muted/90 disabled:opacity-50 disabled:cursor-not-allowed border"
             >
               {"Próximo >"}
             </button>
@@ -467,7 +467,7 @@ export default function DoctorsPage() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={loading}>
+                            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90" disabled={loading}>
                                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                 Excluir
                             </AlertDialogAction>
@@ -484,7 +484,7 @@ export default function DoctorsPage() {
               <AlertDialogTitle className="text-2xl">
                 {doctorDetails?.nome}
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-left text-gray-700">
+              <AlertDialogDescription className="text-left text-muted-foreground">
                 {doctorDetails && (
                   <div className="space-y-3 text-left">
                     <h3 className="font-semibold mt-2">
@@ -537,7 +537,7 @@ export default function DoctorsPage() {
                   </div>
                 )}
                 {doctorDetails === null && !loading && (
-                  <div className="text-red-600">Detalhes não disponíveis.</div>
+                  <div className="text-destructive">Detalhes não disponíveis.</div>
                 )}
               </AlertDialogDescription>
             </AlertDialogHeader>

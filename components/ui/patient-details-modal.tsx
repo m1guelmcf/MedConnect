@@ -45,10 +45,10 @@ export function PatientDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95%] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95%] sm:max-w-lg max-h-[90vh] overflow-y-auto bg-card text-card-foreground border border-border">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Detalhes do Paciente</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold text-foreground">Detalhes do Paciente</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Informações detalhadas sobre o paciente.
           </DialogDescription>
         </DialogHeader>
@@ -57,80 +57,80 @@ export function PatientDetailsModal({
           {/* Grid Principal */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="font-semibold text-gray-900">Nome Completo</p>
-              <p className="text-gray-700">{patient.nome}</p>
+              <p className="font-semibold text-foreground">Nome Completo</p>
+              <p className="text-muted-foreground">{patient.nome}</p>
             </div>
             
             {/* CORREÇÃO AQUI: Adicionado 'break-all' para quebrar o email */}
             <div>
-              <p className="font-semibold text-gray-900">Email</p>
-              <p className="text-gray-700 break-all">{patient.email || "N/A"}</p>
+              <p className="font-semibold text-foreground">Email</p>
+              <p className="text-muted-foreground break-all">{patient.email || "N/A"}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">Telefone</p>
-              <p className="text-gray-700">{patient.telefone}</p>
+              <p className="font-semibold text-foreground">Telefone</p>
+              <p className="text-muted-foreground">{patient.telefone}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">Data de Nascimento</p>
-              <p className="text-gray-700">{patient.birth_date || "N/A"}</p>
+              <p className="font-semibold text-foreground">Data de Nascimento</p>
+              <p className="text-muted-foreground">{patient.birth_date || "N/A"}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">CPF</p>
-              <p className="text-gray-700">{patient.cpf || "N/A"}</p>
+              <p className="font-semibold text-foreground">CPF</p>
+              <p className="text-muted-foreground">{patient.cpf || "N/A"}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">Tipo Sanguíneo</p>
-              <p className="text-gray-700">{patient.blood_type || "N/A"}</p>
+              <p className="font-semibold text-foreground">Tipo Sanguíneo</p>
+              <p className="text-muted-foreground">{patient.blood_type || "N/A"}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">Peso (kg)</p>
-              <p className="text-gray-700">{patient.weight_kg || "0"}</p>
+              <p className="font-semibold text-foreground">Peso (kg)</p>
+              <p className="text-muted-foreground">{patient.weight_kg || "0"}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-gray-900">Altura (m)</p>
-              <p className="text-gray-700">{patient.height_m || "0"}</p>
+              <p className="font-semibold text-foreground">Altura (m)</p>
+              <p className="text-muted-foreground">{patient.height_m || "0"}</p>
             </div>
           </div>
 
-          <hr className="border-gray-200" />
+          <hr className="border-border" />
 
           {/* Seção de Endereço */}
           <div>
-            <h4 className="font-semibold mb-3 text-gray-900">Endereço</h4>
+            <h4 className="font-semibold mb-3 text-foreground">Endereço</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="font-semibold text-gray-900">Rua</p>
-                <p className="text-gray-700">
+                <p className="font-semibold text-foreground">Rua</p>
+                <p className="text-muted-foreground">
                   {patient.street && patient.street !== "N/A" 
                     ? `${patient.street}, ${patient.number || ""}` 
                     : "N/A"}
                 </p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Complemento</p>
-                <p className="text-gray-700">{patient.complement || "N/A"}</p>
+                <p className="font-semibold text-foreground">Complemento</p>
+                <p className="text-muted-foreground">{patient.complement || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Bairro</p>
-                <p className="text-gray-700">{patient.neighborhood || "N/A"}</p>
+                <p className="font-semibold text-foreground">Bairro</p>
+                <p className="text-muted-foreground">{patient.neighborhood || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Cidade</p>
-                <p className="text-gray-700">{patient.cidade || "N/A"}</p>
+                <p className="font-semibold text-foreground">Cidade</p>
+                <p className="text-muted-foreground">{patient.cidade || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Estado</p>
-                <p className="text-gray-700">{patient.estado || "N/A"}</p>
+                <p className="font-semibold text-foreground">Estado</p>
+                <p className="text-muted-foreground">{patient.estado || "N/A"}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900">CEP</p>
-                <p className="text-gray-700">{patient.cep || "N/A"}</p>
+                <p className="font-semibold text-foreground">CEP</p>
+                <p className="text-muted-foreground">{patient.cep || "N/A"}</p>
               </div>
             </div>
           </div>

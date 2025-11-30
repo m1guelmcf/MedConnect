@@ -104,8 +104,8 @@ export default function SecretaryDashboard() {
       <div className="space-y-6">
         {/* Cabeçalho */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
             Bem-vindo ao seu portal de consultas médicas
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function SecretaryDashboard() {
             </CardHeader>
             <CardContent>
               {loadingAppointments ? (
-                <div className="text-gray-500 text-sm">
+                <div className="text-muted-foreground text-sm">
                   Carregando próxima consulta...
                 </div>
               ) : firstConfirmed ? (
@@ -147,7 +147,7 @@ export default function SecretaryDashboard() {
                   </p>
                 </>
               ) : (
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   Nenhuma consulta confirmada encontrada
                 </div>
               )}
@@ -164,12 +164,12 @@ export default function SecretaryDashboard() {
             </CardHeader>
             <CardContent>
               {loadingAppointments ? (
-                <div className="text-gray-500 text-sm">
+                <div className="text-muted-foreground text-sm">
                   Carregando consultas...
                 </div>
               ) : nextAgendada ? (
                 <>
-                  <div className="text-lg font-bold text-gray-900">
+                  <div className="text-lg font-bold">
                     {new Date(nextAgendada.scheduled_at).toLocaleDateString(
                       "pt-BR",
                       {
@@ -199,7 +199,7 @@ export default function SecretaryDashboard() {
                   </p>
                 </>
               ) : (
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   Nenhuma consulta agendada neste mês
                 </div>
               )}
@@ -231,8 +231,8 @@ export default function SecretaryDashboard() {
             </CardHeader>
             <CardContent className="space-y-4">
               <Link href="/secretary/schedule">
-                <Button className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700">
-                  <User className="mr-2 h-4 w-4 text-white" />
+                <Button className="w-full justify-start bg-primary text-primary-foreground hover:bg-primary/90">
+                  <User className="mr-2 h-4 w-4" />
                   Agendar Nova Consulta
                 </Button>
               </Link>
@@ -265,9 +265,9 @@ export default function SecretaryDashboard() {
             </CardHeader>
             <CardContent>
               {loadingPatients ? (
-                <p className="text-sm text-gray-500">Carregando pacientes...</p>
+                <p className="text-sm text-muted-foreground">Carregando pacientes...</p>
               ) : patients.length === 0 ? (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Nenhum paciente cadastrado.
                 </p>
               ) : (
@@ -275,20 +275,20 @@ export default function SecretaryDashboard() {
                   {patients.map((patient, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100"
+                      className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20"
                     >
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {patient.full_name || "Sem nome"}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {patient.phone_mobile ||
                             patient.phone1 ||
                             "Sem telefone"}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-blue-700">
+                        <p className="font-medium text-primary">
                           {patient.convenio || "Particular"}
                         </p>
                       </div>

@@ -131,8 +131,8 @@ export default function ReportsPage() {
     <Sidebar>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Meus Laudos</h1>
-          <p className="text-gray-600 mt-2">Visualize e baixe seus laudos médicos e resultados de exames</p>
+          <h1 className="text-3xl font-bold text-foreground">Meus Laudos</h1>
+          <p className="text-muted-foreground mt-2">Visualize e baixe seus laudos médicos e resultados de exames</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -167,7 +167,7 @@ export default function ReportsPage() {
 
         {availableReports.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Laudos Disponíveis</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Laudos Disponíveis</h2>
             <div className="grid gap-4">
               {availableReports.map((report) => (
                 <Card key={report.id} className="hover:shadow-md transition-shadow">
@@ -192,7 +192,7 @@ export default function ReportsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 mb-4">{report.diagnosis}</p>
+                    <p className="text-muted-foreground mb-4">{report.diagnosis}</p>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
@@ -222,7 +222,7 @@ export default function ReportsPage() {
 
         {pendingReports.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Laudos Pendentes</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Laudos Pendentes</h2>
             <div className="grid gap-4">
               {pendingReports.map((report) => (
                 <Card key={report.id} className="opacity-75">
@@ -247,8 +247,8 @@ export default function ReportsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                     <p className="text-gray-600 mb-4">{report.diagnosis}</p>
-                    <p className="text-sm text-yellow-600 font-medium">
+                     <p className="text-muted-foreground mb-4">{report.diagnosis}</p>
+                    <p className="text-sm text-yellow-600 dark:text-yellow-500 font-medium">
                       Laudo em processamento. Você será notificado quando estiver disponível.
                     </p>
                   </CardContent>
@@ -261,9 +261,9 @@ export default function ReportsPage() {
         {reports.length === 0 && !isLoading && (
           <Card className="text-center py-12">
             <CardContent>
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum laudo encontrado</h3>
-              <p className="text-gray-600">Seus laudos médicos aparecerão aqui após a realização de exames.</p>
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">Nenhum laudo encontrado</h3>
+              <p className="text-muted-foreground">Seus laudos médicos aparecerão aqui após a realização de exames.</p>
             </CardContent>
           </Card>
         )}

@@ -264,8 +264,8 @@ export default function PatientDashboard() {
         <Sidebar>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                    <p className="text-gray-600">
+                    <h1 className="text-3xl font-bold">Dashboard</h1>
+                    <p className="text-muted-foreground">
                         Bem-vindo ao seu portal de consultas médicas
                     </p>
                 </div>
@@ -367,21 +367,21 @@ export default function PatientDashboard() {
 
                                     return (
                                         <div key={ex.id} className="space-y-4">
-                                            <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
+                                            <div className="flex flex-col items-center justify-between p-3 bg-primary/10 rounded-lg shadow-sm">
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
-                                                    <p className="text-sm text-gray-600">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {startTime && endTime
                                                             ? `${startTime} - ${endTime}`
                                                             : "Dia todo"}
                                                     </p>
                                                 </div>
                                                 <div className="text-center mt-2">
-                                                    <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-red-600" : "text-green-600"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
-                                                    <p className="text-xs text-gray-500 italic">{ex.reason || "Sem motivo especificado"}</p>
+                                                    <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-destructive" : "text-primary"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
+                                                    <p className="text-xs text-muted-foreground italic">{ex.reason || "Sem motivo especificado"}</p>
                                                 </div>
                                                 <div>
-                                                    <Button className="text-red-600" variant="outline" onClick={() => openDeleteDialog(String(ex.id))}>
+                                                    <Button className="text-destructive" variant="outline" onClick={() => openDeleteDialog(String(ex.id))}>
                                                         <Trash2></Trash2>
                                                     </Button>
                                                 </div>
@@ -390,7 +390,7 @@ export default function PatientDashboard() {
                                     );
                                 })
                             ) : (
-                                <p className="text-sm text-gray-400 italic col-span-7 text-center">Nenhuma exceção registrada.</p>
+                                <p className="text-sm text-muted-foreground italic col-span-7 text-center">Nenhuma exceção registrada.</p>
                             )}
                         </CardContent>
                     </Card>
@@ -403,7 +403,7 @@ export default function PatientDashboard() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-red-600 hover:bg-red-700">
+                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-destructive hover:bg-destructive/90">
                                 Excluir
                             </AlertDialogAction>
                         </AlertDialogFooter>

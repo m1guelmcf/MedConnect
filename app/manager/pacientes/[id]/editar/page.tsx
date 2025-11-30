@@ -256,13 +256,13 @@ export default function EditarPacientePage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Editar Paciente</h1>
-                        <p className="text-gray-600">Atualize as informações do paciente</p>
+                        <h1 className="text-2xl font-bold text-foreground">Editar Paciente</h1>
+                        <p className="text-muted-foreground">Atualize as informações do paciente</p>
                     </div>
 
                     {/* Anexos Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Anexos</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Anexos</h2>
                         <div className="flex items-center gap-3 mb-4">
                             <input ref={anexoInputRef} type="file" className="hidden" />
                             <Button type="button" variant="outline" disabled={isUploadingAnexo}>
@@ -270,16 +270,16 @@ export default function EditarPacientePage() {
                             </Button>
                         </div>
                         {anexos.length === 0 ? (
-                            <p className="text-sm text-gray-500">Nenhum anexo encontrado.</p>
+                            <p className="text-sm text-muted-foreground">Nenhum anexo encontrado.</p>
                         ) : (
-                            <ul className="divide-y">
+                            <ul className="divide-y divide-border">
                                 {anexos.map((a) => (
                                     <li key={a.id} className="flex items-center justify-between py-2">
                                         <div className="flex items-center gap-2 min-w-0">
-                                            <Paperclip className="w-4 h-4 text-gray-500 shrink-0" />
-                                            <span className="text-sm text-gray-800 truncate">{a.nome || a.filename || `Anexo ${a.id}`}</span>
+                                            <Paperclip className="w-4 h-4 text-muted-foreground shrink-0" />
+                                            <span className="text-sm text-foreground truncate">{a.nome || a.filename || `Anexo ${a.id}`}</span>
                                         </div>
-                                        <Button type="button" variant="ghost" className="text-red-600">
+                                        <Button type="button" variant="ghost" className="text-destructive">
                                             <Trash2 className="w-4 h-4 mr-1" /> Remover
                                         </Button>
                                     </li>
@@ -290,20 +290,20 @@ export default function EditarPacientePage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Dados Pessoais</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Photo upload */}
                             <div className="space-y-2">
                                 <Label>Foto do paciente</Label>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                                    <div className="w-20 h-20 rounded-full bg-muted overflow-hidden flex items-center justify-center">
                                         {photoUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={photoUrl} alt="Foto do paciente" className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-gray-400 text-sm">Sem foto</span>
+                                            <span className="text-muted-foreground text-sm">Sem foto</span>
                                         )}
                                     </div>
                                     <div className="flex gap-2">
@@ -338,11 +338,11 @@ export default function EditarPacientePage() {
                                 <Label>Sexo *</Label>
                                 <div className="flex gap-4">
                                     <div className="flex items-center space-x-2">
-                                        <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
+                                        <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-primary" />
                                         <Label htmlFor="Masculino">Masculino</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <input type="radio" id="Feminino" name="sexo" value="Feminino" checked={formData.sexo === "Feminino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
+                                        <input type="radio" id="Feminino" name="sexo" value="Feminino" checked={formData.sexo === "Feminino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-primary" />
                                         <Label htmlFor="Feminino">Feminino</Label>
                                     </div>
                                 </div>
@@ -471,8 +471,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Contact Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Contato</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Contato</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -498,8 +498,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Address Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Endereço</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Endereço</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div className="space-y-2">
@@ -573,8 +573,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Medical Information Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Informações Médicas</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Informações Médicas</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -619,8 +619,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Insurance Information Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Informações de convênio</h2>
+                    <div className="bg-card rounded-lg border border-border p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-6">Informações de convênio</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -669,7 +669,7 @@ export default function EditarPacientePage() {
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                        <Button type="submit" className="bg-primary hover:bg-primary/90">
                             <Save className="w-4 h-4 mr-2" />
                             Salvar Alterações
                         </Button>

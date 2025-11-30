@@ -93,7 +93,7 @@ export default function SidebarUserSection({
         <PopoverContent
           align="center"
           side="top"
-          className="w-64 p-4 shadow-lg border bg-white"
+          className="w-64 p-4 shadow-2xl border-2 border-primary/20 bg-card text-card-foreground ring-1 ring-primary/10"
         >
           <nav>
             {menuItems.map((item) => {
@@ -104,8 +104,8 @@ export default function SidebarUserSection({
                   <div
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
                       isActive
-                        ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                        : "text-gray-600 hover:bg-gray-50"
+                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                        : "text-foreground hover:bg-muted"
                     }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
@@ -125,19 +125,19 @@ export default function SidebarUserSection({
         size="sm"
         className={
           sidebarCollapsed
-            ? "w-full bg-white text-black flex justify-center items-center p-2 hover:bg-gray-200"
-            : "w-full bg-white text-black hover:bg-gray-200 cursor-pointer"
+            ? "w-full bg-card text-foreground border-2 border-border flex justify-center items-center p-2 hover:bg-muted"
+            : "w-full bg-card text-foreground border-2 border-border hover:bg-muted cursor-pointer"
         }
         onClick={handleLogout}
       >
         <LogOut
           className={
-            sidebarCollapsed ? "h-5 w-5 text-black" : "mr-2 h-4 w-4 text-black"
+            sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"
           }
         />
         {!sidebarCollapsed && "Sair"}
       </Button>
-         
+         
     </div>
   );
 }

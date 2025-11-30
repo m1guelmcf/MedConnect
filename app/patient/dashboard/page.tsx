@@ -15,8 +15,8 @@ export default function PatientDashboard() {
     <Sidebar>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">
             Bem-vindo ao seu portal de consultas médicas
           </p>
         </div>
@@ -72,15 +72,15 @@ export default function PatientDashboard() {
             </CardHeader>
             <CardContent className="space-y-4">
               <Link href="/patient/schedule">
-                <Button className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700">
-                  <User className="mr-2 h-4 w-4 text-white" />
+                <Button className="w-full justify-start">
+                  <User className="mr-2 h-4 w-4" />
                   Agendar Nova Consulta
                 </Button>
               </Link>
               <Link href="/patient/appointments">
                 <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="secondary"
+                  className="w-full justify-start"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   Ver Minhas Consultas
@@ -89,7 +89,7 @@ export default function PatientDashboard() {
               <Link href="/patient/profile">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-transparent"
+                  className="w-full justify-start"
                 >
                   <User className="mr-2 h-4 w-4" />
                   Atualizar Dados
@@ -105,24 +105,24 @@ export default function PatientDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
                     <p className="font-medium">Dr. Silva</p>
-                    <p className="text-sm text-gray-600">Cardiologia</p>
+                    <p className="text-sm text-muted-foreground">Cardiologia</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">15 Jan</p>
-                    <p className="text-sm text-gray-600">14:30</p>
+                    <p className="text-sm text-muted-foreground">14:30</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
                     <p className="font-medium">Dra. Santos</p>
-                    <p className="text-sm text-gray-600">Dermatologia</p>
+                    <p className="text-sm text-muted-foreground">Dermatologia</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">22 Jan</p>
-                    <p className="text-sm text-gray-600">10:00</p>
+                    <p className="text-sm text-muted-foreground">10:00</p>
                   </div>
                 </div>
               </div>

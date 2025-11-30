@@ -142,7 +142,7 @@ export default function PatientAppointmentsPage() {
           {isLoading ? (
             <p>Carregando consultas...</p>
           ) : appointments.length === 0 ? (
-            <p className="text-gray-600">Você ainda não possui consultas agendadas.</p>
+            <p className="text-muted-foreground">Você ainda não possui consultas agendadas.</p>
           ) : (
             appointments.map((apt) => (
               <Card key={apt.id}>
@@ -153,14 +153,14 @@ export default function PatientAppointmentsPage() {
                   </div>
                   {getStatusBadge(apt.status)}
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+                <CardContent className="grid md:grid-cols-2 gap-3 text-sm text-muted-foreground">
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                       {new Date(apt.scheduled_at).toLocaleDateString("pt-BR")}
                     </div>
                     <div className="flex items-center">
-                      <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                      <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                       {new Date(apt.scheduled_at).toLocaleTimeString("pt-BR", {
                         hour: "2-digit",
                         minute: "2-digit",

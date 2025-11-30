@@ -76,23 +76,23 @@ export default function WeeklyScheduleCard({ doctorId }: WeeklyScheduleProps) {
     return (
         <div className="space-y-4 grid md:grid-cols-7 gap-2">
             {loading ? (
-                <p className="text-sm text-gray-500 col-span-7 text-center">Carregando...</p>
+                <p className="text-sm text-muted-foreground col-span-7 text-center">Carregando...</p>
             ) : (
-                ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "Saturday"].map((day) => {
+                ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => {
                     const times = schedule[day] || [];
                     return (
                         <div key={day} className="space-y-4">
-                            <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                <p className="font-medium capitalize">{weekdaysPT[day]}</p>
+                            <div className="flex flex-col items-center justify-between p-3 bg-primary/10 rounded-lg">
+                                <p className="font-medium capitalize text-foreground">{weekdaysPT[day]}</p>
                                 <div className="text-center">
                                     {times.length > 0 ? (
                                         times.map((t, i) => (
-                                            <p key={i} className="text-sm text-gray-600">
+                                            <p key={i} className="text-sm text-muted-foreground">
                                                 {formatTime(t.start)} <br /> {formatTime(t.end)}
                                             </p>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-gray-400 italic">Sem horário</p>
+                                        <p className="text-sm text-muted-foreground italic">Sem horário</p>
                                     )}
                                 </div>
                             </div>

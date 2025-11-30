@@ -149,12 +149,12 @@ export default function ExceptionPage() {
         <Sidebar>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Adicione exceções</h1>
-                    <p className="text-gray-600">Altere a disponibilidade em casos especiais para o Dr. João Silva</p>
+                    <h1 className="text-3xl font-bold text-foreground">Adicione exceções</h1>
+                    <p className="text-muted-foreground">Altere a disponibilidade em casos especiais para o Dr. João Silva</p>
                 </div>
 
                 <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">Consultas para: {displayDate}</h2>
+                    <h2 className="text-xl font-semibold text-foreground">Consultas para: {displayDate}</h2>
                     <Button disabled={isLoading} variant="outline" size="sm">
                         <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                         Atualizar Agenda
@@ -171,7 +171,7 @@ export default function ExceptionPage() {
                                     <CalendarIcon className="mr-2 h-5 w-5" />
                                     Calendário
                                 </CardTitle>
-                                <p className="text-sm text-gray-500">Selecione a data desejada.</p>
+                                <p className="text-sm text-muted-foreground">Selecione a data desejada.</p>
                             </CardHeader>
                             <CardContent className="flex justify-center p-2">
                                 <Calendar
@@ -194,23 +194,23 @@ export default function ExceptionPage() {
                     {/* COLUNA 2: FORM PARA ADICIONAR EXCEÇÃO */}
                     <div className="lg:col-span-2 space-y-4">
                         {isLoading ? (
-                            <p className="text-center text-lg text-gray-500">Carregando a agenda...</p>
+                            <p className="text-center text-lg text-muted-foreground">Carregando a agenda...</p>
                         ) : !selectedCalendarDate ? (
-                            <p className="text-center text-lg text-gray-500">Selecione uma data.</p>
+                            <p className="text-center text-lg text-muted-foreground">Selecione uma data.</p>
                         ) : (
                             <form className="space-y-6" onSubmit={handleSubmit}>
-                                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                                    <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados </h2>
+                                <div className="bg-card rounded-lg border border-border p-6">
+                                    <h2 className="text-lg font-semibold text-foreground mb-6">Dados </h2>
                                     <div className="space-y-6">
                                         <div className="grid md:grid-cols-5 gap-6">
                                             <div>
-                                                <Label htmlFor="horarioEntrada" className="text-sm font-medium text-gray-700">
+                                                <Label htmlFor="horarioEntrada" className="text-sm font-medium text-foreground">
                                                     Horario De Entrada
                                                 </Label>
                                                 <Input type="time" id="horarioEntrada" name="horarioEntrada" className="mt-1" />
                                             </div>
                                             <div>
-                                                <Label htmlFor="horarioSaida" className="text-sm font-medium text-gray-700">
+                                                <Label htmlFor="horarioSaida" className="text-sm font-medium text-foreground">
                                                     Horario De Saida
                                                 </Label>
                                                 <Input type="time" id="horarioSaida" name="horarioSaida" className="mt-1" />
@@ -218,7 +218,7 @@ export default function ExceptionPage() {
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="tipo" className="text-sm font-medium text-gray-700">
+                                            <Label htmlFor="tipo" className="text-sm font-medium text-foreground">
                                                 Tipo
                                             </Label>
                                             <Select onValueChange={(value) => setTipo(value)} value={tipo}>
@@ -232,7 +232,7 @@ export default function ExceptionPage() {
                                             </Select>
                                         </div>
                                         <div>
-                                            <Label htmlFor="reason" className="text-sm font-medium text-gray-700">
+                                            <Label htmlFor="reason" className="text-sm font-medium text-foreground">
                                                 Motivo
                                             </Label>
                                             <Input type="textarea" id="reason" name="reason" required className="mt-1" />
@@ -244,7 +244,7 @@ export default function ExceptionPage() {
                                     <Link href="/doctor/disponibilidade">
                                         <Button variant="outline">Cancelar</Button>
                                     </Link>
-                                    <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                                    <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                                         Salvar Exceção
                                     </Button>
                                 </div>

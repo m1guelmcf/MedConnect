@@ -156,31 +156,6 @@ export default function SecretaryAppointments() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "requested":
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800">Solicitada</Badge>
-        );
-      case "confirmed":
-        return <Badge className="bg-blue-100 text-blue-800">Confirmada</Badge>;
-      case "checked_in":
-        return (
-          <Badge className="bg-indigo-100 text-indigo-800">Check-in</Badge>
-        );
-      case "completed":
-        return <Badge className="bg-green-100 text-green-800">Realizada</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-100 text-red-800">Cancelada</Badge>;
-      case "no_show":
-        return (
-          <Badge className="bg-gray-100 text-gray-800">Não Compareceu</Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
   const timeSlots = [
     "08:00",
     "08:30",
@@ -213,14 +188,14 @@ export default function SecretaryAppointments() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold">
               Consultas Agendadas
             </h1>
-            <p className="text-gray-600">Gerencie as consultas dos pacientes</p>
+            <p className="text-muted-foreground">Gerencie as consultas dos pacientes</p>
           </div>
           <Link href="/secretary/schedule">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Calendar className="mr-2 h-4 w-4 text-white" />
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Calendar className="mr-2 h-4 w-4" />
               Agendar Nova Consulta
             </Button>
           </Link>
@@ -248,18 +223,18 @@ export default function SecretaryAppointments() {
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-800 font-medium">
-                        <User className="mr-2 h-4 w-4 text-gray-600" />
+                      <div className="flex items-center text-sm text-foreground font-medium">
+                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
                         {appointment.patient.full_name}
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="mr-2 h-4 w-4" />
                         {new Date(appointment.scheduled_at).toLocaleDateString(
                           "pt-BR",
                           { timeZone: "UTC" }
                         )}
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="mr-2 h-4 w-4" />
                         {new Date(appointment.scheduled_at).toLocaleTimeString(
                           "pt-BR",
@@ -272,11 +247,11 @@ export default function SecretaryAppointments() {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <MapPin className="mr-2 h-4 w-4" />
                         {appointment.doctor.location || "Local a definir"}
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <Phone className="mr-2 h-4 w-4" />
                         {appointment.doctor.phone || "N/A"}
                       </div>
@@ -288,7 +263,7 @@ export default function SecretaryAppointments() {
                                             <Pencil className="mr-2 h-4 w-4" />
                                             Editar
                                         </Button>
-                                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent" onClick={() => handleDelete(appointment)}>
+                                        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 bg-transparent" onClick={() => handleDelete(appointment)}>
                                             <Trash2 className="mr-2 h-4 w-4" />
                                             Cancelar
                                         </Button>
@@ -314,3 +289,28 @@ export default function SecretaryAppointments() {
     </Sidebar>
   );
 }
+
+const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "requested":
+        return (
+          <Badge className="bg-yellow-400/10 text-yellow-400">Solicitada</Badge>
+        );
+      case "confirmed":
+        return <Badge className="bg-primary/10 text-primary">Confirmada</Badge>;
+      case "checked_in":
+        return (
+          <Badge className="bg-indigo-400/10 text-indigo-400">Check-in</Badge>
+        );
+      case "completed":
+        return <Badge className="bg-green-400/10 text-green-400">Realizada</Badge>;
+      case "cancelled":
+        return <Badge className="bg-destructive/10 text-destructive">Cancelada</Badge>;
+      case "no_show":
+        return (
+          <Badge className="bg-muted text-foreground">Não Compareceu</Badge>
+        );
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
