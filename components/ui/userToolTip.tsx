@@ -33,6 +33,7 @@ interface Props {
   sidebarCollapsed: boolean;
   handleLogout: () => void;
   isActive: boolean;
+  avatarUrl?: string;
 }
 
 export default function SidebarUserSection({
@@ -40,6 +41,7 @@ export default function SidebarUserSection({
   sidebarCollapsed,
   handleLogout,
   isActive,
+  avatarUrl,
 }: Props) {
   const pathname = usePathname();
   const menuItems: any[] = [
@@ -56,6 +58,18 @@ export default function SidebarUserSection({
     { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
     { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },
   ];
+
+  // Função auxiliar para obter iniciais
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
+
   return (
     <div className="border-t p-4 mt-auto">
       {/* POPUP DE INFORMAÇÕES DO USUÁRIO */}
@@ -67,12 +81,13 @@ export default function SidebarUserSection({
             }`}
           >
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" />
-              <AvatarFallback>
-                {userData.user_metadata.full_name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+              <AvatarImage 
+                src={avatarUrl} 
+                alt={userData.user_metadata.full_name} 
+                className="object-cover"
+              />
+              <AvatarFallback className="text-black bg-gray-200 font-semibold">
+                {getInitials(userData.user_metadata.full_name)}
               </AvatarFallback>
             </Avatar>
 
