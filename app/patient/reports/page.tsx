@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
-import { FileText, Download, Eye, Calendar, User, X, Loader2 } from "lucide-react"
+import { FileText, Download, Eye, Calendar, User, X } from "lucide-react"
 import Sidebar from "@/components/Sidebar"
 import { useAuthLayout } from "@/hooks/useAuthLayout"
 import { reportsApi } from "@/services/reportsApi.mjs"
+import { sanitizeHtml } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton" // Importando Skeleton
 
 interface Report {
     id: string;
@@ -37,9 +39,9 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-    const requiredRole = useMemo(() => ["paciente"], []);
+  
+  const requiredRole = useMemo(() => ["paciente"], []);
   const { user, isLoading: isAuthLoading } = useAuthLayout({ requiredRole });
-
 
   useEffect(() => {
     if (user) {
@@ -81,9 +83,9 @@ export default function ReportsPage() {
         description: "Gerando PDF do laudo médico",
       })
 
-      const htmlContent = report.content_html;
+      const safeHtml = sanitizeHtml(report.content_html);
 
-      const blob = new Blob([htmlContent], { type: "text/html" })
+      const blob = new Blob([safeHtml], { type: "text/html" })
       const url = URL.createObjectURL(blob)
 
       const link = document.createElement("a")
@@ -117,11 +119,25 @@ export default function ReportsPage() {
   const availableReports = reports.filter((report) => report.status.toLowerCase() === "draft")
   const pendingReports = reports.filter((report) => report.status.toLowerCase() !== "draft")
 
+  // Estado de Carregamento com Skeletons
   if (isLoading || isAuthLoading) {
     return (
         <Sidebar>
-            <div className="flex justify-center items-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="space-y-6">
+                <div>
+                    <Skeleton className="h-10 w-48 mb-2" />
+                    <Skeleton className="h-4 w-96" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Skeleton className="h-32 rounded-xl" />
+                    <Skeleton className="h-32 rounded-xl" />
+                    <Skeleton className="h-32 rounded-xl" />
+                </div>
+                <div className="space-y-4">
+                    <Skeleton className="h-8 w-40" />
+                    <Skeleton className="h-48 rounded-xl" />
+                    <Skeleton className="h-48 rounded-xl" />
+                </div>
             </div>
         </Sidebar>
     )
@@ -285,7 +301,10 @@ export default function ReportsPage() {
             </DialogHeader>
 
             {selectedReport && (
-              <div className="space-y-6 mt-4" dangerouslySetInnerHTML={{ __html: selectedReport.content_html }} />
+              <div 
+                className="space-y-6 mt-4" 
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedReport.content_html) }} 
+              />
             )}
           </DialogContent>
         </Dialog>

@@ -1,5 +1,3 @@
-// ARQUIVO: lib/utils.ts
-
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -7,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// ADICIONE A FUNÇÃO ABAIXO
 export function isValidCPF(cpf: string | null | undefined): boolean {
   if (!cpf) return false;
 
@@ -49,4 +46,22 @@ export function isValidCPF(cpf: string | null | undefined): boolean {
   }
 
   return true;
+}
+
+/**
+ * Remove tags perigosas de strings HTML para prevenir XSS básico.
+ * Em produção, considere usar bibliotecas como 'dompurify'.
+ */
+export function sanitizeHtml(html: string): string {
+  if (!html) return "";
+  
+  return html
+    // Remove tags de script
+    .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+    // Remove iframes
+    .replace(/<iframe\b[^>]*>([\s\S]*?)<\/iframe>/gim, "")
+    // Remove eventos on* (ex: onclick, onerror)
+    .replace(/ on\w+="[^"]*"/g, "")
+    // Remove links javascript:
+    .replace(/href="javascript:[^"]*"/g, 'href="#"');
 }

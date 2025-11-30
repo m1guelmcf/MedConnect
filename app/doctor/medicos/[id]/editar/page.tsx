@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
+import { useAuthLayout } from "@/hooks/useAuthLayout"; // Importando proteção
 
 // Mock data - in a real app, this would come from an API
 const mockDoctors = [
@@ -61,6 +62,11 @@ export default function EditarMedicoPage() {
     const router = useRouter();
     const params = useParams();
     const doctorId = Number.parseInt(params.id as string);
+
+    // --- PROTEÇÃO DE ROTA ---
+    // Apenas admin, gestor ou o próprio médico podem acessar
+    const requiredRoles = useMemo(() => ["admin", "gestor", "medico"], []);
+    const { user, isLoading: isAuthLoading } = useAuthLayout({ requiredRole: requiredRoles });
 
     const [formData, setFormData] = useState({
         nome: "",
@@ -122,6 +128,16 @@ export default function EditarMedicoPage() {
         // Here you would typically send the data to your API
         router.push("/medicos");
     };
+
+    if (isAuthLoading) {
+        return (
+            <Sidebar>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            </Sidebar>
+        );
+    }
 
     return (
         <Sidebar>

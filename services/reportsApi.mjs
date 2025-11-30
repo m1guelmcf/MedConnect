@@ -1,42 +1,46 @@
-import { api } from "./api.mjs";
+import { httpClient } from "./httpClient";
 
-const REPORTS_API_URL = "/rest/v1/reports";
+class ReportsService {
+  constructor() {
+    this.basePath = "/rest/v1/reports";
+  }
 
-export const reportsApi = {
-  getReports: async (patientId) => {
-    try {
-      const data = await api.get(`${REPORTS_API_URL}?patient_id=eq.${patientId}`);
-      return data;
-    } catch (error) {
-      console.error("Failed to fetch reports:", error);
-      throw error;
-    }
-  },
-  getReportById: async (reportId) => {
-    try {
-      const data = await api.get(`${REPORTS_API_URL}?id=eq.${reportId}`);
-      return data;
-    } catch (error) {
-      console.error(`Failed to fetch report ${reportId}:`, error);
-      throw error;
-    }
-  },
-  createReport: async (reportData) => {
-    try {
-      const data = await api.post(REPORTS_API_URL, reportData);
-      return data;
-    } catch (error) {
-      console.error("Failed to create report:", error);
-      throw error;
-    }
-  },
-  updateReport: async (reportId, reportData) => {
-    try {
-      const data = await api.patch(`${REPORTS_API_URL}?id=eq.${reportId}`, reportData);
-      return data;
-    } catch (error) {
-      console.error(`Failed to update report ${reportId}:`, error);
-      throw error;
-    }
-  },
-};
+  /**
+   * Busca laudos de um paciente específico
+   * @param {string} patientId 
+   */
+  async getReports(patientId) {
+    // Ordena por data de criação decrescente (mais recentes primeiro)
+    return await httpClient.get(`${this.basePath}?patient_id=eq.${patientId}&order=created_at.desc`);
+  }
+
+  /**
+   * Busca um laudo específico por ID
+   * @param {string} reportId 
+   */
+  async getReportById(reportId) {
+    const data = await httpClient.get(`${this.basePath}?id=eq.${reportId}`);
+    // A API REST retorna um array, pegamos o primeiro item
+    return data && data.length > 0 ? data[0] : null;
+  }
+
+  /**
+   * Cria um novo laudo
+   * @param {object} reportData 
+   */
+  async createReport(reportData) {
+    return await httpClient.post(this.basePath, reportData);
+  }
+
+  /**
+   * Atualiza um laudo existente
+   * @param {string} reportId 
+   * @param {object} reportData 
+   */
+  async updateReport(reportId, reportData) {
+    return await httpClient.patch(`${this.basePath}?id=eq.${reportId}`, reportData);
+  }
+}
+
+// Singleton
+export const reportsApi = new ReportsService();

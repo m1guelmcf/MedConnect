@@ -1,51 +1,58 @@
-import { api } from "./api.mjs";
+import { httpClient } from "./httpClient";
 
-
-
-
-export const appointmentsService = {
-  /**
-   * Busca por horários disponíveis para agendamento.
-   * @param {object} data - Critérios da busca (ex: { doctor_id, date }).
-   * @returns {Promise<Array>} - Uma promessa que resolve para uma lista de horários disponíveis.
-   */
-  search_h: (data) => api.post('/functions/v1/get-available-slots', data),
+class AppointmentsService {
+  constructor() {
+    this.basePath = "/rest/v1/appointments";
+  }
 
   /**
-   * Lista todos os agendamentos.
-   * @returns {Promise<Array>} - Uma promessa que resolve para a lista de agendamentos.
+   * Busca por horários disponíveis (Edge Function)
+   * @param {object} data - { doctor_id, date }
    */
-  list: () => api.get('/rest/v1/appointments'),
+  async search_h(data) {
+    return await httpClient.post('/functions/v1/get-available-slots', data);
+  }
 
   /**
-   * Cria um novo agendamento.
-   * @param {object} data - Os dados do agendamento a ser criado.
-   * @returns {Promise<object>} - Uma promessa que resolve para o agendamento criado.
+   * Lista todos os agendamentos
    */
-  create: (data) => api.post('/rest/v1/appointments', data),
+  async list() {
+    return await httpClient.get(this.basePath);
+  }
 
   /**
-   * Busca agendamentos com base em parâmetros de consulta.
-   * @param {string} queryParams - A string de consulta (ex: 'patient_id=eq.123&status=eq.scheduled').
-   * @returns {Promise<Array>} - Uma promessa que resolve para a lista de agendamentos encontrados.
+   * Cria um novo agendamento
+   * @param {object} data 
    */
-  search_appointment: (queryParams) => api.get(`/rest/v1/appointments?${queryParams}`),
+  async create(data) {
+    return await httpClient.post(this.basePath, data);
+  }
 
   /**
-   * Atualiza um agendamento existente.
-   * @param {string|number} id - O ID do agendamento a ser atualizado.
-   * @param {object} data - Os novos dados para o agendamento.
-   * @returns {Promise<object>} - Uma promessa que resolve com a resposta da API.
+   * Busca agendamentos com filtros complexos (Query String)
+   * @param {string} queryParams - ex: 'patient_id=eq.123&status=eq.scheduled'
    */
-  update: (id, data) => api.patch(`/rest/v1/appointments?id=eq.${id}`, data),
+  async search_appointment(queryParams) {
+    return await httpClient.get(`${this.basePath}?${queryParams}`);
+  }
 
   /**
-   * Deleta um agendamento.
-   * @param {string|number} id - O ID do agendamento a ser deletado.
-   * @returns {Promise<object>} - Uma promessa que resolve com a resposta da API.
+   * Atualiza um agendamento
+   * @param {string} id 
+   * @param {object} data 
    */
-  delete: (id) => api.delete(`/rest/v1/appointments?id=eq.${id}`),
+  async update(id, data) {
+    return await httpClient.patch(`${this.basePath}?id=eq.${id}`, data);
+  }
 
-  
+  /**
+   * Deleta um agendamento
+   * @param {string} id 
+   */
+  async delete(id) {
+    return await httpClient.delete(`${this.basePath}?id=eq.${id}`);
+  }
+}
 
-};
+// Singleton
+export const appointmentsService = new AppointmentsService();
