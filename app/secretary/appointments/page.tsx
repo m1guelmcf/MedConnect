@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -11,15 +11,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
+import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
+import { Separator } from "@/components/ui/separator";
 import {
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   MapPin,
   Phone,
   User,
   Trash2,
   Pencil,
+  List,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
+import { format, parseISO, isValid, isToday, isTomorrow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
@@ -43,15 +50,15 @@ export default function SecretaryAppointments() {
     status: "",
   });
 
+  // Estado de data selecionada para o layout novo
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // 1. DEFINIR O PARÂMETRO DE ORDENAÇÃO
-      // 'scheduled_at.desc' ordena pela data do agendamento, em ordem descendente (mais recentes primeiro).
-      const queryParams = "order=scheduled_at.desc";
+      const queryParams = "order=scheduled_at.asc";
 
       const [appointmentList, patientList, doctorList] = await Promise.all([
-        // 2. USAR A FUNÇÃO DE BUSCA COM O PARÂMETRO DE ORDENAÇÃO
         appointmentsService.search_appointment(queryParams),
         patientsService.list(),
         doctorsService.list(),
@@ -82,7 +89,50 @@ export default function SecretaryAppointments() {
 
   useEffect(() => {
     fetchData();
-  }, []); // Array vazio garante que a busca ocorra apenas uma vez, no carregamento da página.
+  }, []);
+
+  // --- Agrupamento por dia para o layout novo ---
+  const groupedAppointments = useMemo(() => {
+    const list = selectedDate
+      ? appointments.filter((apt) => {
+          if (!apt.scheduled_at) return false;
+          const iso = apt.scheduled_at.toString();
+          return iso.startsWith(format(selectedDate, "yyyy-MM-dd"));
+        })
+      : appointments;
+
+    return list.reduce((acc: Record<string, any[]>, apt: any) => {
+      if (!apt.scheduled_at) return acc;
+      const dateObj = new Date(apt.scheduled_at);
+      if (!isValid(dateObj)) return acc;
+      const key = format(dateObj, "yyyy-MM-dd");
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(apt);
+      return acc;
+    }, {});
+  }, [appointments, selectedDate]);
+
+  // Dias que têm consulta (para destacar no calendário)
+  const bookedDays = useMemo(
+    () =>
+      appointments
+        .map((apt) =>
+          apt.scheduled_at ? new Date(apt.scheduled_at) : null
+        )
+        .filter((d): d is Date => d !== null && isValid(d)),
+    [appointments]
+  );
+
+  const formatDisplayDate = (dateString: string) => {
+    const date = parseISO(dateString);
+    if (isToday(date)) {
+      return `Hoje, ${format(date, "dd 'de' MMMM", { locale: ptBR })}`;
+    }
+    if (isTomorrow(date)) {
+      return `Amanhã, ${format(date, "dd 'de' MMMM", { locale: ptBR })}`;
+    }
+    return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
+  };
 
   // --- LÓGICA DE EDIÇÃO ---
   const handleEdit = (appointment: any) => {
@@ -123,9 +173,7 @@ export default function SecretaryAppointments() {
 
       await appointmentsService.update(selectedAppointment.id, updatePayload);
 
-      // 3. RECARREGAR OS DADOS APÓS A EDIÇÃO
-      // Isso garante que a lista permaneça ordenada corretamente se a data for alterada.
-      fetchData();
+      await fetchData();
 
       setEditModal(false);
       toast.success("Consulta atualizada com sucesso!");
@@ -156,6 +204,7 @@ export default function SecretaryAppointments() {
     }
   };
 
+  // Mantidos caso use nos modais
   const timeSlots = [
     "08:00",
     "08:30",
@@ -186,131 +235,225 @@ export default function SecretaryAppointments() {
   return (
     <Sidebar>
       <div className="space-y-6">
+        {/* Cabeçalho principal */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">
-              Consultas Agendadas
+            <h1 className="text-3xl font-bold text-foreground">
+              Agenda Médica
             </h1>
-            <p className="text-muted-foreground">Gerencie as consultas dos pacientes</p>
+            <p className="text-muted-foreground">
+              Consultas para os pacientes
+            </p>
           </div>
-          <Link href="/secretary/schedule">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Calendar className="mr-2 h-4 w-4" />
-              Agendar Nova Consulta
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/secretary/schedule">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                Agendar Nova Consulta
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <div className="grid gap-6">
-          {isLoading ? (
-            <p>Carregando consultas...</p>
-          ) : appointments.length > 0 ? (
-            appointments.map((appointment) => (
-              <Card key={appointment.id}>
+        {/* Subtítulo e ações (mostrar todas / atualizar) */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold capitalize">
+            {selectedDate
+              ? `Agenda de ${format(selectedDate, "dd/MM/yyyy")}`
+              : "Próximas Consultas"}
+          </h2>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setSelectedDate(undefined)}
+              variant="ghost"
+              size="sm"
+            >
+              <List className="mr-2 h-4 w-4" />
+              Mostrar Todas
+            </Button>
+            <Button
+              onClick={() => fetchData()}
+              disabled={isLoading}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+              Atualizar
+            </Button>
+          </div>
+        </div>
+
+        {/* Grid com calendário + lista */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Coluna esquerda: calendário */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CalendarIcon className="mr-2 h-5 w-5" />
+                  Filtrar por Data
+                </CardTitle>
+                <CardDescription>
+                  Selecione um dia para ver os detalhes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center p-2">
+                <CalendarShadcn
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  modifiers={{ booked: bookedDays }}
+                  modifiersClassNames={{ booked: "bg-primary/20" }}
+                  className="rounded-md border p-2"
+                  locale={ptBR}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna direita: lista de consultas */}
+          <div className="lg:col-span-2 space-y-6">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : Object.keys(groupedAppointments).length === 0 ? (
+              <Card className="flex flex-col items-center justify-center h-48 text-center">
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">
-                        {appointment.doctor.full_name}
-                      </CardTitle>
-                      <CardDescription>
-                        {appointment.doctor.specialty}
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(appointment.status)}
-                  </div>
+                  <CardTitle>Nenhuma consulta encontrada</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center text-sm text-foreground font-medium">
-                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                        {appointment.patient.full_name}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {new Date(appointment.scheduled_at).toLocaleDateString(
-                          "pt-BR",
-                          { timeZone: "UTC" }
-                        )}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="mr-2 h-4 w-4" />
-                        {new Date(appointment.scheduled_at).toLocaleTimeString(
-                          "pt-BR",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            timeZone: "UTC",
-                          }
-                        )}
-                      </div>
+                  <p className="text-muted-foreground">
+                    {selectedDate
+                      ? "Não há agendamentos para esta data."
+                      : "Não há próximas consultas agendadas."}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              Object.entries(groupedAppointments).map(
+                ([date, appointmentsForDay]) => (
+                  <div key={date}>
+                    <h3 className="text-lg font-semibold text-foreground mb-3 capitalize">
+                      {formatDisplayDate(date)}
+                    </h3>
+                    <div className="space-y-4">
+                      {appointmentsForDay.map((appointment: any) => {
+                        const scheduledAtDate = new Date(
+                          appointment.scheduled_at
+                        );
+
+                        return (
+                          <Card
+                            key={appointment.id}
+                            className="shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            <CardContent className="p-4 grid grid-cols-3 items-center gap-4">
+                              {/* Coluna 1: Paciente + hora */}
+                              <div className="col-span-1 flex flex-col gap-2">
+                                <div className="font-semibold flex items-center text-foreground">
+                                  <User className="mr-2 h-4 w-4 text-primary" />
+                                  {appointment.patient.full_name}
+                                </div>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <Clock className="mr-2 h-4 w-4" />
+                                  {isValid(scheduledAtDate)
+                                    ? format(scheduledAtDate, "HH:mm")
+                                    : "--:--"}
+                                </div>
+                              </div>
+
+                              {/* Coluna 2: Médico / local / telefone */}
+                              <div className="col-span-1 flex flex-col gap-2">
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <User className="mr-2 h-4 w-4" />
+                                  {appointment.doctor.full_name}
+                                </div>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <MapPin className="mr-2 h-4 w-4" />
+                                  {appointment.doctor.location ||
+                                    "Local a definir"}
+                                </div>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <Phone className="mr-2 h-4 w-4" />
+                                  {appointment.doctor.phone || "N/A"}
+                                </div>
+                                <div>{getStatusBadge(appointment.status)}</div>
+                              </div>
+
+                              {/* Coluna 3: Ações */}
+                              <div className="col-span-1 flex justify-end">
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEdit(appointment)}
+                                  >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Editar
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDelete(appointment)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Cancelar
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-2 h-4 w-4" />
-                        {appointment.doctor.location || "Local a definir"}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Phone className="mr-2 h-4 w-4" />
-                        {appointment.doctor.phone || "N/A"}
-                      </div>
-                    </div>
+                    <Separator className="my-6" />
                   </div>
+                )
+              )
+            )}
+          </div>
+        </div>
 
-                                    <div className="flex gap-2 mt-4 pt-4 border-t">
-                                        <Button variant="outline" size="sm" onClick={() => handleEdit(appointment)}>
-                                            <Pencil className="mr-2 h-4 w-4" />
-                                            Editar
-                                        </Button>
-                                        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 bg-transparent" onClick={() => handleDelete(appointment)}>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Cancelar
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))
-                    ) : (
-                        <p>Nenhuma consulta encontrada.</p>
-                    )}
-                </div>
-            </div>
+        {/* MODAL DE EDIÇÃO */}
+        <Dialog open={editModal} onOpenChange={setEditModal}>
+          {/* ... (código do modal de edição permanece) ... */}
+        </Dialog>
 
-      {/* MODAL DE EDIÇÃO */}
-      <Dialog open={editModal} onOpenChange={setEditModal}>
-        {/* ... (código do modal de edição) ... */}
-      </Dialog>
-
-      {/* Modal de Deleção */}
-      <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
-        {/* ... (código do modal de deleção) ... */}
-      </Dialog>
+        {/* Modal de Deleção */}
+        <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
+          {/* ... (código do modal de deleção permanece) ... */}
+        </Dialog>
+      </div>
     </Sidebar>
   );
 }
 
 const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "requested":
-        return (
-          <Badge className="bg-yellow-400/10 text-yellow-400">Solicitada</Badge>
-        );
-      case "confirmed":
-        return <Badge className="bg-primary/10 text-primary">Confirmada</Badge>;
-      case "checked_in":
-        return (
-          <Badge className="bg-indigo-400/10 text-indigo-400">Check-in</Badge>
-        );
-      case "completed":
-        return <Badge className="bg-green-400/10 text-green-400">Realizada</Badge>;
-      case "cancelled":
-        return <Badge className="bg-destructive/10 text-destructive">Cancelada</Badge>;
-      case "no_show":
-        return (
-          <Badge className="bg-muted text-foreground">Não Compareceu</Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+  switch (status) {
+    case "requested":
+      return (
+        <Badge className="bg-yellow-400/10 text-yellow-400">Solicitada</Badge>
+      );
+    case "confirmed":
+      return <Badge className="bg-primary/10 text-primary">Confirmada</Badge>;
+    case "checked_in":
+      return (
+        <Badge className="bg-indigo-400/10 text-indigo-400">Check-in</Badge>
+      );
+    case "completed":
+      return <Badge className="bg-green-400/10 text-green-400">Realizada</Badge>;
+    case "cancelled":
+      return (
+        <Badge className="bg-destructive/10 text-destructive">Cancelada</Badge>
+      );
+    case "no_show":
+      return (
+        <Badge className="bg-muted text-foreground">Não Compareceu</Badge>
+      );
+    default:
+      return <Badge variant="secondary">{status}</Badge>;
+  }
+};
