@@ -85,19 +85,18 @@ export default function PatientRegister() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800">
+          <Link href="/" className="inline-flex items-center text-primary hover:text-primary/90">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao início
           </Link>
         </div>
-
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Crie sua Conta de Paciente</CardTitle>
-            <CardDescription>Preencha seus dados para acessar o portal MedConnect</CardDescription>
+            <CardTitle className="text-2xl text-foreground">Crie sua Conta de Paciente</CardTitle>
+            <CardDescription className="text-muted-foreground">Preencha seus dados para acessar o portal MedConnect</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
@@ -172,9 +171,9 @@ export default function PatientRegister() {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Já tem uma conta?{" "}
-                <Link href="/login" className="text-blue-600 hover:underline">
+              <p className="text-sm">
+                <span className="text-muted-foreground">Já tem uma conta?</span>{" "}
+                <Link href="/login" className="text-primary hover:underline font-medium">
                   Faça login aqui
                 </Link>
               </p>

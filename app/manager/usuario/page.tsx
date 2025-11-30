@@ -182,22 +182,22 @@ export default function UsersPage() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
-            <p className="text-sm text-gray-500">Gerencie usuários.</p>
+            <h1 className="text-2xl font-bold">Usuários</h1>
+            <p className="text-sm text-muted-foreground">Gerencie usuários.</p>
           </div>
           <Link href="/manager/usuario/novo" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" /> Novo Usuário
             </Button>
           </Link>
         </div>
 
                 {/* --- 4. Filtro (Barra de Pesquisa + Selects) --- */}
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 bg-card p-4 rounded-lg border">
 
                     {/* Barra de Pesquisa */}
                     <div className="relative w-full md:flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                             placeholder="Buscar por nome, e-mail ou telefone..." 
                             value={searchTerm}
@@ -205,7 +205,7 @@ export default function UsersPage() {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1); // Reseta a paginação ao pesquisar
                             }}
-                            className="pl-10 w-full bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                            className="pl-10 w-full bg-muted border-border focus:bg-card transition-colors"
                         />
                     </div>
 
@@ -259,54 +259,54 @@ export default function UsersPage() {
                 {/* Fim do Filtro */}
 
         {/* Tabela/Lista */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-md overflow-x-auto">
+        <div className="bg-card rounded-lg border shadow-md overflow-x-auto">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-green-600" />
+            <div className="p-8 text-center text-muted-foreground">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-primary" />
               Carregando usuários...
             </div>
           ) : error ? (
-            <div className="p-8 text-center text-red-600">{error}</div>
+            <div className="p-8 text-center text-destructive">{error}</div>
           ) : filteredUsers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-muted-foreground">
               Nenhum usuário encontrado com os filtros aplicados.
             </div>
           ) : (
             <>
               {/* Tabela para Telas Médias e Grandes */}
-              <table className="min-w-full divide-y divide-gray-200 hidden md:table">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y hidden md:table">
+                <thead className="bg-muted">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                       Nome
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                       E-mail
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                       Telefone
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                       Cargo
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase">
                       Ações
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-card divide-y">
                   {currentItems.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                    <tr key={u.id} className="hover:bg-muted">
+                      <td className="px-6 py-4 text-sm">
                         {u.full_name}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 break-all">
+                      <td className="px-6 py-4 text-sm text-muted-foreground break-all">
                         {u.email}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {u.phone}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 capitalize">
+                      <td className="px-6 py-4 text-sm text-muted-foreground capitalize">
                         {u.role}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -325,17 +325,17 @@ export default function UsersPage() {
               </table>
 
                             {/* Layout em Cards/Lista para Telas Pequenas */}
-                            <div className="md:hidden divide-y divide-gray-200">
+                            <div className="md:hidden divide-y">
                                 {currentItems.map((u) => (
-                                    <div key={u.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
+                                    <div key={u.id} className="flex items-center justify-between p-4 hover:bg-muted">
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-medium text-gray-900 truncate">
+                                            <div className="text-sm font-medium truncate">
                                                 {u.full_name || "—"}
                                             </div>
-                                            <div className="text-xs text-gray-500 truncate">
+                                            <div className="text-xs text-muted-foreground truncate">
                                                 {u.email}
                                             </div>
-                                            <div className="text-sm text-gray-500 capitalize mt-1">
+                                            <div className="text-sm text-muted-foreground capitalize mt-1">
                                                 {u.role || "—"}
                                             </div>
                                         </div>
@@ -355,12 +355,12 @@ export default function UsersPage() {
 
               {/* Paginação */}
               {totalPages > 1 && (
-                <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 border-t border-gray-200">
+                <div className="flex flex-wrap justify-center items-center gap-2 mt-4 p-4 border-t">
                   {/* Botão Anterior */}
                   <button
                     onClick={goToPrevPage}
                     disabled={currentPage === 1}
-                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-muted text-muted-foreground hover:bg-muted/90 disabled:opacity-50 disabled:cursor-not-allowed border"
                   >
                     {"< Anterior"}
                   </button>
@@ -370,10 +370,10 @@ export default function UsersPage() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border border-gray-300 ${
+                      className={`px-4 py-2 rounded-md font-medium transition-colors text-sm border ${
                         currentPage === number
-                          ? "bg-blue-600 text-white shadow-md border-blue-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-primary text-primary-foreground shadow-md border-primary"
+                          : "bg-muted text-muted-foreground hover:bg-muted/90"
                       }`}
                     >
                       {number}
@@ -384,7 +384,7 @@ export default function UsersPage() {
                   <button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
-                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                    className="flex items-center px-4 py-2 rounded-md font-medium transition-colors text-sm bg-muted text-muted-foreground hover:bg-muted/90 disabled:opacity-50 disabled:cursor-not-allowed border"
                   >
                     {"Próximo >"}
                   </button>
@@ -406,12 +406,12 @@ export default function UsersPage() {
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {!userDetails ? (
-                  <div className="p-4 text-center text-gray-500">
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3 text-green-600" />
+                  <div className="p-4 text-center text-muted-foreground">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3 text-primary" />
                     Buscando dados completos...
                   </div>
                 ) : (
-                  <div className="space-y-3 pt-2 text-left text-gray-700">
+                  <div className="space-y-3 pt-2 text-left text-muted-foreground">
                     <div>
                       <strong>ID:</strong> {userDetails.user.id}
                     </div>
@@ -437,7 +437,7 @@ export default function UsersPage() {
                               {k}:{" "}
                               <span
                                 className={`font-semibold ${
-                                  v ? "text-green-600" : "text-red-600"
+                                  v ? "text-primary" : "text-destructive"
                                 }`}
                               >
                                 {v ? "Sim" : "Não"}

@@ -354,8 +354,8 @@ export default function ScheduleForm() {
     <div className="py-3 px-2">
       <div className="max-w-7xl mx-auto space-y-3">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-slate-900">Agendar Consulta</h1>
-          <p className="text-slate-600">Selecione o médico, data e horário para sua consulta</p>
+          <h1 className="text-3xl font-bold text-foreground">Agendar Consulta</h1>
+          <p className="text-muted-foreground">Selecione o médico, data e horário para sua consulta</p>
         </div>
 
         <div className="grid lg:grid-cols-[1fr,380px] gap-4">
@@ -458,30 +458,30 @@ export default function ScheduleForm() {
           </form>
 
           <div className="space-y-3">
-            <Card className="border-2 border-blue-200 shadow-lg bg-gradient-to-br from-blue-50 to-white sticky top-6">
-              <CardHeader className="pb-3 border-b border-blue-100">
-                <CardTitle className="text-blue-900 flex items-center gap-2">
+            <Card className="border-2 border-primary shadow-lg sticky top-6">
+              <CardHeader className="pb-3 border-b border-primary/20">
+                <CardTitle className="text-primary flex items-center gap-2">
                   <User className="h-5 w-5" />
                   Resumo da Consulta
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-3 space-y-3">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-600">Médico</p>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-xs font-medium text-muted-foreground">Médico</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {selectedDoctor ? doctors.find((d) => d.id === selectedDoctor)?.full_name : "Não selecionado"}
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-600">Data</p>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-xs font-medium text-muted-foreground">Data</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {selectedDate ? format(new Date(selectedDate + "T12:00:00"), "dd/MM/yyyy") : "Não selecionada"}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="time-select" className="text-xs font-medium text-slate-600">
+                  <Label htmlFor="time-select" className="text-xs font-medium text-muted-foreground">
                     Horário
                   </Label>
                   <Select
@@ -512,20 +512,20 @@ export default function ScheduleForm() {
 
                 <div className="pt-3 border-t border-blue-100 space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-600">Tipo:</span>
-                    <span className="font-medium text-slate-900 capitalize">{tipoConsulta}</span>
+                    <span className="text-muted-foreground">Tipo:</span>
+                    <span className="font-medium text-foreground capitalize">{tipoConsulta}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-600">Duração:</span>
-                    <span className="font-medium text-slate-900">{duracao} minutos</span>
+                    <span className="text-muted-foreground">Duração:</span>
+                    <span className="font-medium text-foreground">{duracao} minutos</span>
                   </div>
                 </div>
 
                 {notes && (
-                  <div className="pt-3 border-t border-blue-100">
+                  <div className="pt-3 border-t border-primary/20">
                     <div className="flex items-start gap-2">
                       <StickyNote className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs italic text-slate-700 line-clamp-3">{notes}</p>
+                      <p className="text-xs italic text-muted-foreground line-clamp-3">{notes}</p>
                     </div>
                   </div>
                 )}

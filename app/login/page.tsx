@@ -97,7 +97,7 @@ export default function LoginPage() {
           </div>
 
           {/* O contêiner principal que agora terá a sombra e o estilo de card */}
-          <div className="w-full max-w-md bg-card p-10 rounded-2xl shadow-xl">
+          <div className="w-full max-w-md bg-card p-10 rounded-2xl shadow-xl border-2 border-border mt-8">
             {/* NOVO: Bloco da Logo e Nome (Painel Esquerdo) */}
             <div className="flex items-center justify-center space-x-3 mb-8">
               <img
@@ -155,6 +155,7 @@ export default function LoginPage() {
             fill
             style={{ objectFit: "cover" }}
             priority
+            className="dark:opacity-80"
           />
           {/* Camada de sobreposição para escurecer a imagem e destacar o texto */}
           <div className="absolute inset-0 bg-primary/80 flex flex-col items-start justify-end p-12 text-left">

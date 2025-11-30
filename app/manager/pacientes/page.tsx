@@ -142,7 +142,7 @@ export default function PacientesPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                        <h1 className="text-xl md:text-2xl font-bold">
                             Pacientes
                         </h1>
                         <p className="text-muted-foreground text-sm md:text-base">
@@ -152,8 +152,8 @@ export default function PacientesPage() {
                 </div>
 
                 {/* Filtros */}
-                <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border border-border">
-                    <Filter className="w-5 h-5 text-gray-400" />
+                <div className="flex flex-wrap items-center gap-4 bg-card p-4 rounded-lg border">
+                    <Filter className="w-5 h-5 text-muted-foreground" />
 
                     {/* Busca */}
                     <input
@@ -166,7 +166,7 @@ export default function PacientesPage() {
 
                     {/* Convênio */}
                     <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[200px]">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">
+                        <span className="text-sm font-medium whitespace-nowrap hidden md:block">
                             Convênio
                         </span>
                         <Select value={convenioFilter} onValueChange={setConvenioFilter}>
@@ -184,7 +184,7 @@ export default function PacientesPage() {
 
                     {/* VIP */}
                     <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-grow sm:max-w-[150px]">
-                        <span className="text-sm font-medium text-foreground whitespace-nowrap hidden md:block">VIP</span>
+                        <span className="text-sm font-medium whitespace-nowrap hidden md:block">VIP</span>
                         <Select value={vipFilter} onValueChange={setVipFilter}>
                             <SelectTrigger className="w-full sm:w-32">
                                 <SelectValue placeholder="VIP" />
@@ -219,32 +219,32 @@ export default function PacientesPage() {
                 </div>
 
                 {/* Tabela */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-md hidden md:block">
+                <div className="bg-card rounded-lg border shadow-md hidden md:block">
                     <div className="overflow-x-auto">
                         {error ? (
-                            <div className="p-6 text-red-600">{`Erro ao carregar pacientes: ${error}`}</div>
+                            <div className="p-6 text-destructive">{`Erro ao carregar pacientes: ${error}`}</div>
                         ) : loading ? (
-                            <div className="p-6 text-center text-gray-500 flex items-center justify-center">
-                                <Loader2 className="w-6 h-6 mr-2 animate-spin text-green-600" />{" "}
+                            <div className="p-6 text-center text-muted-foreground flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 mr-2 animate-spin text-primary" />{" "}
                                 Carregando pacientes...
                             </div>
                         ) : (
                             <table className="w-full min-w-[650px]">
-                                <thead className="bg-gray-50 border-b border-gray-200">
+                                <thead className="bg-muted border-b">
                                     <tr>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[20%]">Nome</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden sm:table-cell">Telefone</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden md:table-cell">Cidade / Estado</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden sm:table-cell">Convênio</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden lg:table-cell">Último atendimento</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[15%] hidden lg:table-cell">Próximo atendimento</th>
-                                        <th className="text-left p-4 font-medium text-gray-700 w-[5%]">Ações</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[20%]">Nome</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[15%] hidden sm:table-cell">Telefone</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[15%] hidden md:table-cell">Cidade / Estado</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[15%] hidden sm:table-cell">Convênio</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[15%] hidden lg:table-cell">Último atendimento</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[15%] hidden lg:table-cell">Próximo atendimento</th>
+                                        <th className="text-left p-4 font-medium text-muted-foreground w-[5%]">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {currentPatients.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="p-8 text-center text-gray-500">
+                                            <td colSpan={7} className="p-8 text-center text-muted-foreground">
                                                 {allPatients.length === 0
                                                     ? "Nenhum paciente cadastrado"
                                                     : "Nenhum paciente encontrado com os filtros aplicados"}
@@ -252,33 +252,33 @@ export default function PacientesPage() {
                                         </tr>
                                     ) : (
                                         currentPatients.map((patient) => (
-                                            <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                            <tr key={patient.id} className="border-b hover:bg-muted">
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                            <span className="text-blue-600 font-medium text-sm">
+                                                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                                            <span className="text-primary font-medium text-sm">
                                                                 {patient.nome?.charAt(0) || "?"}
                                                             </span>
                                                         </div>
-                                                        <span className="font-medium text-gray-900">
+                                                        <span className="font-medium">
                                                             {patient.nome}
                                                             {patient.vip && (
-                                                                <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">
+                                                                <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full text-purple-400 bg-purple-400/15 dark:text-purple-300 dark:bg-purple-300/15">
                                                                     VIP
                                                                 </span>
                                                             )}
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="p-4 text-gray-600 hidden sm:table-cell">{patient.telefone}</td>
-                                                <td className="p-4 text-gray-600 hidden md:table-cell">{`${patient.cidade} / ${patient.estado}`}</td>
-                                                <td className="p-4 text-gray-600 hidden sm:table-cell">{patient.convenio}</td>
-                                                <td className="p-4 text-gray-600 hidden lg:table-cell">{patient.ultimoAtendimento}</td>
-                                                <td className="p-4 text-gray-600 hidden lg:table-cell">{patient.proximoAtendimento}</td>
+                                                <td className="p-4 text-muted-foreground hidden sm:table-cell">{patient.telefone}</td>
+                                                <td className="p-4 text-muted-foreground hidden md:table-cell">{`${patient.cidade} / ${patient.estado}`}</td>
+                                                <td className="p-4 text-muted-foreground hidden sm:table-cell">{patient.convenio}</td>
+                                                <td className="p-4 text-muted-foreground hidden lg:table-cell">{patient.ultimoAtendimento}</td>
+                                                <td className="p-4 text-muted-foreground hidden lg:table-cell">{patient.proximoAtendimento}</td>
                                                 <td className="p-4">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <div className="text-black-600 cursor-pointer">
+                                                            <div className="cursor-pointer">
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </div>
                                                         </DropdownMenuTrigger>
@@ -297,7 +297,7 @@ export default function PacientesPage() {
                                                                 <Calendar className="w-4 h-4 mr-2" />
                                                                 Marcar consulta
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(String(patient.id))}>
+                                                            <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(String(patient.id))}>
                                                                 <Trash2 className="w-4 h-4 mr-2" />
                                                                 Excluir
                                                             </DropdownMenuItem>
@@ -315,7 +315,7 @@ export default function PacientesPage() {
 
                 {/* Paginação */}
                 {totalPages > 1 && !loading && (
-                    <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row items-center justify-center p-4 border-t border-border">
                         <div className="flex space-x-2 flex-wrap justify-center">
                             <Button
                                 onClick={() => setPage((prev) => Math.max(1, prev - 1))}
@@ -335,8 +335,8 @@ export default function PacientesPage() {
                                         size="lg"
                                         className={
                                             pageNumber === page
-                                                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                                : "text-gray-700"
+                                                ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                                : "text-muted-foreground"
                                         }
                                     >
                                         {pageNumber}
@@ -367,7 +367,7 @@ export default function PacientesPage() {
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={() => patientToDelete && handleDeletePatient(patientToDelete)}
-                                className="bg-red-600 hover:bg-red-700"
+                                className="bg-destructive hover:bg-destructive/90"
                             >
                                 Excluir
                             </AlertDialogAction>
@@ -382,12 +382,12 @@ export default function PacientesPage() {
                             <AlertDialogTitle>Detalhes do Paciente</AlertDialogTitle>
                             <AlertDialogDescription>
                                 {patientDetails === null ? (
-                                    <div className="text-gray-500">
-                                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-green-600 my-4" />
+                                    <div className="text-muted-foreground">
+                                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary my-4" />
                                         Carregando...
                                     </div>
                                 ) : patientDetails?.error ? (
-                                    <div className="text-red-600 p-4">{patientDetails.error}</div>
+                                    <div className="text-destructive p-4">{patientDetails.error}</div>
                                 ) : (
                                     <div className="grid gap-4 py-4">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
