@@ -34,42 +34,49 @@ export default function PatientProfile() {
   const { user, isLoading: isAuthLoading } = useAuthLayout({
     requiredRole: ["paciente", "admin", "medico", "gestor", "secretaria"],
   });
-  const [patientData, setPatientData] = useState<PatientProfileData | null>(
-    null
-  );
+
+  const [patientData, setPatientData] = useState<PatientProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user?.id) {
-      const fetchPatientDetails = async () => {
-        try {
-          const patientDetails = await patientsService.getById(user.id);
-          setPatientData({
-            name: patientDetails.full_name || user.name,
-            email: user.email,
-            phone: patientDetails.phone_mobile || "",
-            cpf: patientDetails.cpf || "",
-            birthDate: patientDetails.birth_date || "",
-            cep: patientDetails.cep || "",
-            street: patientDetails.street || "",
-            number: patientDetails.number || "",
-            city: patientDetails.city || "",
-            avatarFullUrl: user.avatarFullUrl,
-          });
-        } catch (error) {
-          console.error("Erro ao buscar detalhes do paciente:", error);
-          toast({
-            title: "Erro",
-            description: "Não foi possível carregar seus dados completos.",
-            variant: "destructive",
-          });
-        }
-      };
-      fetchPatientDetails();
+  console.log("PatientProfile MONTADO");
+}, []);
+
+
+ useEffect(() => {
+  const userId = user?.id;
+  if (!userId) return;
+
+  const fetchPatientDetails = async () => {
+    try {
+      const patientDetails = await patientsService.getById(userId);
+      setPatientData({
+        name: patientDetails.full_name || user.name,
+        email: user.email,
+        phone: patientDetails.phone_mobile || "",
+        cpf: patientDetails.cpf || "",
+        birthDate: patientDetails.birth_date || "",
+        cep: patientDetails.cep || "",
+        street: patientDetails.street || "",
+        number: patientDetails.number || "",
+        city: patientDetails.city || "",
+        avatarFullUrl: user.avatarFullUrl,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do paciente:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar seus dados completos.",
+        variant: "destructive",
+      });
     }
-  }, [user]);
+  };
+
+  fetchPatientDetails();
+}, [user?.id, user?.name, user?.email, user?.avatarFullUrl]);
+
 
   const handleInputChange = (
     field: keyof PatientProfileData,

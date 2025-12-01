@@ -3,6 +3,7 @@ import { api } from "./api.mjs";
 export const usersService = {
     // Função getMe corrigida para chamar a si mesma pelo nome
     async getMe() {
+        console.log("getMe chamado");
         const sessionData = await api.getSession();
         if (!sessionData?.id) {
             console.error("Sessão não encontrada ou usuário sem ID.", sessionData);
