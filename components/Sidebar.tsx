@@ -188,14 +188,14 @@ export default function Sidebar({ children }: SidebarProps) {
       },
     ];
 
-        const managerItems: MenuItem[] = [
-            { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-            { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
-            { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
-            { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
-            { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
-        ];
+    const managerItems: MenuItem[] = [
+      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+      { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
+    ];
 
     switch (role) {
       case "gestor":
@@ -262,7 +262,7 @@ export default function Sidebar({ children }: SidebarProps) {
         </div>
 
         {/* MENU */}
-        <nav className="flex-1 p-3 overflow-y-auto">
+        <nav className="flex-1 px-3 py-6 overflow-y-auto flex flex-col gap-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -271,13 +271,13 @@ export default function Sidebar({ children }: SidebarProps) {
               <Link key={item.label} href={item.href}>
                 <div
                   className={`
-                                        flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors
-                                        ${
-                                          isActive
-                                            ? `${isDefaultMode ? "bg-white/20 text-white font-semibold" : "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"}`
-                                            : `${isDefaultMode ? "text-white/80 hover:bg-white/10 hover:text-white" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`
-                                        }
-                                    `}
+                        flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+                        ${
+                          isActive
+                            ? `${isDefaultMode ? "bg-white/20 text-white font-semibold" : "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"}`
+                            : `${isDefaultMode ? "text-white/80 hover:bg-white/10 hover:text-white" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`
+                        }
+                    `}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -289,8 +289,15 @@ export default function Sidebar({ children }: SidebarProps) {
           })}
         </nav>
 
-        {/* PERFIL ORIGINAL + NOME BRANCO */}
-        <div className={`mt-auto p-3 border-t ${isDefaultMode ? "border-white/10" : "border-sidebar-border"}`}>
+        {/* PERFIL ORIGINAL + NOME BRANCO - CORREÇÃO DE ALINHAMENTO AQUI */}
+        <div 
+          className={`
+            mt-auto p-3 border-t 
+            ${isDefaultMode ? "border-white/10" : "border-sidebar-border"}
+            flex flex-col
+            ${sidebarCollapsed ? "items-center justify-center" : "items-stretch"}
+          `}
+        >
           <SidebarUserSection
             userData={userData}
             sidebarCollapsed={sidebarCollapsed}
