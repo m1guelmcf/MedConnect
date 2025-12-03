@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input"; // Importei o Input
 import { Calendar as CalendarShadcn } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -24,6 +25,7 @@ import {
   List,
   RefreshCw,
   Loader2,
+  Search, // Importei o ícone de busca
 } from "lucide-react";
 import { format, parseISO, isValid, isToday, isTomorrow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -43,6 +45,9 @@ export default function SecretaryAppointments() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
 
+  // Estado da Busca
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Estado para o formulário de edição
   const [editFormData, setEditFormData] = useState({
     date: "",
@@ -50,7 +55,7 @@ export default function SecretaryAppointments() {
     status: "",
   });
 
-  // Estado de data selecionada para o layout novo
+  // Estado de data selecionada
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const fetchData = async () => {
@@ -91,17 +96,31 @@ export default function SecretaryAppointments() {
     fetchData();
   }, []);
 
-  // --- Agrupamento por dia para o layout novo ---
+  // --- Filtragem e Agrupamento ---
   const groupedAppointments = useMemo(() => {
-    const list = selectedDate
-      ? appointments.filter((apt) => {
-          if (!apt.scheduled_at) return false;
-          const iso = apt.scheduled_at.toString();
-          return iso.startsWith(format(selectedDate, "yyyy-MM-dd"));
-        })
-      : appointments;
+    let filteredList = appointments;
 
-    return list.reduce((acc: Record<string, any[]>, apt: any) => {
+    // 1. Filtro de Texto (Nome do Paciente ou Médico)
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      filteredList = filteredList.filter(
+        (apt) =>
+          apt.patient.full_name.toLowerCase().includes(lowerTerm) ||
+          apt.doctor.full_name.toLowerCase().includes(lowerTerm)
+      );
+    }
+
+    // 2. Filtro de Data (se selecionada)
+    if (selectedDate) {
+      filteredList = filteredList.filter((apt) => {
+        if (!apt.scheduled_at) return false;
+        const iso = apt.scheduled_at.toString();
+        return iso.startsWith(format(selectedDate, "yyyy-MM-dd"));
+      });
+    }
+
+    // 3. Agrupamento por dia
+    return filteredList.reduce((acc: Record<string, any[]>, apt: any) => {
       if (!apt.scheduled_at) return acc;
       const dateObj = new Date(apt.scheduled_at);
       if (!isValid(dateObj)) return acc;
@@ -110,7 +129,7 @@ export default function SecretaryAppointments() {
       acc[key].push(apt);
       return acc;
     }, {});
-  }, [appointments, selectedDate]);
+  }, [appointments, selectedDate, searchTerm]);
 
   // Dias que têm consulta (para destacar no calendário)
   const bookedDays = useMemo(
@@ -134,7 +153,7 @@ export default function SecretaryAppointments() {
     return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
   };
 
-  // --- LÓGICA DE EDIÇÃO ---
+  // --- LÓGICA DE EDIÇÃO E DELEÇÃO ---
   const handleEdit = (appointment: any) => {
     setSelectedAppointment(appointment);
     const appointmentDate = new Date(appointment.scheduled_at);
@@ -172,9 +191,7 @@ export default function SecretaryAppointments() {
       };
 
       await appointmentsService.update(selectedAppointment.id, updatePayload);
-
       await fetchData();
-
       setEditModal(false);
       toast.success("Consulta atualizada com sucesso!");
     } catch (error) {
@@ -183,7 +200,6 @@ export default function SecretaryAppointments() {
     }
   };
 
-  // --- LÓGICA DE DELEÇÃO ---
   const handleDelete = (appointment: any) => {
     setSelectedAppointment(appointment);
     setDeleteModal(true);
@@ -204,39 +220,11 @@ export default function SecretaryAppointments() {
     }
   };
 
-  // Mantidos caso use nos modais
-  const timeSlots = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-  ];
-  const appointmentStatuses = [
-    "requested",
-    "confirmed",
-    "checked_in",
-    "completed",
-    "cancelled",
-    "no_show",
-  ];
-
   return (
     <Sidebar>
       <div className="space-y-6">
         {/* Cabeçalho principal */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               Agenda Médica
@@ -245,43 +233,61 @@ export default function SecretaryAppointments() {
               Consultas para os pacientes
             </p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/secretary/schedule">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                Agendar Nova Consulta
-              </Button>
-            </Link>
-          </div>
+          <Link href="/secretary/schedule">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Agendar Nova Consulta
+            </Button>
+          </Link>
         </div>
 
-        {/* Subtítulo e ações (mostrar todas / atualizar) */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold capitalize">
+        {/* Barra de Filtros e Ações */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <h2 className="text-xl font-semibold capitalize whitespace-nowrap">
             {selectedDate
               ? `Agenda de ${format(selectedDate, "dd/MM/yyyy")}`
-              : "Próximas Consultas"}
+              : "Todas as Consultas"}
           </h2>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setSelectedDate(undefined)}
-              variant="ghost"
-              size="sm"
-            >
-              <List className="mr-2 h-4 w-4" />
-              Mostrar Todas
-            </Button>
-            <Button
-              onClick={() => fetchData()}
-              disabled={isLoading}
-              variant="outline"
-              size="sm"
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+          
+          <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+            {/* BARRA DE PESQUISA ADICIONADA AQUI */}
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar paciente ou médico..."
+                className="pl-9 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-              Atualizar
-            </Button>
+            </div>
+
+            <div className="flex gap-2 w-full md:w-auto">
+              <Button
+                onClick={() => {
+                    setSelectedDate(undefined);
+                    setSearchTerm("");
+                }}
+                variant="ghost"
+                size="sm"
+                className="flex-1 md:flex-none"
+              >
+                <List className="mr-2 h-4 w-4" />
+                Mostrar Todas
+              </Button>
+              <Button
+                onClick={() => fetchData()}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+                className="flex-1 md:flex-none"
+              >
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+                Atualizar
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -326,9 +332,11 @@ export default function SecretaryAppointments() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    {selectedDate
-                      ? "Não há agendamentos para esta data."
-                      : "Não há próximas consultas agendadas."}
+                    {searchTerm 
+                        ? "Nenhum resultado para a busca." 
+                        : selectedDate
+                            ? "Não há agendamentos para esta data."
+                            : "Não há consultas agendadas."}
                   </p>
                 </CardContent>
               </Card>
@@ -350,7 +358,7 @@ export default function SecretaryAppointments() {
                             key={appointment.id}
                             className="shadow-sm hover:shadow-md transition-shadow"
                           >
-                            <CardContent className="p-4 grid grid-cols-3 items-center gap-4">
+                            <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 items-center gap-4">
                               {/* Coluna 1: Paciente + hora */}
                               <div className="col-span-1 flex flex-col gap-2">
                                 <div className="font-semibold flex items-center text-foreground">
@@ -384,8 +392,8 @@ export default function SecretaryAppointments() {
                               </div>
 
                               {/* Coluna 3: Ações */}
-                              <div className="col-span-1 flex justify-end">
-                                <div className="flex flex-col sm:flex-row gap-2">
+                              <div className="col-span-1 flex justify-start md:justify-end">
+                                <div className="flex gap-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -419,12 +427,13 @@ export default function SecretaryAppointments() {
 
         {/* MODAL DE EDIÇÃO */}
         <Dialog open={editModal} onOpenChange={setEditModal}>
-          {/* ... (código do modal de edição permanece) ... */}
+           {/* Modal de edição permanece o mesmo, adicione o DialogContent se precisar */}
+           {/* Aqui estou assumindo que você tem o conteúdo do Dialog no seu código original ou em outro lugar, pois ele não estava completo no snippet anterior */}
         </Dialog>
 
         {/* Modal de Deleção */}
         <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
-          {/* ... (código do modal de deleção permanece) ... */}
+           {/* Modal de deleção permanece o mesmo */}
         </Dialog>
       </div>
     </Sidebar>
