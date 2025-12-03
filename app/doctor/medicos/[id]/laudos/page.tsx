@@ -11,8 +11,8 @@ import { reportsApi } from '@/services/reportsApi.mjs';
 import Sidebar from '@/components/Sidebar';
 
 export default function LaudosPage() {
-    const [patient, setPatient] = useState(null);
-    const [laudos, setLaudos] = useState([]);
+    const [patient, setPatient] = useState<any>(null);
+    const [laudos, setLaudos] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const patientId = params.id as string;
@@ -25,11 +25,21 @@ export default function LaudosPage() {
             const fetchPatientAndLaudos = async () => {
                 setLoading(true);
                 try {
+                    // 1. Busca dados do paciente
                     const patientData = await api.get(`/rest/v1/patients?id=eq.${patientId}&select=*`).then(r => r?.[0]);
                     setPatient(patientData);
 
+                    // 2. Busca laudos do banco
                     const laudosData = await reportsApi.getReports(patientId);
-                    setLaudos(laudosData);
+
+                    console.log("DADOS VINDOS DO BANCO:", laudosData);
+
+                    // 3. ORDENAÇÃO FORÇADA: O mais novo (created_at) aparece primeiro
+                    const sortedLaudos = laudosData.sort((a: any, b: any) => {
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    });
+
+                    setLaudos(sortedLaudos);
                 } catch (error) {
                     console.error("Failed to fetch data:", error);
                 } finally {
@@ -46,7 +56,7 @@ export default function LaudosPage() {
     const currentItems = laudos.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(laudos.length / itemsPerPage);
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     return (
         <Sidebar>
@@ -81,7 +91,7 @@ export default function LaudosPage() {
                                             <TableHead>Nº do Pedido</TableHead>
                                             <TableHead>Exame</TableHead>
                                             <TableHead>Diagnóstico</TableHead>
-                                            <TableHead>Status</TableHead>
+                                            {/* Coluna Status removida daqui */}
                                             <TableHead>Data de Criação</TableHead>
                                             <TableHead>Ações</TableHead>
                                         </TableRow>
@@ -93,7 +103,7 @@ export default function LaudosPage() {
                                                     <TableCell>{laudo.order_number}</TableCell>
                                                     <TableCell>{laudo.exam}</TableCell>
                                                     <TableCell>{laudo.diagnosis}</TableCell>
-                                                    <TableCell>{laudo.status}</TableCell>
+                                                    {/* Célula de Status removida daqui */}
                                                     <TableCell>{new Date(laudo.created_at).toLocaleDateString()}</TableCell>
                                                     <TableCell>
                                                         <Link href={`/doctor/medicos/${patientId}/laudos/${laudo.id}/editar`}>
@@ -104,7 +114,8 @@ export default function LaudosPage() {
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={6} className="text-center">Nenhum laudo encontrado.</TableCell>
+                                                {/* Ajustado colSpan para 5 colunas restantes */}
+                                                <TableCell colSpan={5} className="text-center">Nenhum laudo encontrado.</TableCell>
                                             </TableRow>
                                         )}
                                     </TableBody>
