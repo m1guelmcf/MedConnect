@@ -84,7 +84,7 @@ export default function AllAvailabilities() {
     if (loading) {
         return (
             <Sidebar>
-                <div className="p-6 text-gray-500">Carregando dados...</div>
+                <div className="p-6 text-muted-foreground">Carregando dados...</div>
             </Sidebar>
         );
     }
@@ -92,7 +92,7 @@ export default function AllAvailabilities() {
     if (!doctors || !availabilities) {
         return (
             <Sidebar>
-                <div className="p-6 text-red-600 font-medium">Não foi possível carregar médicos ou disponibilidades.</div>
+                <div className="p-6 text-destructive font-medium">Não foi possível carregar médicos ou disponibilidades.</div>
             </Sidebar>
         );
     }
@@ -101,8 +101,8 @@ export default function AllAvailabilities() {
         <Sidebar>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Disponibilidade dos Médicos</h1>
-                    <p className="text-gray-600">Visualize a agenda semanal individual de cada médico.</p>
+                    <h1 className="text-3xl font-bold">Disponibilidade dos Médicos</h1>
+                    <p className="text-muted-foreground">Visualize a agenda semanal individual de cada médico.</p>
                 </div>
                 <Card>
                     <CardContent>
@@ -170,7 +170,7 @@ export default function AllAvailabilities() {
                             Anterior
                         </Button>
 
-                        <span className="text-gray-700 font-medium">
+                        <span className="text-muted-foreground font-medium">
                             Página {page} de {totalPages}
                         </span>
 

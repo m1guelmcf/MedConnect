@@ -1,4 +1,3 @@
-// Caminho: [seu-caminho]/ManagerLayout.tsx
 "use client";
 
 import type React from "react";
@@ -7,6 +6,8 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { api } from "@/services/api.mjs";
+import { usersService } from "@/services/usersApi.mjs"; // Importando usersService
+import { useAccessibility } from "@/app/context/AccessibilityContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,6 @@ import {
   SquareUser,
   ClipboardList,
   Stethoscope,
-  ClipboardMinus,
 } from "lucide-react";
 
 import SidebarUserSection from "@/components/ui/userToolTip";
@@ -47,6 +47,7 @@ interface UserData {
     full_name: string;
     phone_mobile: string;
     role: string;
+    avatar_url?: string;
   };
   identities: {
     identity_id: string;
@@ -72,39 +73,101 @@ export default function Sidebar({ children }: SidebarProps) {
   const [role, setRole] = useState<string>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [avatarFullUrl, setAvatarFullUrl] = useState<string | undefined>(undefined);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Função auxiliar para construir URL
+  const buildAvatarUrl = (path: string) => {
+    if (!path) return undefined;
+    const baseUrl = "https://yuanqfswhberkoevtmfr.supabase.co";
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const separator = cleanPath.includes('?') ? '&' : '?';
+    return `${baseUrl}/storage/v1/object/avatars/${cleanPath}${separator}t=${new Date().getTime()}`;
+  };
+  const { theme, contrast } = useAccessibility();
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("user_info");
     const token = localStorage.getItem("token");
 
     if (userInfoString && token) {
-      const userInfo = JSON.parse(userInfoString);
+      try {
+        const userInfo = JSON.parse(userInfoString);
 
-      setUserData({
-        id: userInfo.id ?? "",
-        email: userInfo.email ?? "",
-        app_metadata: {
-          user_role: userInfo.app_metadata?.user_role ?? "patient",
-        },
-        user_metadata: {
-          cpf: userInfo.user_metadata?.cpf ?? "",
-          email_verified: userInfo.user_metadata?.email_verified ?? false,
-          full_name: userInfo.user_metadata?.full_name ?? "",
-          phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
-          role: userInfo.user_metadata?.role ?? "",
-        },
-        identities:
-          userInfo.identities?.map((identity: any) => ({
-            identity_id: identity.identity_id ?? "",
-            id: identity.id ?? "",
-            user_id: identity.user_id ?? "",
-            provider: identity.provider ?? "",
-          })) ?? [],
-        is_anonymous: userInfo.is_anonymous ?? false,
-      });
-      setRole(userInfo.user_metadata?.role);
+        // 1. Tenta pegar o avatar do cache local
+        let rawAvatarPath = 
+          userInfo.profile?.avatar_url || 
+          userInfo.user_metadata?.avatar_url || 
+          userInfo.app_metadata?.avatar_url || 
+          "";
+
+        // Configura estado inicial com o que tem no cache
+        setUserData({
+          id: userInfo.id ?? "",
+          email: userInfo.email ?? "",
+          app_metadata: {
+            user_role: userInfo.app_metadata?.user_role ?? "patient",
+          },
+          user_metadata: {
+            cpf: userInfo.user_metadata?.cpf ?? "",
+            email_verified: userInfo.user_metadata?.email_verified ?? false,
+            full_name: userInfo.user_metadata?.full_name || userInfo.profile?.full_name || "Usuário",
+            phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
+            role: userInfo.user_metadata?.role ?? "",
+            avatar_url: rawAvatarPath,
+          },
+          identities: userInfo.identities ?? [],
+          is_anonymous: userInfo.is_anonymous ?? false,
+        });
+        
+        setRole(userInfo.user_metadata?.role);
+
+        if (rawAvatarPath) {
+          setAvatarFullUrl(buildAvatarUrl(rawAvatarPath));
+        }
+
+        // 2. AUTO-REPARO: Se não tiver avatar ou profile no cache, busca na API e atualiza
+        if (!rawAvatarPath || !userInfo.profile) {
+          console.log("[Sidebar] Cache incompleto. Buscando dados frescos...");
+          usersService.getMe().then((freshData) => {
+            if (freshData && freshData.profile) {
+              const freshAvatar = freshData.profile.avatar_url;
+              
+              // Atualiza o objeto local
+              const updatedUserInfo = {
+                ...userInfo,
+                profile: freshData.profile, // Injeta o profile completo
+                user_metadata: {
+                  ...userInfo.user_metadata,
+                  avatar_url: freshAvatar || userInfo.user_metadata.avatar_url
+                }
+              };
+
+              // Salva no localStorage para a próxima vez
+              localStorage.setItem("user_info", JSON.stringify(updatedUserInfo));
+              console.log("[Sidebar] LocalStorage sincronizado com sucesso.");
+
+              // Atualiza visualmente se achou um avatar novo
+              if (freshAvatar && freshAvatar !== rawAvatarPath) {
+                setAvatarFullUrl(buildAvatarUrl(freshAvatar));
+                // Atualiza o userData também para refletir no tooltip
+                setUserData(prev => prev ? ({
+                    ...prev,
+                    user_metadata: {
+                        ...prev.user_metadata,
+                        avatar_url: freshAvatar
+                    }
+                }) : undefined);
+              }
+            }
+          }).catch(err => console.error("[Sidebar] Falha no auto-reparo:", err));
+        }
+
+      } catch (e) {
+        console.error("Erro ao processar dados do usuário na Sidebar:", e);
+      }
+
     } else {
       router.push("/login");
     }
@@ -129,6 +192,7 @@ export default function Sidebar({ children }: SidebarProps) {
     try {
       await api.logout();
     } catch (error) {
+      console.error("Erro ao fazer logout", error);
     } finally {
       localStorage.removeItem("user_info");
       localStorage.removeItem("token");
@@ -188,14 +252,14 @@ export default function Sidebar({ children }: SidebarProps) {
       },
     ];
 
-        const managerItems: MenuItem[] = [
-            { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
-            { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
-            { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
-            { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
-            { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
-            { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
-        ];
+    const managerItems: MenuItem[] = [
+      { href: "/manager/dashboard", icon: Home, label: "Dashboard" },
+      { href: "/manager/usuario", icon: Users, label: "Gestão de Usuários" },
+      { href: "/manager/home", icon: Stethoscope, label: "Gestão de Médicos" },
+      { href: "/manager/pacientes", icon: Users, label: "Gestão de Pacientes" },
+      { href: "/secretary/appointments", icon: CalendarCheck2, label: "Consultas" },
+      { href: "/manager/disponibilidade", icon: ClipboardList, label: "Disponibilidade" },
+    ];
 
     switch (role) {
       case "gestor":
@@ -212,6 +276,7 @@ export default function Sidebar({ children }: SidebarProps) {
   };
 
   const menuItems = SetMenuItems(role);
+  const isDefaultMode = theme === "light" && contrast === "normal";
 
   if (!userData) {
     return (
@@ -222,17 +287,17 @@ export default function Sidebar({ children }: SidebarProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       <div
         className={`fixed top-0 h-screen flex flex-col z-30 transition-all duration-300
                 ${sidebarCollapsed ? "w-16" : "w-64"}
-                bg-[#123965] text-white`}
+                ${isDefaultMode ? "bg-[#123965] text-white" : "bg-sidebar text-sidebar-foreground"}`}
       >
         {/* TOPO */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className={`p-4 border-b ${isDefaultMode ? "border-white/10" : "border-sidebar-border"} flex items-center justify-between`}>
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded-lg">
+              <div className="bg-background p-1 rounded-lg">
                 <img
                   src="/Logo MedConnect.png"
                   alt="Logo MedConnect"
@@ -240,7 +305,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 />
               </div>
 
-              <span className="font-semibold text-white text-lg">
+              <span className="font-semibold text-lg">
                 MedConnect
               </span>
             </div>
@@ -250,7 +315,7 @@ export default function Sidebar({ children }: SidebarProps) {
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1 text-white hover:bg-white/10 cursor-pointer"
+            className={`p-1 ${isDefaultMode ? "text-white hover:bg-white/10" : "hover:bg-sidebar-accent"} cursor-pointer`}
           >
             {sidebarCollapsed ? (
               <ChevronRight className="w-5 h-5" />
@@ -261,7 +326,7 @@ export default function Sidebar({ children }: SidebarProps) {
         </div>
 
         {/* MENU */}
-        <nav className="flex-1 p-3 overflow-y-auto">
+        <nav className="flex-1 px-3 py-6 overflow-y-auto flex flex-col gap-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -270,13 +335,13 @@ export default function Sidebar({ children }: SidebarProps) {
               <Link key={item.label} href={item.href}>
                 <div
                   className={`
-                                        flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors
-                                        ${
-                                          isActive
-                                            ? "bg-white/20 text-white font-semibold"
-                                            : "text-white/80 hover:bg-white/10 hover:text-white"
-                                        }
-                                    `}
+                        flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+                        ${
+                          isActive
+                            ? `${isDefaultMode ? "bg-white/20 text-white font-semibold" : "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"}`
+                            : `${isDefaultMode ? "text-white/80 hover:bg-white/10 hover:text-white" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`
+                        }
+                    `}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -288,13 +353,21 @@ export default function Sidebar({ children }: SidebarProps) {
           })}
         </nav>
 
-        {/* PERFIL ORIGINAL + NOME BRANCO */}
-        <div className="mt-auto p-3 border-t border-white/10">
+        {/* PERFIL ORIGINAL + NOME BRANCO - CORREÇÃO DE ALINHAMENTO AQUI */}
+        <div 
+          className={`
+            mt-auto p-3 border-t 
+            ${isDefaultMode ? "border-white/10" : "border-sidebar-border"}
+            flex flex-col
+            ${sidebarCollapsed ? "items-center justify-center" : "items-stretch"}
+          `}
+        >
           <SidebarUserSection
             userData={userData}
             sidebarCollapsed={sidebarCollapsed}
             handleLogout={handleLogout}
             isActive={role !== "paciente"}
+            avatarUrl={avatarFullUrl}
           />
         </div>
       </div>
@@ -304,28 +377,27 @@ export default function Sidebar({ children }: SidebarProps) {
         }`}
       >
         <main className="flex-1 p-4 md:p-6">{children}</main>
+        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirmar Saída</DialogTitle>
+              <DialogDescription>
+                Deseja realmente sair do sistema? Você precisará fazer login
+                novamente.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={cancelLogout}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={confirmLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Confirmar Saída</DialogTitle>
-            <DialogDescription>
-              Deseja realmente sair do sistema? Você precisará fazer login
-              novamente.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={cancelLogout}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-       
     </div>
   );
 }

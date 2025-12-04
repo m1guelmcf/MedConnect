@@ -155,12 +155,12 @@ export default function EditarUsuarioPage() {
 
   if (loading) {
     return (
-        <Sidebar>
-            <div className="flex justify-center items-center h-full w-full py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-                <p className="ml-2 text-gray-600">Carregando dados do usuário...</p>
-            </div>
-        </Sidebar>
+      <Sidebar>
+        <div className="flex justify-center items-center h-full w-full py-16">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="ml-2 text-muted-foreground">Carregando dados do usuário...</p>
+        </div>
+      </Sidebar>
     );
   }
 
@@ -169,10 +169,10 @@ export default function EditarUsuarioPage() {
     <div className="w-full max-w-2xl mx-auto space-y-6 p-4 md:p-8"> 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Editar Usuário: <span className="text-green-600">{formData.nomeCompleto}</span>
+          <h1 className="text-2xl font-bold text-foreground">
+            Editar Usuário: <span className="text-primary">{formData.nomeCompleto}</span>
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Atualize as informações do usuário (ID: {id}).
           </p>
         </div>
@@ -184,9 +184,9 @@ export default function EditarUsuarioPage() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 border rounded-lg shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-card p-8 border border-border rounded-lg shadow-sm">
         {error && (
-             <div className="p-3 bg-red-100 text-red-700 rounded-lg border border-red-300">
+             <div className="p-3 rounded-lg border bg-destructive/10 text-destructive border-destructive/30">
                 <p className="font-medium">Erro na Atualização:</p>
                 <p className="text-sm">{error}</p>
             </div>
@@ -261,7 +261,7 @@ export default function EditarUsuarioPage() {
           </Link>
           <Button 
             type="submit" 
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-primary hover:bg-primary/90"
             disabled={isSaving}
           >
             {isSaving ? (

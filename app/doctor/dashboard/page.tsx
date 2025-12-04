@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react"; // Adicionado useMemo
 import { toast } from "@/hooks/use-toast";
 
 import { useAuthLayout } from "@/hooks/useAuthLayout";
@@ -38,7 +38,6 @@ import Sidebar from "@/components/Sidebar";
 import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
 
-// --- TIPOS ADICIONADOS PARA CORREÇÃO ---
 type Appointment = {
     id: string;
     doctor_id: string;
@@ -50,7 +49,6 @@ type Appointment = {
 type EnrichedAppointment = Appointment & {
     patientName: string;
 };
-// --- FIM DOS TIPOS ADICIONADOS ---
 
 type Availability = {
     id: string;
@@ -142,14 +140,17 @@ interface Exception {
     created_by: string;
 }
 
-// Minimal type for Patient, adjust if more fields are needed
 type Patient = {
     id: string;
     full_name: string;
 };
 
-export default function PatientDashboard() {
-    const { user } = useAuthLayout({ requiredRole: ['medico'] });
+export default function DoctorDashboard() {
+    // --- CORREÇÃO CRÍTICA DO LOOP ---
+    // Usamos useMemo para garantir que o array de roles seja uma referência estável
+    // e não dispare o useEffect do useAuthLayout infinitamente.
+    const requiredRoles = useMemo(() => ['medico'], []);
+    const { user } = useAuthLayout({ requiredRole: requiredRoles });
 
     const [loggedDoctor, setLoggedDoctor] = useState<Doctor | null>(null);
     const [userData, setUserData] = useState<UserData>();
@@ -218,7 +219,7 @@ export default function PatientDashboard() {
         };
 
         fetchData();
-    }, [user]);
+    }, [user?.id]); 
 
     function findDoctorById(id: string, doctors: Doctor[]) {
         return doctors.find((doctor) => doctor.user_id === id);
@@ -264,8 +265,8 @@ export default function PatientDashboard() {
         <Sidebar>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                    <p className="text-gray-600">
+                    <h1 className="text-3xl font-bold">Dashboard</h1>
+                    <p className="text-muted-foreground">
                         Bem-vindo ao seu portal de consultas médicas
                     </p>
                 </div>
@@ -325,7 +326,7 @@ export default function PatientDashboard() {
                             <CardDescription>Acesse rapidamente as principais funcionalidades</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Link href="/doctor/medicos/consultas">
+                            <Link href="/doctor/consultas">
                                 <Button className="w-full justify-start">
                                     <Calendar className="mr-2 h-4 w-4" />
                                     Ver Minhas Consultas
@@ -367,21 +368,21 @@ export default function PatientDashboard() {
 
                                     return (
                                         <div key={ex.id} className="space-y-4">
-                                            <div className="flex flex-col items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm">
+                                            <div className="flex flex-col items-center justify-between p-3 bg-primary/10 rounded-lg shadow-sm">
                                                 <div className="text-center">
                                                     <p className="font-semibold capitalize">{date}</p>
-                                                    <p className="text-sm text-gray-600">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {startTime && endTime
                                                             ? `${startTime} - ${endTime}`
                                                             : "Dia todo"}
                                                     </p>
                                                 </div>
                                                 <div className="text-center mt-2">
-                                                    <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-red-600" : "text-green-600"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
-                                                    <p className="text-xs text-gray-500 italic">{ex.reason || "Sem motivo especificado"}</p>
+                                                    <p className={`text-sm font-medium ${ex.kind === "bloqueio" ? "text-destructive" : "text-primary"}`}>{ex.kind === "bloqueio" ? "Bloqueio" : "Liberação"}</p>
+                                                    <p className="text-xs text-muted-foreground italic">{ex.reason || "Sem motivo especificado"}</p>
                                                 </div>
                                                 <div>
-                                                    <Button className="text-red-600" variant="outline" onClick={() => openDeleteDialog(String(ex.id))}>
+                                                    <Button className="text-destructive" variant="outline" onClick={() => openDeleteDialog(String(ex.id))}>
                                                         <Trash2></Trash2>
                                                     </Button>
                                                 </div>
@@ -390,7 +391,7 @@ export default function PatientDashboard() {
                                     );
                                 })
                             ) : (
-                                <p className="text-sm text-gray-400 italic col-span-7 text-center">Nenhuma exceção registrada.</p>
+                                <p className="text-sm text-muted-foreground italic col-span-7 text-center">Nenhuma exceção registrada.</p>
                             )}
                         </CardContent>
                     </Card>
@@ -403,7 +404,7 @@ export default function PatientDashboard() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-red-600 hover:bg-red-700">
+                            <AlertDialogAction onClick={() => exceptionToDelete && handleDeleteException(exceptionToDelete)} className="bg-destructive hover:bg-destructive/90">
                                 Excluir
                             </AlertDialogAction>
                         </AlertDialogFooter>

@@ -33,6 +33,7 @@ interface Props {
   sidebarCollapsed: boolean;
   handleLogout: () => void;
   isActive: boolean;
+  avatarUrl?: string;
 }
 
 export default function SidebarUserSection({
@@ -40,6 +41,7 @@ export default function SidebarUserSection({
   sidebarCollapsed,
   handleLogout,
   isActive,
+  avatarUrl,
 }: Props) {
   const pathname = usePathname();
   const menuItems: any[] = [
@@ -56,6 +58,18 @@ export default function SidebarUserSection({
     { href: "/patient/reports", icon: ClipboardPlus, label: "Meus Laudos" },
     { href: "/patient/profile", icon: SquareUser, label: "Meus Dados" },
   ];
+
+  // Função auxiliar para obter iniciais
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
+
   return (
     <div className="border-t p-4 mt-auto">
       {/* POPUP DE INFORMAÇÕES DO USUÁRIO */}
@@ -67,12 +81,13 @@ export default function SidebarUserSection({
             }`}
           >
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" />
-              <AvatarFallback>
-                {userData.user_metadata.full_name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+              <AvatarImage 
+                src={avatarUrl} 
+                alt={userData.user_metadata.full_name} 
+                className="object-cover"
+              />
+              <AvatarFallback className="text-black bg-gray-200 font-semibold">
+                {getInitials(userData.user_metadata.full_name)}
               </AvatarFallback>
             </Avatar>
 
@@ -93,7 +108,7 @@ export default function SidebarUserSection({
         <PopoverContent
           align="center"
           side="top"
-          className="w-64 p-4 shadow-lg border bg-white"
+          className="w-64 p-4 shadow-2xl border-2 border-primary/20 bg-card text-card-foreground ring-1 ring-primary/10"
         >
           <nav>
             {menuItems.map((item) => {
@@ -104,8 +119,8 @@ export default function SidebarUserSection({
                   <div
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
                       isActive
-                        ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                        : "text-gray-600 hover:bg-gray-50"
+                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                        : "text-foreground hover:bg-muted"
                     }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
@@ -125,19 +140,19 @@ export default function SidebarUserSection({
         size="sm"
         className={
           sidebarCollapsed
-            ? "w-full bg-white text-black flex justify-center items-center p-2 hover:bg-gray-200"
-            : "w-full bg-white text-black hover:bg-gray-200 cursor-pointer"
+            ? "w-full bg-card text-foreground border-2 border-border flex justify-center items-center p-2 hover:bg-muted"
+            : "w-full bg-card text-foreground border-2 border-border hover:bg-muted cursor-pointer"
         }
         onClick={handleLogout}
       >
         <LogOut
           className={
-            sidebarCollapsed ? "h-5 w-5 text-black" : "mr-2 h-4 w-4 text-black"
+            sidebarCollapsed ? "h-5 w-5" : "mr-2 h-4 w-4"
           }
         />
         {!sidebarCollapsed && "Sair"}
       </Button>
-         
+         
     </div>
   );
 }

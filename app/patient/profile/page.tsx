@@ -1,18 +1,17 @@
-// ARQUIVO COMPLETO PARA: app/patient/profile/page.tsx
-
+// Caminho: app/patient/profile/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import { useAuthLayout } from "@/hooks/useAuthLayout";
 import { patientsService } from "@/services/patientsApi.mjs";
+import { usersService } from "@/services/usersApi.mjs"; // Adicionado import
 import { api } from "@/services/api.mjs";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { User, Mail, Phone, Calendar, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,18 +33,45 @@ export default function PatientProfile() {
   const { user, isLoading: isAuthLoading } = useAuthLayout({
     requiredRole: ["paciente", "admin", "medico", "gestor", "secretaria"],
   });
-  const [patientData, setPatientData] = useState<PatientProfileData | null>(
-    null
-  );
+
+  const [patientData, setPatientData] = useState<PatientProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
+
+  // Função auxiliar para construir URL do avatar
+  const buildAvatarUrl = (path: string | null | undefined) => {
+    if (!path) return undefined;
+    const baseUrl = "https://yuanqfswhberkoevtmfr.supabase.co";
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const separator = cleanPath.includes('?') ? '&' : '?';
+    return `${baseUrl}/storage/v1/object/avatars/${cleanPath}${separator}t=${new Date().getTime()}`;
+  };
+
   useEffect(() => {
     if (user?.id) {
-      const fetchPatientDetails = async () => {
+      const loadData = async () => {
         try {
+          // 1. Busca dados médicos (Tabela Patients)
           const patientDetails = await patientsService.getById(user.id);
+          
+          // 2. Busca dados de sistema frescos (Tabela Profiles via getMe)
+          // Isso garante que pegamos o avatar real do banco, não do cache local
+          const userSystemData = await usersService.getMe();
+          
+          const freshAvatarPath = userSystemData?.profile?.avatar_url;
+          const freshAvatarUrl = buildAvatarUrl(freshAvatarPath);
+
           setPatientData({
             name: patientDetails.full_name || user.name,
             email: user.email,
@@ -56,10 +82,10 @@ export default function PatientProfile() {
             street: patientDetails.street || "",
             number: patientDetails.number || "",
             city: patientDetails.city || "",
-            avatarFullUrl: user.avatarFullUrl,
+            avatarFullUrl: freshAvatarUrl, // Usa a URL fresca do banco
           });
         } catch (error) {
-          console.error("Erro ao buscar detalhes do paciente:", error);
+          console.error("Erro ao buscar detalhes:", error);
           toast({
             title: "Erro",
             description: "Não foi possível carregar seus dados completos.",
@@ -67,15 +93,36 @@ export default function PatientProfile() {
           });
         }
       };
-      fetchPatientDetails();
+      loadData();
     }
-  }, [user]);
+  }, [user?.id, user?.email, user?.name]); // Removi user.avatarFullUrl para não depender do cache
 
   const handleInputChange = (
     field: keyof PatientProfileData,
     value: string
   ) => {
     setPatientData((prev) => (prev ? { ...prev, [field]: value } : null));
+  };
+
+  const updateLocalSession = (updates: { full_name?: string; avatar_url?: string }) => {
+    try {
+      const storedUserString = localStorage.getItem("user_info");
+      if (storedUserString) {
+        const storedUser = JSON.parse(storedUserString);
+        
+        if (!storedUser.user_metadata) storedUser.user_metadata = {};
+        if (updates.full_name) storedUser.user_metadata.full_name = updates.full_name;
+        if (updates.avatar_url) storedUser.user_metadata.avatar_url = updates.avatar_url;
+        
+        if (!storedUser.profile) storedUser.profile = {};
+        if (updates.full_name) storedUser.profile.full_name = updates.full_name;
+        if (updates.avatar_url) storedUser.profile.avatar_url = updates.avatar_url;
+
+        localStorage.setItem("user_info", JSON.stringify(storedUser));
+      }
+    } catch (e) {
+      console.error("Erro ao atualizar sessão local:", e);
+    }
   };
 
   const handleSave = async () => {
@@ -92,12 +139,22 @@ export default function PatientProfile() {
         number: patientData.number,
         city: patientData.city,
       };
+      
       await patientsService.update(user.id, patientPayload);
+      await api.patch(`/rest/v1/profiles?id=eq.${user.id}`, {
+        full_name: patientData.name,
+      });
+      
+      updateLocalSession({ full_name: patientData.name });
+
       toast({
         title: "Sucesso!",
-        description: "Seus dados foram atualizados.",
+        description: "Seus dados foram atualizados. A página será recarregada.",
       });
+      
       setIsEditing(false);
+      setTimeout(() => window.location.reload(), 1000);
+
     } catch (error) {
       console.error("Erro ao salvar dados:", error);
       toast({
@@ -121,9 +178,6 @@ export default function PatientProfile() {
     if (!file || !user) return;
 
     const fileExt = file.name.split(".").pop();
-
-    // *** A CORREÇÃO ESTÁ AQUI ***
-    // O caminho salvo no banco de dados não deve conter o nome do bucket.
     const filePath = `${user.id}/avatar.${fileExt}`;
 
     try {
@@ -132,15 +186,21 @@ export default function PatientProfile() {
         avatar_url: filePath,
       });
 
-      const newFullUrl = `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/public/avatars/${filePath}?t=${new Date().getTime()}`;
+      const newFullUrl = buildAvatarUrl(filePath);
+      
       setPatientData((prev) =>
         prev ? { ...prev, avatarFullUrl: newFullUrl } : null
       );
+
+      updateLocalSession({ avatar_url: filePath });
 
       toast({
         title: "Sucesso!",
         description: "Sua foto de perfil foi atualizada.",
       });
+
+      setTimeout(() => window.location.reload(), 1000);
+
     } catch (error) {
       console.error("Erro no upload do avatar:", error);
       toast({
@@ -154,7 +214,9 @@ export default function PatientProfile() {
   if (isAuthLoading || !patientData) {
     return (
       <Sidebar>
-        <div>Carregando seus dados...</div>
+        <div className="flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Carregando seus dados...</p>
+        </div>
       </Sidebar>
     );
   }
@@ -164,8 +226,8 @@ export default function PatientProfile() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Meus Dados</h1>
-            <p className="text-gray-600">Gerencie suas informações pessoais</p>
+            <h1 className="text-3xl font-bold text-foreground">Meus Dados</h1>
+            <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
           </div>
           <Button
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -313,22 +375,20 @@ export default function PatientProfile() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <div className="relative">
+                  <div className="relative group">
                     <Avatar
-                      className="w-16 h-16 cursor-pointer"
+                      className="w-16 h-16 cursor-pointer border-2 border-transparent group-hover:border-blue-500 transition-all"
                       onClick={handleAvatarClick}
                     >
-                      <AvatarImage src={patientData.avatarFullUrl} />
-                      <AvatarFallback className="text-2xl">
-                        {patientData.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                      <AvatarImage src={patientData.avatarFullUrl} className="object-cover" />
+                      <AvatarFallback className="text-2xl bg-gray-200 text-gray-700 font-bold">
+                        {getInitials(patientData.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div
-                      className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer hover:bg-primary/80"
+                      className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-1.5 cursor-pointer hover:bg-blue-700 shadow-md transition-colors"
                       onClick={handleAvatarClick}
+                      title="Alterar foto"
                     >
                       <Upload className="w-3 h-3" />
                     </div>
@@ -337,25 +397,25 @@ export default function PatientProfile() {
                       ref={fileInputRef}
                       onChange={handleAvatarUpload}
                       className="hidden"
-                      accept="image/png, image/jpeg"
+                      accept="image/png, image/jpeg, image/jpg"
                     />
                   </div>
                   <div>
-                    <p className="font-medium">{patientData.name}</p>
+                    <p className="font-medium text-lg">{patientData.name}</p>
                     <p className="text-sm text-gray-500">Paciente</p>
                   </div>
                 </div>
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex items-center text-sm">
-                    <Mail className="mr-2 h-4 w-4 text-gray-500" />
+                    <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span className="truncate">{patientData.email}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <Phone className="mr-2 h-4 w-4 text-gray-500" />
+                    <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>{patientData.phone || "Não informado"}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>
                       {patientData.birthDate
                         ? new Date(patientData.birthDate).toLocaleDateString(
