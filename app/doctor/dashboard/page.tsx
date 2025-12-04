@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react"; // Adicionado useMemo
 import { toast } from "@/hooks/use-toast";
 
 import { useAuthLayout } from "@/hooks/useAuthLayout";
@@ -38,7 +38,6 @@ import Sidebar from "@/components/Sidebar";
 import WeeklyScheduleCard from "@/components/ui/WeeklyScheduleCard";
 
 
-// --- TIPOS ADICIONADOS PARA CORREÇÃO ---
 type Appointment = {
     id: string;
     doctor_id: string;
@@ -50,7 +49,6 @@ type Appointment = {
 type EnrichedAppointment = Appointment & {
     patientName: string;
 };
-// --- FIM DOS TIPOS ADICIONADOS ---
 
 type Availability = {
     id: string;
@@ -142,14 +140,17 @@ interface Exception {
     created_by: string;
 }
 
-// Minimal type for Patient, adjust if more fields are needed
 type Patient = {
     id: string;
     full_name: string;
 };
 
-export default function PatientDashboard() {
-    const { user } = useAuthLayout({ requiredRole: ['medico'] });
+export default function DoctorDashboard() {
+    // --- CORREÇÃO CRÍTICA DO LOOP ---
+    // Usamos useMemo para garantir que o array de roles seja uma referência estável
+    // e não dispare o useEffect do useAuthLayout infinitamente.
+    const requiredRoles = useMemo(() => ['medico'], []);
+    const { user } = useAuthLayout({ requiredRole: requiredRoles });
 
     const [loggedDoctor, setLoggedDoctor] = useState<Doctor | null>(null);
     const [userData, setUserData] = useState<UserData>();
@@ -218,7 +219,7 @@ export default function PatientDashboard() {
         };
 
         fetchData();
-    }, [user]);
+    }, [user?.id]); 
 
     function findDoctorById(id: string, doctors: Doctor[]) {
         return doctors.find((doctor) => doctor.user_id === id);
@@ -325,7 +326,7 @@ export default function PatientDashboard() {
                             <CardDescription>Acesse rapidamente as principais funcionalidades</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Link href="/doctor/medicos/consultas">
+                            <Link href="/doctor/consultas">
                                 <Button className="w-full justify-start">
                                     <Calendar className="mr-2 h-4 w-4" />
                                     Ver Minhas Consultas
