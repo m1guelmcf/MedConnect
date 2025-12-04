@@ -6,72 +6,63 @@ import { usersService } from "@/services/usersApi.mjs";
 import { toast } from "@/hooks/use-toast";
 
 interface UserLayoutData {
-  id: string;
-  name: string;
-  email: string;
-  roles: string[];
-  avatar_url?: string;
-  avatarFullUrl?: string;
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+    avatar_url?: string;
+    avatarFullUrl?: string;
 }
 
 interface UseAuthLayoutOptions {
-  requiredRole?: string[];
+    requiredRole?: string[];
 }
 
-export function useAuthLayout(
-  { requiredRole }: UseAuthLayoutOptions = {}
-) {
-  const [user, setUser] = useState<UserLayoutData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+export function useAuthLayout({ requiredRole }: UseAuthLayoutOptions = {}) {
+    const [user, setUser] = useState<UserLayoutData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const fullUserData = await usersService.getMe();
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const fullUserData = await usersService.getMe();
 
-        // só verifica papel se requiredRole existir
-        if (
-          requiredRole &&
-          !fullUserData.roles.some((role: string) =>
-            requiredRole.includes(role)
-          )
-        ) {
-          console.error(
-            `Acesso negado. Requer perfil '${requiredRole}', mas o usuário tem '${fullUserData.roles.join(", ")}'.`
-          );
-          toast({
-            title: "Acesso Negado",
-            description: "Você não tem permissão para acessar esta página.",
-            variant: "destructive",
-          });
-          router.push("/");
-          return;
-        }
+                if (!fullUserData.roles.some((role) => requiredRole?.includes(role))) {
+                    console.error(`Acesso negado. Requer perfil '${requiredRole}', mas o usuário tem '${fullUserData.roles.join(", ")}'.`);
+                    toast({
+                        title: "Acesso Negado",
+                        description: "Você não tem permissão para acessar esta página.",
+                        variant: "destructive",
+                    });
+                    router.push("/");
+                    return;
+                }
 
-        const avatarPath = fullUserData.profile.avatar_url;
-        const avatarFullUrl = avatarPath
-          ? `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/public/avatars/${avatarPath}`
-          : undefined;
+                const avatarPath = fullUserData.profile.avatar_url;
 
-        setUser({
-          id: fullUserData.user.id,
-          name: fullUserData.profile.full_name || "Usuário",
-          email: fullUserData.user.email,
-          roles: fullUserData.roles,
-          avatar_url: avatarPath,
-          avatarFullUrl,
-        });
-      } catch (error) {
-        console.error("Falha na autenticação do layout:", error);
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+                // *** A CORREÇÃO ESTÁ AQUI ***
+                // Adicionamos o nome do bucket 'avatars' na URL final.
+                const avatarFullUrl = avatarPath ? `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/public/avatars/${avatarPath}` : undefined;
 
-    fetchUserData();
-  }, [router]); // não depende mais de requiredRole
+                setUser({
+                    id: fullUserData.user.id,
+                    name: fullUserData.profile.full_name || "Usuário",
+                    email: fullUserData.user.email,
+                    roles: fullUserData.roles,
+                    avatar_url: avatarPath,
+                    avatarFullUrl: avatarFullUrl,
+                });
+            } catch (error) {
+                console.error("Falha na autenticação do layout:", error);
+                router.push("/login");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-  return { user, isLoading };
+        fetchUserData();
+    }, [router, requiredRole]);
+
+    return { user, isLoading };
 }
