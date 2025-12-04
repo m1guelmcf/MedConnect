@@ -1,93 +1,83 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, CalendarDays, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  User,
+  X,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-
 import { appointmentsService } from "@/services/appointmentsApi.mjs";
 import { usersService } from "@/services/usersApi.mjs";
+import { doctorsService } from "@/services/doctorsApi.mjs";
 import Sidebar from "@/components/Sidebar";
 
-// Tipagem correta para o usuário
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-  phone?: string;
-  avatar_url?: string;
-}
-
-interface User {
-  user: {
-    id: string;
-    email: string;
-  };
-  profile: UserProfile;
-  roles: string[];
-  permissions?: any;
-}
-
-interface Appointment {
-  id: string;
-  doctor_id: string;
-  scheduled_at: string;
-  status: string;
-  doctorName?: string;
-}
-
 export default function PatientAppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState<User | null>(null);
+  
+  // Estados para cancelamento
+  const [cancelModal, setCancelModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
-  // --- Busca o usuário logado ---
-  const fetchUser = async () => {
-    try {
-      const user: User = await usersService.getMe();
-      if (!user.roles.includes("patient") && !user.roles.includes("user")) {
-        toast.error("Apenas pacientes podem visualizar suas consultas.");
-        setIsLoading(false);
-        return null;
-      }
-      setUserData(user);
-      return user;
-    } catch (err) {
-      console.error("Erro ao buscar usuário logado:", err);
-      toast.error("Não foi possível identificar o usuário logado.");
-      setIsLoading(false);
-      return null;
-    }
-  };
-
-  // --- Busca consultas do paciente ---
-  const fetchAppointments = async (patientId: string) => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
-      const queryParams = `patient_id=eq.${patientId}&order=scheduled_at.desc`;
-      const appointmentsList: Appointment[] = await appointmentsService.search_appointment(queryParams);
+      // 1. Obter usuário logado
+      const user = await usersService.getMe();
+      if (!user || !user.user?.id) {
+        toast.error("Usuário não identificado.");
+        return;
+      }
 
-      // Buscar nome do médico para cada consulta
-      const appointmentsWithDoctor = await Promise.all(
-        appointmentsList.map(async (apt) => {
-          let doctorName = apt.doctor_id;
-          if (apt.doctor_id) {
-            try {
-              const doctorInfo = await usersService.full_data(apt.doctor_id);
-              doctorName = doctorInfo?.profile?.full_name || apt.doctor_id;
-            } catch (err) {
-              console.error("Erro ao buscar nome do médico:", err);
-            }
-          }
-          return { ...apt, doctorName };
-        })
-      );
+      // 2. Buscar médicos e agendamentos em paralelo
+      // Filtra apenas agendamentos deste paciente
+      const queryParams = `patient_id=eq.${"user.user.id"}&order=scheduled_at.desc`;
+      console.log("id do paciente:", user.profile.id);
+      const [appointmentList, doctorList] = await Promise.all([
+        appointmentsService.search_appointment(queryParams),
+        doctorsService.list(),
+      ]);
+      console.log("Agendamentos obtidos:", appointmentList);
+      console.log("Médicos obtidos:", doctorList);
+      // 3. Mapear médicos para acesso rápido
+      const doctorMap = new Map(doctorList.map((d: any) => [d.id, d]));
 
-      setAppointments(appointmentsWithDoctor);
-    } catch (err) {
-      console.error("Erro ao carregar consultas:", err);
+      // 4. Enriquecer os agendamentos com dados do médico
+      const enrichedAppointments = appointmentList.map((apt: any) => ({
+        ...apt,
+        doctor: doctorMap.get(apt.doctor_id) || {
+          full_name: "Médico não encontrado",
+          specialty: "Clínico Geral",
+          location: "Consultório",
+          phone: "N/A"
+        },
+      }));
+      console.log("Agendamentos enriquecidos:", enrichedAppointments);
+      setAppointments(enrichedAppointments);
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error);
       toast.error("Não foi possível carregar suas consultas.");
     } finally {
       setIsLoading(false);
@@ -95,96 +85,187 @@ export default function PatientAppointmentsPage() {
   };
 
   useEffect(() => {
-    (async () => {
-      const user = await fetchUser();
-      if (user?.user.id) {
-        await fetchAppointments(user.user.id);
-      }
-    })();
+    fetchData();
   }, []);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "requested":
-        return <Badge className="bg-yellow-100 text-yellow-800">Solicitada</Badge>;
-      case "confirmed":
-        return <Badge className="bg-blue-100 text-blue-800">Confirmada</Badge>;
-      case "checked_in":
-        return <Badge className="bg-indigo-100 text-indigo-800">Check-in</Badge>;
-      case "completed":
-        return <Badge className="bg-green-100 text-green-800">Realizada</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-100 text-red-800">Cancelada</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
+  // --- LÓGICA DE CANCELAMENTO ---
+  const handleCancelClick = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setCancelModal(true);
+  };
+
+  const confirmCancel = async () => {
+    if (!selectedAppointment) return;
+    try {
+      // Opção A: Deletar o registro (como no código da secretária)
+      await appointmentsService.delete(selectedAppointment.id);
+      
+      // Opção B: Se preferir apenas mudar o status, descomente abaixo e comente a linha acima:
+      // await appointmentsService.update(selectedAppointment.id, { status: 'cancelled' });
+
+      setAppointments((prev) =>
+        prev.filter((apt) => apt.id !== selectedAppointment.id)
+      );
+      setCancelModal(false);
+      toast.success("Consulta cancelada com sucesso.");
+    } catch (error) {
+      console.error("Erro ao cancelar consulta:", error);
+      toast.error("Não foi possível cancelar a consulta.");
     }
   };
 
-  const handleReschedule = (apt: Appointment) => {
-    toast.info(`Funcionalidade de reagendamento da consulta ${apt.id} ainda não implementada`);
-  };
-
-  const handleCancel = (apt: Appointment) => {
-    toast.info(`Funcionalidade de cancelamento da consulta ${apt.id} ainda não implementada`);
-  };
-
-    return (
-        <Sidebar>
-            <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold text-foreground">Minhas Consultas</h1>
-                        <p className="text-muted-foreground">Veja, reagende ou cancele suas consultas</p>
-                    </div>
-                </div>
+  return (
+    <Sidebar>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Minhas Consultas</h1>
+            <p className="text-muted-foreground">
+              Acompanhe seu histórico e próximos agendamentos
+            </p>
+          </div>
+        </div>
 
         <div className="grid gap-6">
           {isLoading ? (
             <p>Carregando consultas...</p>
-          ) : appointments.length === 0 ? (
-            <p className="text-muted-foreground">Você ainda não possui consultas agendadas.</p>
-          ) : (
-            appointments.map((apt) => (
-              <Card key={apt.id}>
-                <CardHeader className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{apt.doctorName}</CardTitle>
-                    <CardDescription>Especialidade: N/A</CardDescription>
+          ) : appointments.length > 0 ? (
+            appointments.map((appointment) => (
+              <Card key={appointment.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">
+                        {appointment.doctor.full_name}
+                      </CardTitle>
+                      <CardDescription>
+                        {appointment.doctor.specialty}
+                      </CardDescription>
+                    </div>
+                    {getStatusBadge(appointment.status)}
                   </div>
-                  {getStatusBadge(apt.status)}
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-3 text-sm text-muted-foreground">
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {new Date(apt.scheduled_at).toLocaleDateString("pt-BR")}
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* Coluna 1: Data e Hora */}
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-foreground font-medium">
+                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                        Dr(a). {appointment.doctor.full_name.split(' ')[0]}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {new Date(appointment.scheduled_at).toLocaleDateString(
+                          "pt-BR",
+                          { timeZone: "UTC" }
+                        )}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="mr-2 h-4 w-4" />
+                        {new Date(appointment.scheduled_at).toLocaleTimeString(
+                          "pt-BR",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            timeZone: "UTC",
+                          }
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {new Date(apt.scheduled_at).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+
+                    {/* Coluna 2: Localização e Contato */}
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        {appointment.doctor.location || "Local a definir"}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Phone className="mr-2 h-4 w-4" />
+                        {appointment.doctor.phone || "Contato não disponível"}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
-                    {apt.status !== "cancelled" && (
-                      <>
-                        <Button variant="outline" size="sm" onClick={() => handleReschedule(apt)}>
-                          <CalendarDays className="mr-2 h-4 w-4" /> Reagendar
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleCancel(apt)}>
-                          <X className="mr-2 h-4 w-4" /> Cancelar
-                        </Button>
-                      </>
-                    )}
-                  </div>
+
+                  {/* Ações */}
+                  {["requested", "confirmed"].includes(appointment.status) && (
+                    <div className="flex gap-2 mt-4 pt-4 border-t justify-end">
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        className="bg-transparent text-destructive hover:bg-destructive/10 border border-destructive/20"
+                        onClick={() => handleCancelClick(appointment)}
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Cancelar Consulta
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))
+          ) : (
+            <div className="text-center py-10 border rounded-lg bg-muted/20">
+              <Calendar className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Você ainda não possui consultas agendadas.</p>
+            </div>
           )}
         </div>
       </div>
+
+      {/* Modal de Confirmação de Cancelamento */}
+      <Dialog open={cancelModal} onOpenChange={setCancelModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Cancelar Consulta
+            </DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja cancelar sua consulta com{" "}
+              <strong>{selectedAppointment?.doctor?.full_name}</strong> no dia{" "}
+              {selectedAppointment &&
+                new Date(selectedAppointment.scheduled_at).toLocaleDateString(
+                  "pt-BR", { timeZone: "UTC" }
+                )}
+              ? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelModal(false)}>
+              Voltar
+            </Button>
+            <Button variant="destructive" onClick={confirmCancel}>
+              Confirmar Cancelamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
+
+// Helper para Badges (Mantido consistente com o código da secretária)
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case "requested":
+      return (
+        <Badge className="bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 border-yellow-400/20">Solicitada</Badge>
+      );
+    case "confirmed":
+      return <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">Confirmada</Badge>;
+    case "checked_in":
+      return (
+        <Badge className="bg-indigo-400/10 text-indigo-600 hover:bg-indigo-400/20 border-indigo-400/20">Check-in</Badge>
+      );
+    case "completed":
+      return <Badge className="bg-green-400/10 text-green-600 hover:bg-green-400/20 border-green-400/20">Realizada</Badge>;
+    case "cancelled":
+      return <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20">Cancelada</Badge>;
+    case "no_show":
+      return (
+        <Badge className="bg-muted text-foreground border-muted-foreground/20">Não Compareceu</Badge>
+      );
+    default:
+      return <Badge variant="secondary">{status}</Badge>;
+  }
+};
