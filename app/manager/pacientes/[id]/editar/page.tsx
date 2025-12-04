@@ -31,34 +31,35 @@ export default function EditarPacientePage() {
     const [isUploadingAnexo, setIsUploadingAnexo] = useState(false);
     const anexoInputRef = useRef<HTMLInputElement | null>(null);
 
+    // Tipagem completa do formulário
     type FormData = {
-        nome: string; // full_name
+        nome: string; 
         cpf: string;
-        dataNascimento: string; // birth_date
-        sexo: string; // sex
+        dataNascimento: string;
+        sexo: string;
         id?: string;
-        nomeSocial?: string; // social_name
+        nomeSocial?: string;
         rg?: string;
-        documentType?: string; // document_type
-        documentNumber?: string; // document_number
+        documentType?: string;
+        documentNumber?: string;
         ethnicity?: string;
         race?: string;
         naturality?: string;
         nationality?: string;
         profession?: string;
-        maritalStatus?: string; // marital_status
-        motherName?: string; // mother_name
-        motherProfession?: string; // mother_profession
-        fatherName?: string; // father_name
-        fatherProfession?: string; // father_profession
-        guardianName?: string; // guardian_name
-        guardianCpf?: string; // guardian_cpf
-        spouseName?: string; // spouse_name
-        rnInInsurance?: boolean; // rn_in_insurance
-        legacyCode?: string; // legacy_code
+        maritalStatus?: string;
+        motherName?: string;
+        motherProfession?: string;
+        fatherName?: string;
+        fatherProfession?: string;
+        guardianName?: string;
+        guardianCpf?: string;
+        spouseName?: string;
+        rnInInsurance?: boolean;
+        legacyCode?: string;
         notes?: string;
         email?: string;
-        phoneMobile?: string; // phone_mobile
+        phoneMobile?: string;
         phone1?: string;
         phone2?: string;
         cep?: string;
@@ -81,7 +82,6 @@ export default function EditarPacientePage() {
         bmi?: string;
         bloodType?: string;
     };
-
 
     const [formData, setFormData] = useState<FormData>({
         nome: "",
@@ -141,7 +141,6 @@ export default function EditarPacientePage() {
         async function fetchPatient() {
             try {
                 const res = await patientsService.getById(patientId); 
-                // Map API snake_case/nested to local camelCase form
                 setFormData({
                     id: res[0]?.id ?? "",
                     nome: res[0]?.full_name ?? "",
@@ -206,7 +205,6 @@ export default function EditarPacientePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Build API payload (snake_case)
         const payload = {
             full_name: formData.nome || null,
             cpf: formData.cpf || null,
@@ -247,25 +245,28 @@ export default function EditarPacientePage() {
 
     return (
         <Sidebar>
-            <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <Link href="/manager/pacientes">
-                        <Button variant="ghost" size="sm">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Voltar
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold text-foreground">Editar Paciente</h1>
-                        <p className="text-muted-foreground">Atualize as informações do paciente</p>
+            <div className="space-y-6 px-2 sm:px-4 pb-20">
+                {/* --- HEADER RESPONSIVO --- */}
+                <div className="flex flex-col xl:flex-row gap-6 xl:items-start xl:justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <Link href="/manager/pacientes">
+                            <Button variant="ghost" size="sm" className="-ml-2">
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Voltar
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Editar Paciente</h1>
+                            <p className="text-sm text-muted-foreground">Atualize as informações do paciente</p>
+                        </div>
                     </div>
 
                     {/* Anexos Section */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Anexos</h2>
+                    <div className="w-full xl:w-auto xl:min-w-[400px] bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Anexos</h2>
                         <div className="flex items-center gap-3 mb-4">
                             <input ref={anexoInputRef} type="file" className="hidden" />
-                            <Button type="button" variant="outline" disabled={isUploadingAnexo}>
+                            <Button type="button" variant="outline" size="sm" disabled={isUploadingAnexo} className="w-full sm:w-auto">
                                 <Paperclip className="w-4 h-4 mr-2" /> {isUploadingAnexo ? "Enviando..." : "Adicionar anexo"}
                             </Button>
                         </div>
@@ -279,7 +280,7 @@ export default function EditarPacientePage() {
                                             <Paperclip className="w-4 h-4 text-muted-foreground shrink-0" />
                                             <span className="text-sm text-foreground truncate">{a.nome || a.filename || `Anexo ${a.id}`}</span>
                                         </div>
-                                        <Button type="button" variant="ghost" className="text-destructive">
+                                        <Button type="button" variant="ghost" size="sm" className="text-destructive">
                                             <Trash2 className="w-4 h-4 mr-1" /> Remover
                                         </Button>
                                     </li>
@@ -289,36 +290,38 @@ export default function EditarPacientePage() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Dados Pessoais</h2>
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                    {/* --- DADOS PESSOAIS --- */}
+                    <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Dados Pessoais</h2>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* Photo upload */}
-                            <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            {/* Photo upload Responsivo */}
+                            <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-3">
                                 <Label>Foto do paciente</Label>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-20 h-20 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="w-20 h-20 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0 border">
                                         {photoUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={photoUrl} alt="Foto do paciente" className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-muted-foreground text-sm">Sem foto</span>
+                                            <span className="text-muted-foreground text-xs text-center px-2">Sem foto</span>
                                         )}
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-wrap gap-2 w-full">
                                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" />
-                                        <Button type="button" variant="outline" disabled={isUploadingPhoto}>
+                                        <Button type="button" variant="outline" size="sm" disabled={isUploadingPhoto} className="flex-1 sm:flex-none">
                                             {isUploadingPhoto ? "Enviando..." : "Enviar foto"}
                                         </Button>
                                         {photoUrl && (
-                                            <Button type="button" variant="ghost" disabled={isUploadingPhoto}>
+                                            <Button type="button" variant="ghost" size="sm" disabled={isUploadingPhoto} className="flex-1 sm:flex-none">
                                                 Remover
                                             </Button>
                                         )}
                                     </div>
                                 </div>
                             </div>
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="nome">Nome *</Label>
                                 <Input id="nome" value={formData.nome} onChange={(e) => handleInputChange("nome", e.target.value)} required />
@@ -336,7 +339,7 @@ export default function EditarPacientePage() {
 
                             <div className="space-y-2">
                                 <Label>Sexo *</Label>
-                                <div className="flex gap-4">
+                                <div className="flex flex-wrap gap-4 pt-2">
                                     <div className="flex items-center space-x-2">
                                         <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-primary" />
                                         <Label htmlFor="Masculino">Masculino</Label>
@@ -353,12 +356,11 @@ export default function EditarPacientePage() {
                                 <Input id="dataNascimento" type="date" value={formData.dataNascimento} onChange={(e) => handleInputChange("dataNascimento", e.target.value)} required />
                             </div>
 
+                            {/* Demais campos de select e input */}
                             <div className="space-y-2">
                                 <Label htmlFor="etnia">Etnia</Label>
                                 <Select value={formData.ethnicity} onValueChange={(value) => handleInputChange("ethnicity", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="branca">Branca</SelectItem>
                                         <SelectItem value="preta">Preta</SelectItem>
@@ -372,9 +374,7 @@ export default function EditarPacientePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="raca">Raça</Label>
                                 <Select value={formData.race} onValueChange={(value) => handleInputChange("race", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="caucasiana">Caucasiana</SelectItem>
                                         <SelectItem value="negroide">Negroide</SelectItem>
@@ -391,9 +391,7 @@ export default function EditarPacientePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="nacionalidade">Nacionalidade</Label>
                                 <Select value={formData.nationality} onValueChange={(value) => handleInputChange("nationality", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="brasileira">Brasileira</SelectItem>
                                         <SelectItem value="estrangeira">Estrangeira</SelectItem>
@@ -409,9 +407,7 @@ export default function EditarPacientePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="estadoCivil">Estado civil</Label>
                                 <Select value={formData.maritalStatus} onValueChange={(value) => handleInputChange("maritalStatus", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="solteiro">Solteiro(a)</SelectItem>
                                         <SelectItem value="casado">Casado(a)</SelectItem>
@@ -470,26 +466,22 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    {/* Contact Section */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Contato</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* --- CONTATO --- */}
+                    <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Contato</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="email">E-mail *</Label>
                                 <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} required/>
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="celular">Celular *</Label>
                                 <Input id="celular" value={formData.phoneMobile} onChange={(e) => handleInputChange("phoneMobile", e.target.value)} placeholder="(00) 00000-0000" required/>
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="telefone1">Telefone 1</Label>
                                 <Input id="telefone1" value={formData.phone1} onChange={(e) => handleInputChange("phone1", e.target.value)} placeholder="(00) 0000-0000" />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="telefone2">Telefone 2</Label>
                                 <Input id="telefone2" value={formData.phone2} onChange={(e) => handleInputChange("phone2", e.target.value)} placeholder="(00) 0000-0000" />
@@ -497,47 +489,38 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    {/* Address Section */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Endereço</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* --- ENDEREÇO --- */}
+                    <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Endereço</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="cep">CEP</Label>
                                 <Input id="cep" value={formData.cep} onChange={(e) => handleInputChange("cep", e.target.value)} placeholder="00000-000" />
                             </div>
-
-                            <div className="space-y-2">
+                            <div className="space-y-2 md:col-span-2 lg:col-span-2">
                                 <Label htmlFor="endereco">Endereço</Label>
                                 <Input id="endereco" value={formData.street} onChange={(e) => handleInputChange("street", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="numero">Número</Label>
                                 <Input id="numero" value={formData.number} onChange={(e) => handleInputChange("number", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="complemento">Complemento</Label>
                                 <Input id="complemento" value={formData.complement} onChange={(e) => handleInputChange("complement", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="bairro">Bairro</Label>
                                 <Input id="bairro" value={formData.neighborhood} onChange={(e) => handleInputChange("neighborhood", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="cidade">Cidade</Label>
                                 <Input id="cidade" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="estado">Estado</Label>
                                 <Select value={formData.state} onValueChange={(value) => handleInputChange("state", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="AC">Acre</SelectItem>
                                         <SelectItem value="AL">Alagoas</SelectItem>
@@ -572,17 +555,14 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    {/* Medical Information Section */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Informações Médicas</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* --- INFORMAÇÕES MÉDICAS --- */}
+                    <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Informações Médicas</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="tipoSanguineo">Tipo Sanguíneo</Label>
                                 <Select value={formData.bloodType} onValueChange={(value) => handleInputChange("bloodType", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="A+">A+</SelectItem>
                                         <SelectItem value="A-">A-</SelectItem>
@@ -595,40 +575,33 @@ export default function EditarPacientePage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="peso">Peso (kg)</Label>
                                 <Input id="peso" type="number" value={formData.weightKg} onChange={(e) => handleInputChange("weightKg", e.target.value)} placeholder="0.0" />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="altura">Altura (m)</Label>
                                 <Input id="altura" type="number" step="0.01" value={formData.heightM} onChange={(e) => handleInputChange("heightM", e.target.value)} placeholder="0.00" />
                             </div>
-
                             <div className="space-y-2">
                                 <Label>IMC</Label>
                                 <Input value={formData.weightKg && formData.heightM ? (Number.parseFloat(formData.weightKg) / Number.parseFloat(formData.heightM) ** 2).toFixed(2) : ""} disabled placeholder="Calculado automaticamente" />
                             </div>
                         </div>
-
                         <div className="mt-6">
                             <Label htmlFor="alergias">Alergias</Label>
                             <Textarea id="alergias" onChange={(e) => handleInputChange("alergias", e.target.value)} placeholder="Ex: AAS, Dipirona, etc." className="mt-2" />
                         </div>
                     </div>
 
-                    {/* Insurance Information Section */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <h2 className="text-lg font-semibold text-foreground mb-6">Informações de convênio</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* --- CONVÊNIO --- */}
+                    <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Informações de convênio</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="convenio">Convênio</Label>
-                                <Select  onValueChange={(value) => handleInputChange("convenio", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
+                                <Select onValueChange={(value) => handleInputChange("convenio", value)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Particular">Particular</SelectItem>
                                         <SelectItem value="SUS">SUS</SelectItem>
@@ -638,23 +611,19 @@ export default function EditarPacientePage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="plano">Plano</Label>
                                 <Input id="plano"  onChange={(e) => handleInputChange("plano", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="numeroMatricula">Nº de matrícula</Label>
                                 <Input id="numeroMatricula"  onChange={(e) => handleInputChange("numeroMatricula", e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="validadeCarteira">Validade da Carteira</Label>
                                 <Input id="validadeCarteira" type="date" onChange={(e) => handleInputChange("validadeCarteira", e.target.value)} disabled={validadeIndeterminada} />
                             </div>
                         </div>
-
                         <div className="mt-4">
                             <div className="flex items-center space-x-2">
                                 <Checkbox id="validadeIndeterminada" checked={validadeIndeterminada} onCheckedChange={(checked) => setValidadeIndeterminada(checked === true)} />
@@ -663,13 +632,14 @@ export default function EditarPacientePage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-4">
-                        <Link href="/manager/pacientes">
-                            <Button type="button" variant="outline">
+                    {/* --- BOTÕES DE AÇÃO --- */}
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4">
+                        <Link href="/manager/pacientes" className="w-full sm:w-auto">
+                            <Button type="button" variant="outline" className="w-full">
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button type="submit" className="bg-primary hover:bg-primary/90">
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                             <Save className="w-4 h-4 mr-2" />
                             Salvar Alterações
                         </Button>
