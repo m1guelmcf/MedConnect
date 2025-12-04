@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { api } from "@/services/api.mjs";
+import { usersService } from "@/services/usersApi.mjs"; // Importando usersService
 import { useAccessibility } from "@/app/context/AccessibilityContext";
 
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ interface UserData {
     full_name: string;
     phone_mobile: string;
     role: string;
+    avatar_url?: string;
   };
   identities: {
     identity_id: string;
@@ -71,8 +73,18 @@ export default function Sidebar({ children }: SidebarProps) {
   const [role, setRole] = useState<string>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [avatarFullUrl, setAvatarFullUrl] = useState<string | undefined>(undefined);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Função auxiliar para construir URL
+  const buildAvatarUrl = (path: string) => {
+    if (!path) return undefined;
+    const baseUrl = "https://yuanqfswhberkoevtmfr.supabase.co";
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const separator = cleanPath.includes('?') ? '&' : '?';
+    return `${baseUrl}/storage/v1/object/avatars/${cleanPath}${separator}t=${new Date().getTime()}`;
+  };
   const { theme, contrast } = useAccessibility();
 
   useEffect(() => {
@@ -80,31 +92,82 @@ export default function Sidebar({ children }: SidebarProps) {
     const token = localStorage.getItem("token");
 
     if (userInfoString && token) {
-      const userInfo = JSON.parse(userInfoString);
+      try {
+        const userInfo = JSON.parse(userInfoString);
 
-      setUserData({
-        id: userInfo.id ?? "",
-        email: userInfo.email ?? "",
-        app_metadata: {
-          user_role: userInfo.app_metadata?.user_role ?? "patient",
-        },
-        user_metadata: {
-          cpf: userInfo.user_metadata?.cpf ?? "",
-          email_verified: userInfo.user_metadata?.email_verified ?? false,
-          full_name: userInfo.user_metadata?.full_name ?? "",
-          phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
-          role: userInfo.user_metadata?.role ?? "",
-        },
-        identities:
-          userInfo.identities?.map((identity: any) => ({
-            identity_id: identity.identity_id ?? "",
-            id: identity.id ?? "",
-            user_id: identity.user_id ?? "",
-            provider: identity.provider ?? "",
-          })) ?? [],
-        is_anonymous: userInfo.is_anonymous ?? false,
-      });
-      setRole(userInfo.user_metadata?.role);
+        // 1. Tenta pegar o avatar do cache local
+        let rawAvatarPath = 
+          userInfo.profile?.avatar_url || 
+          userInfo.user_metadata?.avatar_url || 
+          userInfo.app_metadata?.avatar_url || 
+          "";
+
+        // Configura estado inicial com o que tem no cache
+        setUserData({
+          id: userInfo.id ?? "",
+          email: userInfo.email ?? "",
+          app_metadata: {
+            user_role: userInfo.app_metadata?.user_role ?? "patient",
+          },
+          user_metadata: {
+            cpf: userInfo.user_metadata?.cpf ?? "",
+            email_verified: userInfo.user_metadata?.email_verified ?? false,
+            full_name: userInfo.user_metadata?.full_name || userInfo.profile?.full_name || "Usuário",
+            phone_mobile: userInfo.user_metadata?.phone_mobile ?? "",
+            role: userInfo.user_metadata?.role ?? "",
+            avatar_url: rawAvatarPath,
+          },
+          identities: userInfo.identities ?? [],
+          is_anonymous: userInfo.is_anonymous ?? false,
+        });
+        
+        setRole(userInfo.user_metadata?.role);
+
+        if (rawAvatarPath) {
+          setAvatarFullUrl(buildAvatarUrl(rawAvatarPath));
+        }
+
+        // 2. AUTO-REPARO: Se não tiver avatar ou profile no cache, busca na API e atualiza
+        if (!rawAvatarPath || !userInfo.profile) {
+          console.log("[Sidebar] Cache incompleto. Buscando dados frescos...");
+          usersService.getMe().then((freshData) => {
+            if (freshData && freshData.profile) {
+              const freshAvatar = freshData.profile.avatar_url;
+              
+              // Atualiza o objeto local
+              const updatedUserInfo = {
+                ...userInfo,
+                profile: freshData.profile, // Injeta o profile completo
+                user_metadata: {
+                  ...userInfo.user_metadata,
+                  avatar_url: freshAvatar || userInfo.user_metadata.avatar_url
+                }
+              };
+
+              // Salva no localStorage para a próxima vez
+              localStorage.setItem("user_info", JSON.stringify(updatedUserInfo));
+              console.log("[Sidebar] LocalStorage sincronizado com sucesso.");
+
+              // Atualiza visualmente se achou um avatar novo
+              if (freshAvatar && freshAvatar !== rawAvatarPath) {
+                setAvatarFullUrl(buildAvatarUrl(freshAvatar));
+                // Atualiza o userData também para refletir no tooltip
+                setUserData(prev => prev ? ({
+                    ...prev,
+                    user_metadata: {
+                        ...prev.user_metadata,
+                        avatar_url: freshAvatar
+                    }
+                }) : undefined);
+              }
+            }
+          }).catch(err => console.error("[Sidebar] Falha no auto-reparo:", err));
+        }
+
+      } catch (e) {
+        console.error("Erro ao processar dados do usuário na Sidebar:", e);
+      }
+
     } else {
       router.push("/login");
     }
@@ -129,6 +192,7 @@ export default function Sidebar({ children }: SidebarProps) {
     try {
       await api.logout();
     } catch (error) {
+      console.error("Erro ao fazer logout", error);
     } finally {
       localStorage.removeItem("user_info");
       localStorage.removeItem("token");
@@ -303,6 +367,7 @@ export default function Sidebar({ children }: SidebarProps) {
             sidebarCollapsed={sidebarCollapsed}
             handleLogout={handleLogout}
             isActive={role !== "paciente"}
+            avatarUrl={avatarFullUrl}
           />
         </div>
       </div>
