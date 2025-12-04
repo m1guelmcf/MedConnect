@@ -502,9 +502,9 @@ export default function AvailabilityPage() {
                 <div>
                   <Label
                     htmlFor="duracaoConsulta"
-                    className="text-sm font-medium whitespace-nowrap"
+                    className="text-sm font-medium"
                   >
-                  Duração da Consulta(min)
+                    Duração Da Consulta (min)
                   </Label>
                   <Input
                     type="number"
@@ -571,9 +571,9 @@ export default function AvailabilityPage() {
                                 const times = schedule[day] || [];
                                 return (
                                     <div key={day} className="space-y-4">
-                                        <div className="flex flex-col items-center justify-start p-3 bg-primary/10 rounded-lg min-h-[76px] ">
-                                            <p className="font-medium capitalize text-center ">{weekdaysPT[day]}</p>
-                                            <div className="text-center w-full mt-2">
+                                        <div className="flex flex-col items-center justify-between p-3 bg-primary/10 rounded-lg h-full">
+                                            <p className="font-medium capitalize text-center mb-2">{weekdaysPT[day]}</p>
+                                            <div className="text-center w-full">
                                                 {times.length > 0 ? (
                                                     times.map((t, i) => (
                                                         <div key={i}>

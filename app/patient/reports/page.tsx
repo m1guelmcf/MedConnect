@@ -37,9 +37,8 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-    const { user, isLoading: isAuthLoading } = useAuthLayout({
-    requiredRole: ["paciente", "admin", "medico", "gestor", "secretaria"],
-  });
+    const requiredRole = useMemo(() => ["paciente"], []);
+  const { user, isLoading: isAuthLoading } = useAuthLayout({ requiredRole });
 
 
   useEffect(() => {

@@ -85,7 +85,7 @@ export default function NovoUsuarioPage() {
             router.push("/manager/usuario");
         } catch (e: any) {
             console.error("Erro ao criar usuário:", e);
-            setError(e?.message || "Não foi possível criar o paciente. Verifique os dados e tente novamente.");
+            setError(e?.message || "Não foi possível criar o usuário. Verifique os dados e tente novamente.");
         } finally {
             setIsSaving(false);
         }
@@ -100,10 +100,10 @@ export default function NovoUsuarioPage() {
                     {/* Cabeçalho da página */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-4 gap-4"> {/* Ajustado para empilhar em telas pequenas */}
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Novo Paciente</h1> {/* Tamanho de texto responsivo */}
-                            <p className="text-sm sm:text-md text-gray-500">Preencha os dados para cadastrar um novo paciente no sistema.</p> {/* Tamanho de texto responsivo */}
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Novo Usuário</h1> {/* Tamanho de texto responsivo */}
+                            <p className="text-sm sm:text-md text-gray-500">Preencha os dados para cadastrar um novo usuário no sistema.</p> {/* Tamanho de texto responsivo */}
                         </div>
-                        <Link href="/secretary/pacientes">
+                        <Link href="/manager/usuario">
                             <Button variant="outline" className="w-full sm:w-auto">Cancelar</Button> {/* Botão ocupa largura total em telas pequenas */}
                         </Link>
                     </div>
@@ -153,19 +153,15 @@ export default function NovoUsuarioPage() {
 
                         {/* Botões de ação */}
                         <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t mt-6"> {/* Botões empilhados em telas pequenas */}
-                            <Link href="/secretary/pacientes">
+                            <Link href="/manager/usuario">
                                 <Button type="button" variant="outline" disabled={isSaving} className="w-full sm:w-auto">
                                     Cancelar
                                 </Button>
                             </Link>
-                            <Link  href="/secretary/pacientes">
-                                <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
-                                
-                                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                                    {isSaving ? "Salvando..." : "Salvar Paciente"}
-                                
-                                </Button>
-                            </Link>
+                            <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
+                                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                                {isSaving ? "Salvando..." : "Salvar Usuário"}
+                            </Button>
                         </div>
                     </form>
                 </div>
