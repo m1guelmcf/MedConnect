@@ -140,17 +140,17 @@ export default function NovoUsuarioPage() {
                 <div className="w-full max-w-screen-lg space-y-8">
                     <div className="flex items-center justify-between border-b pb-4">
                         <div>
-                            <h1 className="text-3xl font-extrabold text-gray-900">Novo Usuário</h1>
-                            <p className="text-md text-gray-500">Preencha os dados para cadastrar um novo usuário no sistema.</p>
+                            <h1 className="text-3xl font-extrabold">Novo Usuário</h1>
+                            <p className="text-md text-muted-foreground">Preencha os dados para cadastrar um novo usuário no sistema.</p>
                         </div>
                         <Link href="/manager/usuario">
                             <Button variant="outline">Cancelar</Button>
                         </Link>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 md:p-10 border rounded-xl shadow-lg">
+                    <form onSubmit={handleSubmit} className="space-y-6 bg-card p-6 md:p-10 border rounded-xl shadow-lg">
                         {error && (
-                            <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-300">
+                            <div className="p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive">
                                 <p className="font-semibold">Erro no Cadastro:</p>
                                 <p className="text-sm break-words">{error}</p>
                             </div>
@@ -208,7 +208,7 @@ export default function NovoUsuarioPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
                                 <Input id="confirmarSenha" type="password" value={formData.confirmarSenha} onChange={(e) => handleInputChange("confirmarSenha", e.target.value)} placeholder="Repita a senha" required />
-                                {formData.senha && formData.confirmarSenha && formData.senha !== formData.confirmarSenha && <p className="text-xs text-red-500">As senhas não coincidem.</p>}
+                                {formData.senha && formData.confirmarSenha && formData.senha !== formData.confirmarSenha && <p className="text-xs text-destructive">As senhas não coincidem.</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -228,7 +228,7 @@ export default function NovoUsuarioPage() {
                                     Cancelar
                                 </Button>
                             </Link>
-                            <Button type="submit" className="bg-green-600 hover:bg-green-700" disabled={isSaving}>
+                            <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isSaving}>
                                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                                 {isSaving ? "Salvando..." : "Salvar Usuário"}
                             </Button>

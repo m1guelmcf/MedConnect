@@ -94,8 +94,8 @@ export default function ManagerDashboard() {
       <div className="space-y-6">
         {/* Cabeçalho */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
             Bem-vindo ao seu portal de consultas médicas
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function ManagerDashboard() {
             </CardHeader>
             <CardContent>
               {loadingUser ? (
-                <div className="text-gray-500 text-sm">
+                <div className="text-muted-foreground text-sm">
                   Carregando usuário...
                 </div>
               ) : firstUser ? (
@@ -127,7 +127,7 @@ export default function ManagerDashboard() {
                   </p>
                 </>
               ) : (
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   Nenhum usuário encontrado
                 </div>
               )}
@@ -159,15 +159,15 @@ export default function ManagerDashboard() {
             </CardHeader>
             <CardContent className="space-y-4">
               <Link href="/manager/home">
-                <Button className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700">
-                  <User className="mr-2 h-4 w-4 text-white" />
+                <Button className="w-full justify-start">
+                  <User className="mr-2 h-4 w-4" />
                   Gestão de Médicos
                 </Button>
               </Link>
               <Link href="/manager/usuario">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-transparent"
+                  className="w-full justify-start"
                 >
                   <User className="mr-2 h-4 w-4" />
                   Usuários Cadastrados
@@ -176,7 +176,7 @@ export default function ManagerDashboard() {
               <Link href="/manager/home/novo">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-transparent"
+                  className="w-full justify-start"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Novo Médico
@@ -185,7 +185,7 @@ export default function ManagerDashboard() {
               <Link href="/manager/usuario/novo">
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-transparent"
+                  className="w-full justify-start"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Criar novo Usuário
@@ -204,9 +204,9 @@ export default function ManagerDashboard() {
             </CardHeader>
             <CardContent>
               {loadingDoctors ? (
-                <p className="text-sm text-gray-500">Carregando médicos...</p>
+                <p className="text-sm text-muted-foreground">Carregando médicos...</p>
               ) : doctors.length === 0 ? (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Nenhum médico cadastrado.
                 </p>
               ) : (
@@ -214,18 +214,18 @@ export default function ManagerDashboard() {
                   {doctors.map((doc, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100"
+                      className="flex items-center justify-between p-3 bg-secondary rounded-lg border"
                     >
                       <div>
                         <p className="font-medium">
                           {doc.full_name || "Sem nome"}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {doc.specialty || "Sem especialidade"}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-green-700">
+                        <p className="font-medium text-primary">
                           {doc.active ? "Ativo" : "Inativo"}
                         </p>
                       </div>

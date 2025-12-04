@@ -265,7 +265,7 @@ export default function EditarPacientePage() {
     return (
         <Sidebar>
             {/* O espaçamento foi reduzido aqui: de `p-4 sm:p-6 lg:p-8` para `p-2 sm:p-4 lg:p-6` */}
-            <div className="space-y-6 p-2 sm:p-4 lg:p-6 max-w-10xl mx-auto"> {/* Alterado padding responsivo */}
+            <div className="space-y-6 p-2 sm:p-4 lg:p-6 max-w-10xl mx-auto">{/* Alterado padding responsivo */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link href="/secretary/pacientes">
@@ -275,31 +275,29 @@ export default function EditarPacientePage() {
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Editar Paciente</h1>
-                            <p className="text-gray-600">Atualize as informações do paciente</p>
+                            <h1 className="text-2xl font-bold">Editar Paciente</h1>
+                            <p className="text-muted-foreground">Atualize as informações do paciente</p>
                         </div>
                     </div>
-
-                    {/* Anexos Section - Movido para fora do cabeçalho para melhor organização e responsividade */}
-                    
+                    {/* Espaço reservado para anexos ou ações futuras */}
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Dados Pessoais Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
+                    <div className="bg-card rounded-lg border p-6">
+                        <h2 className="text-lg font-semibold mb-6">Dados Pessoais</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {/* Photo upload */}
                             <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
                                 <Label>Foto do paciente</Label>
                                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                                    <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                                    <div className="w-20 h-20 rounded-full bg-muted overflow-hidden flex items-center justify-center">
                                         {photoUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={photoUrl} alt="Foto do paciente" className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-gray-400 text-sm text-center">Sem foto</span>
+                                            <span className="text-muted-foreground text-sm text-center">Sem foto</span>
                                         )}
                                     </div>
                                     <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
@@ -334,11 +332,11 @@ export default function EditarPacientePage() {
                                 <Label>Sexo *</Label>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center space-x-2">
-                                        <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
+                                        <input type="radio" id="Masculino" name="sexo" value="Masculino" checked={formData.sexo === "Masculino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-primary" />
                                         <Label htmlFor="Masculino">Masculino</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <input type="radio" id="Feminino" name="sexo" value="Feminino" checked={formData.sexo === "Feminino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-blue-600" />
+                                        <input type="radio" id="Feminino" name="sexo" value="Feminino" checked={formData.sexo === "Feminino"} onChange={(e) => handleInputChange("sexo", e.target.value)} className="w-4 h-4 text-primary" />
                                         <Label htmlFor="Feminino">Feminino</Label>
                                     </div>
                                 </div>
@@ -467,8 +465,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Contact Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Contato</h2>
+                    <div className="bg-card rounded-lg border p-6">
+                        <h2 className="text-lg font-semibold mb-6">Contato</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -494,8 +492,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Address Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Endereço</h2>
+                    <div className="bg-card rounded-lg border p-6">
+                        <h2 className="text-lg font-semibold mb-6">Endereço</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div className="space-y-2">
@@ -569,8 +567,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Medical Information Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Informações Médicas</h2>
+                    <div className="bg-card rounded-lg border p-6">
+                        <h2 className="text-lg font-semibold mb-6">Informações Médicas</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -615,8 +613,8 @@ export default function EditarPacientePage() {
                     </div>
 
                     {/* Insurance Information Section */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Informações de convênio</h2>
+                    <div className="bg-card rounded-lg border p-6">
+                        <h2 className="text-lg font-semibold mb-6">Informações de convênio</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div className="space-y-2">
@@ -665,7 +663,7 @@ export default function EditarPacientePage() {
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                             <Save className="w-4 h-4 mr-2" />
                             Salvar Alterações
                         </Button>

@@ -19,20 +19,25 @@ interface AccessibilityContextProps {
 const AccessibilityContext = createContext<AccessibilityContextProps | undefined>(undefined);
 
 export const AccessibilityProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>('light');
-  const [contrast, setContrastState] = useState<Contrast>('normal');
-  const [fontSize, setFontSize] = useState<number>(16);
-
-  useEffect(() => {
-    const storedTheme = (localStorage.getItem('accessibility-theme') as Theme) || 'light';
-    const storedContrast = (localStorage.getItem('accessibility-contrast') as Contrast) || 'normal';
-    const storedSize = localStorage.getItem('accessibility-font-size');
-    setThemeState(storedTheme);
-    setContrastState(storedContrast);
-    if (storedSize) {
-      setFontSize(parseFloat(storedSize));
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('accessibility-theme') as Theme) || 'light';
     }
-  }, []);
+    return 'light';
+  });
+  const [contrast, setContrastState] = useState<Contrast>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('accessibility-contrast') as Contrast) || 'normal';
+    }
+    return 'normal';
+  });
+  const [fontSize, setFontSize] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const storedSize = localStorage.getItem('accessibility-font-size');
+      return storedSize ? parseFloat(storedSize) : 16;
+    }
+    return 16;
+  });
 
   useEffect(() => {
     const root = document.documentElement;

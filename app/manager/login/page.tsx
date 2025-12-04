@@ -8,7 +8,7 @@ export default function ManagerLoginPage() {
     // O ideal no futuro é deletar esta página e redirecionar os usuários.
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
             <div className="w-full max-w-md text-center">
                 <h1 className="text-3xl font-bold text-foreground mb-2">Área do Gestor</h1>
                 <p className="text-muted-foreground mb-8">Acesse o sistema médico</p>

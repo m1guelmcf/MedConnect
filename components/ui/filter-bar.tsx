@@ -53,16 +53,16 @@ export function FilterBar({
     Object.values(activeFilters).some(val => val !== "all" && val !== "");
 
   return (
-    <div className={`flex flex-col md:flex-row items-start md:items-center gap-3 bg-white p-4 rounded-lg border border-gray-200 ${className}`}>
+    <div className={`flex flex-col md:flex-row items-start md:items-center gap-3 bg-card p-4 rounded-lg border ${className}`}>
       
       {/* Barra de Pesquisa */}
       <div className="relative w-full md:flex-1">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder={searchPlaceholder}
           value={searchTerm}
           onChange={(e) => onSearch(e.target.value)}
-          className="pl-10 w-full bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+          className="pl-10 w-full bg-muted border-border focus:bg-card transition-colors"
         />
       </div>
 
@@ -100,7 +100,7 @@ export function FilterBar({
             variant="ghost" 
             size="icon" 
             onClick={onClearFilters}
-            className="text-gray-500 hover:text-red-600"
+            className="text-muted-foreground hover:text-destructive"
             title="Limpar filtros"
           >
             <X className="h-4 w-4" />

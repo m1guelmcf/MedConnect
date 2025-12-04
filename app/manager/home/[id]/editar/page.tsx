@@ -209,8 +209,8 @@ export default function EditarMedicoPage() {
         return (
             <Sidebar>
                 <div className="flex justify-center items-center h-full w-full py-16">
-                    <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-                    <p className="ml-2 text-gray-600">Carregando dados do médico...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="ml-2 text-muted-foreground">Carregando dados do médico...</p>
                 </div>
             </Sidebar>
         );
@@ -221,10 +221,10 @@ export default function EditarMedicoPage() {
             <div className="w-full space-y-6 p-4 md:p-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            Editar Médico: <span className="text-green-600">{formData.nomeCompleto}</span>
+                        <h1 className="text-2xl font-bold text-foreground">
+                            Editar Médico: <span className="text-primary">{formData.nomeCompleto}</span>
                         </h1>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                             Atualize as informações do médico
                         </p>
                     </div>
@@ -239,14 +239,14 @@ export default function EditarMedicoPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {error && (
-                        <div className="p-3 bg-red-100 text-red-700 rounded-lg border border-red-300">
+                        <div className="p-3 rounded-lg border bg-destructive/10 text-destructive border-destructive/30">
                             <p className="font-medium">Erro na Atualização:</p>
                             <p className="text-sm">{error}</p>
                         </div>
                     )}
 
-                    <div className="space-y-4 p-4 border rounded-xl shadow-sm bg-white">
-                        <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    <div className="space-y-4 p-4 rounded-xl border border-border shadow-sm bg-card">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                             Dados Principais e Pessoais
                         </h2>
                         <div className="grid md:grid-cols-4 gap-4">
@@ -348,8 +348,8 @@ export default function EditarMedicoPage() {
                         </div>
                     </div>
 
-                    <div className="space-y-4 p-4 border rounded-xl shadow-sm bg-white">
-                        <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    <div className="space-y-4 p-4 rounded-xl border border-border shadow-sm bg-card">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                             Contato e Endereço
                         </h2>
 
@@ -452,8 +452,8 @@ export default function EditarMedicoPage() {
                     </div>
 
 
-                    <div className="space-y-4 p-4 border rounded-xl shadow-sm bg-white">
-                        <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    <div className="space-y-4 p-4 rounded-xl border border-border shadow-sm bg-card">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                             Observações (Apenas internas)
                         </h2>
                         <Textarea
@@ -474,7 +474,7 @@ export default function EditarMedicoPage() {
                         </Link>
                         <Button
                             type="submit"
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-primary hover:bg-primary/90"
                             disabled={isSaving}
                         >
                             {isSaving ? (

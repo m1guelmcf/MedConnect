@@ -7,6 +7,7 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { api } from "@/services/api.mjs";
 import { usersService } from "@/services/usersApi.mjs"; // Importando usersService
+import { useAccessibility } from "@/app/context/AccessibilityContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,6 @@ import {
   SquareUser,
   ClipboardList,
   Stethoscope,
-  ClipboardMinus,
 } from "lucide-react";
 
 import SidebarUserSection from "@/components/ui/userToolTip";
@@ -85,6 +85,7 @@ export default function Sidebar({ children }: SidebarProps) {
     const separator = cleanPath.includes('?') ? '&' : '?';
     return `${baseUrl}/storage/v1/object/avatars/${cleanPath}${separator}t=${new Date().getTime()}`;
   };
+  const { theme, contrast } = useAccessibility();
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("user_info");
@@ -275,6 +276,7 @@ export default function Sidebar({ children }: SidebarProps) {
   };
 
   const menuItems = SetMenuItems(role);
+  const isDefaultMode = theme === "light" && contrast === "normal";
 
   if (!userData) {
     return (
@@ -285,17 +287,17 @@ export default function Sidebar({ children }: SidebarProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       <div
         className={`fixed top-0 h-screen flex flex-col z-30 transition-all duration-300
                 ${sidebarCollapsed ? "w-16" : "w-64"}
-                bg-[#123965] text-white`}
+                ${isDefaultMode ? "bg-[#123965] text-white" : "bg-sidebar text-sidebar-foreground"}`}
       >
         {/* TOPO */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className={`p-4 border-b ${isDefaultMode ? "border-white/10" : "border-sidebar-border"} flex items-center justify-between`}>
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded-lg">
+              <div className="bg-background p-1 rounded-lg">
                 <img
                   src="/Logo MedConnect.png"
                   alt="Logo MedConnect"
@@ -303,7 +305,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 />
               </div>
 
-              <span className="font-semibold text-white text-lg">
+              <span className="font-semibold text-lg">
                 MedConnect
               </span>
             </div>
@@ -313,7 +315,7 @@ export default function Sidebar({ children }: SidebarProps) {
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1 text-white hover:bg-white/10 cursor-pointer"
+            className={`p-1 ${isDefaultMode ? "text-white hover:bg-white/10" : "hover:bg-sidebar-accent"} cursor-pointer`}
           >
             {sidebarCollapsed ? (
               <ChevronRight className="w-5 h-5" />
@@ -324,7 +326,7 @@ export default function Sidebar({ children }: SidebarProps) {
         </div>
 
         {/* MENU */}
-        <nav className="flex-1 p-3 overflow-y-auto">
+        <nav className="flex-1 px-3 py-6 overflow-y-auto flex flex-col gap-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -333,13 +335,13 @@ export default function Sidebar({ children }: SidebarProps) {
               <Link key={item.label} href={item.href}>
                 <div
                   className={`
-                                        flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors
-                                        ${
-                                          isActive
-                                            ? "bg-white/20 text-white font-semibold"
-                                            : "text-white/80 hover:bg-white/10 hover:text-white"
-                                        }
-                                    `}
+                        flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+                        ${
+                          isActive
+                            ? `${isDefaultMode ? "bg-white/20 text-white font-semibold" : "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"}`
+                            : `${isDefaultMode ? "text-white/80 hover:bg-white/10 hover:text-white" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`
+                        }
+                    `}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!sidebarCollapsed && (
@@ -351,8 +353,15 @@ export default function Sidebar({ children }: SidebarProps) {
           })}
         </nav>
 
-        {/* PERFIL ORIGINAL + NOME BRANCO */}
-        <div className="mt-auto p-3 border-t border-white/10">
+        {/* PERFIL ORIGINAL + NOME BRANCO - CORREÇÃO DE ALINHAMENTO AQUI */}
+        <div 
+          className={`
+            mt-auto p-3 border-t 
+            ${isDefaultMode ? "border-white/10" : "border-sidebar-border"}
+            flex flex-col
+            ${sidebarCollapsed ? "items-center justify-center" : "items-stretch"}
+          `}
+        >
           <SidebarUserSection
             userData={userData}
             sidebarCollapsed={sidebarCollapsed}
@@ -368,28 +377,27 @@ export default function Sidebar({ children }: SidebarProps) {
         }`}
       >
         <main className="flex-1 p-4 md:p-6">{children}</main>
+        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirmar Saída</DialogTitle>
+              <DialogDescription>
+                Deseja realmente sair do sistema? Você precisará fazer login
+                novamente.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={cancelLogout}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={confirmLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Confirmar Saída</DialogTitle>
-            <DialogDescription>
-              Deseja realmente sair do sistema? Você precisará fazer login
-              novamente.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={cancelLogout}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-       
     </div>
   );
 }

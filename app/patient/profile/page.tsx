@@ -33,9 +33,8 @@ export default function PatientProfile() {
   const { user, isLoading: isAuthLoading } = useAuthLayout({
     requiredRole: ["paciente", "admin", "medico", "gestor", "secretaria"],
   });
-  const [patientData, setPatientData] = useState<PatientProfileData | null>(
-    null
-  );
+
+  const [patientData, setPatientData] = useState<PatientProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -227,8 +226,8 @@ export default function PatientProfile() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Meus Dados</h1>
-            <p className="text-gray-600">Gerencie suas informações pessoais</p>
+            <h1 className="text-3xl font-bold text-foreground">Meus Dados</h1>
+            <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
           </div>
           <Button
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -408,15 +407,15 @@ export default function PatientProfile() {
                 </div>
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex items-center text-sm">
-                    <Mail className="mr-2 h-4 w-4 text-gray-500" />
+                    <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span className="truncate">{patientData.email}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <Phone className="mr-2 h-4 w-4 text-gray-500" />
+                    <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>{patientData.phone || "Não informado"}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>
                       {patientData.birthDate
                         ? new Date(patientData.birthDate).toLocaleDateString(
